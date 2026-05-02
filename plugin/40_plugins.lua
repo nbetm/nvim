@@ -39,12 +39,12 @@ local now_if_args, later = Config.now_if_args, Config.later
 --   (see MiniMax README section for software requirements).
 now_if_args(function()
   -- Define hook to update tree-sitter parsers after plugin is updated
-  local ts_update = function() vim.cmd('TSUpdate') end
-  Config.on_packchanged('nvim-treesitter', { 'update' }, ts_update, ':TSUpdate')
+  local ts_update = function() vim.cmd("TSUpdate") end
+  Config.on_packchanged("nvim-treesitter", { "update" }, ts_update, ":TSUpdate")
 
   add({
-    'https://github.com/nvim-treesitter/nvim-treesitter',
-    'https://github.com/nvim-treesitter/nvim-treesitter-textobjects',
+    "https://github.com/nvim-treesitter/nvim-treesitter",
+    "https://github.com/nvim-treesitter/nvim-treesitter-textobjects",
   })
 
   -- Define languages which will have parsers installed and auto enabled
@@ -52,20 +52,18 @@ now_if_args(function()
   -- for the installation to finish before opening a file for added language(s).
   local languages = {
     -- These are already pre-installed with Neovim. Used as an example.
-    'lua',
-    'vimdoc',
-    'markdown',
+    "lua",
+    "vimdoc",
+    "markdown",
     -- Add here more languages with which you want to use tree-sitter
     -- To see available languages:
     -- - Execute `:=require('nvim-treesitter').get_available()`
     -- - Visit 'SUPPORTED_LANGUAGES.md' file at
     --   https://github.com/nvim-treesitter/nvim-treesitter/blob/main
   }
-  local isnt_installed = function(lang)
-    return #vim.api.nvim_get_runtime_file('parser/' .. lang .. '.*', false) == 0
-  end
+  local isnt_installed = function(lang) return #vim.api.nvim_get_runtime_file("parser/" .. lang .. ".*", false) == 0 end
   local to_install = vim.tbl_filter(isnt_installed, languages)
-  if #to_install > 0 then require('nvim-treesitter').install(to_install) end
+  if #to_install > 0 then require("nvim-treesitter").install(to_install) end
 
   -- Enable tree-sitter after opening a file for a target language
   local filetypes = {}
@@ -75,7 +73,7 @@ now_if_args(function()
     end
   end
   local ts_start = function(ev) vim.treesitter.start(ev.buf) end
-  Config.new_autocmd('FileType', filetypes, ts_start, 'Start tree-sitter')
+  Config.new_autocmd("FileType", filetypes, ts_start, "Start tree-sitter")
 end)
 
 -- Language servers ===========================================================
@@ -97,7 +95,7 @@ end)
 -- Troubleshooting:
 -- - Run `:checkhealth vim.lsp` to see potential issues.
 now_if_args(function()
-  add({ 'https://github.com/neovim/nvim-lspconfig' })
+  add({ "https://github.com/neovim/nvim-lspconfig" })
 
   -- Use `:h vim.lsp.enable()` to automatically enable language server based on
   -- the rules provided by 'nvim-lspconfig'.
@@ -117,16 +115,16 @@ end)
 -- The 'stevearc/conform.nvim' plugin is a good and maintained solution for easier
 -- formatting setup.
 later(function()
-  add({ 'https://github.com/stevearc/conform.nvim' })
+  add({ "https://github.com/stevearc/conform.nvim" })
 
   -- See also:
   -- - `:h Conform`
   -- - `:h conform-options`
   -- - `:h conform-formatters`
-  require('conform').setup({
+  require("conform").setup({
     default_format_opts = {
       -- Allow formatting from LSP server if no dedicated formatter is available
-      lsp_format = 'fallback',
+      lsp_format = "fallback",
     },
     -- Map of filetype to formatters
     -- Make sure that necessary CLI tool is available
@@ -143,7 +141,7 @@ end)
 -- snippet files. They are organized in 'snippets/' directory (mostly) per language.
 -- 'mini.snippets' is designed to work with it as seamlessly as possible.
 -- See `:h MiniSnippets.gen_loader.from_lang()`.
-later(function() add({ 'https://github.com/rafamadriz/friendly-snippets' }) end)
+later(function() add({ "https://github.com/rafamadriz/friendly-snippets" }) end)
 
 -- Honorable mentions =========================================================
 
