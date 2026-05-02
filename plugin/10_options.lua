@@ -23,7 +23,7 @@
 vim.g.mapleader = ' ' -- Use `<Space>` as <Leader> key
 
 vim.o.mouse       = 'a'            -- Enable mouse
-vim.o.mousescroll = 'ver:25,hor:6' -- Customize mouse scroll
+vim.o.mousescroll = 'ver:3,hor:6'  -- Customize mouse scroll
 vim.o.switchbuf   = 'usetab'       -- Use already opened buffers when switching
 vim.o.undofile    = true           -- Enable persistent undo
 
@@ -41,6 +41,7 @@ vim.o.cursorline     = true       -- Enable current line highlighting
 vim.o.linebreak      = true       -- Wrap lines at 'breakat' (if 'wrap' is set)
 vim.o.list           = true       -- Show helpful text indicators
 vim.o.number         = true       -- Show line numbers
+vim.o.relativenumber = true       -- Show line numbers relative to current line
 vim.o.pumborder      = 'single'   -- Use border in popup menu
 vim.o.pumheight      = 10         -- Make popup menu smaller
 vim.o.pummaxwidth    = 100        -- Make popup menu not too wide
@@ -58,13 +59,18 @@ vim.o.cursorlineopt  = 'screenline,number' -- Show cursor line per screen line
 
 -- Special UI symbols. More is set via 'mini.basics' later.
 vim.o.fillchars = 'eob: ,fold:╌'
-vim.o.listchars = 'extends:…,nbsp:␣,precedes:…,tab:> '
+vim.o.listchars = 'extends:…,nbsp:␣,precedes:…,tab:> ,trail:·'
 
 -- Folds (see `:h fold-commands`, `:h zM`, `:h zR`, `:h zA`, `:h zj`)
-vim.o.foldlevel   = 10       -- Fold nothing by default; set to 0 or 1 to fold
-vim.o.foldmethod  = 'indent' -- Fold based on indent level
-vim.o.foldnestmax = 10       -- Limit number of fold levels
-vim.o.foldtext    = ''       -- Show text under fold with its highlighting
+-- Tree-sitter expression folding is accurate where a parser is installed and
+-- gracefully no-ops elsewhere. `foldlevel*=99` keeps everything open by default;
+-- close folds explicitly with `zM`, open with `zR`.
+vim.o.foldexpr       = 'v:lua.vim.treesitter.foldexpr()'
+vim.o.foldmethod     = 'expr'
+vim.o.foldlevel      = 99
+vim.o.foldlevelstart = 99
+vim.o.foldnestmax    = 10
+vim.o.foldtext       = ''
 
 -- Editing ====================================================================
 vim.o.autoindent    = true    -- Use auto indent
@@ -80,7 +86,8 @@ vim.o.spelloptions  = 'camel' -- Treat camelCase word parts as separate words
 vim.o.tabstop       = 2       -- Show tab as this number of spaces
 vim.o.virtualedit   = 'block' -- Allow going past end of line in blockwise mode
 
-vim.o.iskeyword = '@,48-57,_,192-255,-' -- Treat dash as `word` textobject part
+-- Note: 'iskeyword' kept at default (`@,48-57,_,192-255`) — adding `-` quietly
+-- changes built-in word motions (`*`, `diw`) and surprises in shell/markdown.
 
 -- Pattern for a start of numbered list (used in `gw`). This reads as
 -- "Start of list item is: at least one special character (digit, -, +, *)
@@ -113,11 +120,13 @@ local diagnostic_opts = {
   -- Show all diagnostics as underline (for their messages type `<Leader>ld`)
   underline = { severity = { min = 'HINT', max = 'ERROR' } },
 
-  -- Show more details immediately for errors on the current line
+  -- Show details inline for the current line at WARN+ severity (see `<Leader>ld`
+  -- for the full popup with all severities). Mirrors Helix's
+  -- `inline-diagnostics.cursor-line = "warning"`.
   virtual_lines = false,
   virtual_text = {
     current_line = true,
-    severity = { min = 'ERROR', max = 'ERROR' },
+    severity = { min = 'WARN', max = 'ERROR' },
   },
 
   -- Don't update diagnostics when typing
