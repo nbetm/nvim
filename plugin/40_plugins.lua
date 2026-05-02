@@ -47,19 +47,37 @@ now_if_args(function()
     "https://github.com/nvim-treesitter/nvim-treesitter-textobjects",
   })
 
-  -- Define languages which will have parsers installed and auto enabled
-  -- After changing this, restart Neovim once to install necessary parsers. Wait
-  -- for the installation to finish before opening a file for added language(s).
+  -- Define languages which will have parsers installed and auto enabled.
+  -- Restart Neovim once after editing; wait for installation before opening files.
+  -- See `:=require('nvim-treesitter').get_available()` for the full list.
   local languages = {
-    -- These are already pre-installed with Neovim. Used as an example.
+    -- Built-in to Neovim 0.12 (listed for completeness; install is a no-op):
+    "c",
     "lua",
-    "vimdoc",
     "markdown",
-    -- Add here more languages with which you want to use tree-sitter
-    -- To see available languages:
-    -- - Execute `:=require('nvim-treesitter').get_available()`
-    -- - Visit 'SUPPORTED_LANGUAGES.md' file at
-    --   https://github.com/nvim-treesitter/nvim-treesitter/blob/main
+    "markdown_inline",
+    "query",
+    "vim",
+    "vimdoc",
+    -- Daily-driver languages
+    "bash",
+    "python",
+    "json",
+    "yaml",
+    "toml",
+    "nix",
+    "dockerfile",
+    "hcl",
+    -- Templating / data
+    "jinja",
+    "jinja_inline",
+    -- Diff / SCM helpers
+    "diff",
+    "git_config",
+    "git_rebase",
+    "gitcommit",
+    "gitignore",
+    "regex",
   }
   local isnt_installed = function(lang) return #vim.api.nvim_get_runtime_file("parser/" .. lang .. ".*", false) == 0 end
   local to_install = vim.tbl_filter(isnt_installed, languages)
@@ -97,13 +115,33 @@ end)
 now_if_args(function()
   add({ "https://github.com/neovim/nvim-lspconfig" })
 
-  -- Use `:h vim.lsp.enable()` to automatically enable language server based on
-  -- the rules provided by 'nvim-lspconfig'.
-  -- Use `:h vim.lsp.config()` or 'after/lsp/' directory to configure servers.
-  -- Uncomment and tweak the following `vim.lsp.enable()` call to enable servers.
-  -- vim.lsp.enable({
-  --   -- For example, if `lua-language-server` is installed, use `'lua_ls'` entry
-  -- })
+  -- Enable language servers via 'nvim-lspconfig' rules.
+  -- Per-server config (when needed) lives in 'after/lsp/<name>.lua'.
+  -- Each server's CLI binary must be available on PATH (install via Nix etc.).
+  vim.lsp.enable({
+    -- Lua
+    "lua_ls",
+    -- Python
+    "pyright",
+    "ruff",
+    -- Shell
+    "bashls",
+    -- Data / config
+    "jsonls",
+    "yamlls",
+    "taplo",
+    -- Markup
+    "marksman",
+    -- Nix
+    "nixd",
+    -- Containers
+    "dockerls",
+    "docker_compose_language_service",
+    -- Templates
+    "jinja_lsp",
+    -- Ansible (activates on ansible-flavored YAML)
+    "ansiblels",
+  })
 end)
 
 -- Formatting =================================================================
@@ -126,9 +164,27 @@ later(function()
       -- Allow formatting from LSP server if no dedicated formatter is available
       lsp_format = "fallback",
     },
-    -- Map of filetype to formatters
-    -- Make sure that necessary CLI tool is available
-    -- formatters_by_ft = { lua = { 'stylua' } },
+    -- Map of filetype to formatters. CLI binaries must be on PATH.
+    -- Python's ruff formatter reads `pyproject.toml` for line-length / rules.
+    formatters_by_ft = {
+      lua = { "stylua" },
+      python = { "ruff_format" },
+      sh = { "shfmt" },
+      bash = { "shfmt" },
+      json = { "prettier" },
+      jsonc = { "prettier" },
+      yaml = { "yamlfmt" },
+      toml = { "taplo" },
+      markdown = { "mdformat" },
+      nix = { "nixfmt" },
+      dockerfile = { "dockerfmt" },
+      terraform = { "terraform_fmt" },
+      hcl = { "terraform_fmt" },
+    },
+    formatters = {
+      -- Match Helix: 4-space indent, indent switch cases.
+      shfmt = { prepend_args = { "-i", "4", "-ci" } },
+    },
   })
 end)
 
