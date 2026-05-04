@@ -63,6 +63,12 @@ now(function()
       -- Create `<M-hjkl>` mappings for navigation in Insert and Command modes
       move_with_alt = true,
     },
+    autocommands = {
+      basic = true,
+      -- We set `relativenumber = true` globally; the default visual-mode
+      -- toggle would briefly clear relnum on mode exit and fight that.
+      relnum_in_visual_mode = false,
+    },
   })
 end)
 
@@ -770,10 +776,10 @@ later(function()
     },
   })
 
-  -- By default snippets available at cursor are not shown as candidates in
-  -- 'mini.completion' menu. This requires a dedicated in-process LSP server
-  -- that will provide them. To have that, uncomment next line (use `gcc`).
-  -- MiniSnippets.start_lsp_server()
+  -- Expose snippets as completion candidates via an in-process LSP server.
+  -- Without this, snippets only expand via the explicit `<C-j>` mapping; with
+  -- it, they show up inline (kind=Snippet, sorted last by `kind_priority`).
+  MiniSnippets.start_lsp_server()
 end)
 
 -- Split and join arguments (regions inside brackets between allowed separators).
