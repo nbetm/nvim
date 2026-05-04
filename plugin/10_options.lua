@@ -18,7 +18,6 @@
 -- General ====================================================================
 vim.g.mapleader = " " -- Use `<Space>` as <Leader> key
 
-vim.o.clipboard = "unnamedplus" -- Yank/delete/paste use the system `+` register
 vim.o.mouse = "a" -- Enable mouse
 vim.o.mousescroll = "ver:3,hor:6" -- Customize mouse scroll
 vim.o.switchbuf = "usetab" -- Use already opened buffers when switching
