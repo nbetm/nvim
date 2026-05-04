@@ -467,13 +467,7 @@ later(function() require("mini.cursorword").setup() end)
 -- - `:h MiniDiff-overview` - overview of how module works
 -- - `:h MiniDiff-diff-summary` - available summary information
 -- - `:h MiniDiff.gen_source` - available built-in sources
-later(function()
-  require("mini.diff").setup({
-    view = {
-      style = "sign",
-    },
-  })
-end)
+later(function() require("mini.diff").setup({}) end)
 
 -- Git integration for more straightforward Git actions based on Neovim's state.
 -- It is not meant as a fully featured Git client, only to provide helpers that
@@ -615,14 +609,28 @@ later(function()
     },
   })
 
-  -- Map built-in navigation characters to force map refresh
-  for _, key in ipairs({ "n", "N", "*", "#" }) do
-    local rhs = key
-      -- Also open enough folds when jumping to the next match
-      .. "zv"
-      .. "<Cmd>lua MiniMap.refresh({}, { lines = false, scrollbar = false })<CR>"
-    vim.keymap.set("n", key, rhs)
-  end
+  -- Map search-navigation characters to:
+  --  1. Open enough folds to land on the match (`zv`).
+  --  2. Force a mini.map refresh.
+  --  3. (n/N only) Always mean forward/backward regardless of last search
+  --     direction. Vim's default has `n` repeat in the search direction, so
+  --     after `?foo` it goes backwards — confusing. `v:searchforward` is 1
+  --     after `/foo` / `*` and 0 after `?foo` / `#`.
+  local refresh = "<Cmd>lua MiniMap.refresh({}, { lines = false, scrollbar = false })<CR>"
+  vim.keymap.set("n", "*", "*zv" .. refresh)
+  vim.keymap.set("n", "#", "#zv" .. refresh)
+  vim.keymap.set(
+    { "n", "x" },
+    "n",
+    function() return (vim.v.searchforward == 1 and "n" or "N") .. "zv" .. refresh end,
+    { expr = true, desc = "Next search (forward)" }
+  )
+  vim.keymap.set(
+    { "n", "x" },
+    "N",
+    function() return (vim.v.searchforward == 1 and "N" or "n") .. "zv" .. refresh end,
+    { expr = true, desc = "Prev search (backward)" }
+  )
 end)
 
 -- Move any selection in any direction. Example usage in Normal mode:
