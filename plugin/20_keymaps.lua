@@ -35,7 +35,6 @@ end
 nmap("gd", lsp_or_builtin(vim.lsp.buf.definition, "gd"), "Goto definition (LSP)")
 nmap("gD", lsp_or_builtin(vim.lsp.buf.declaration, "gD"), "Goto declaration (LSP)")
 nmap("gI", lsp_or_builtin(vim.lsp.buf.implementation, "gI"), "Goto implementation (LSP)")
-nmap("gy", vim.lsp.buf.type_definition, "Goto type definition (LSP)")
 -- `K` (hover) is already wired by Neovim 0.10+ when an LSP attaches.
 
 -- Many general mappings are created by 'mini.basics'. See 'plugin/30_mini.lua'
