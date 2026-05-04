@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+> Ignore: claude --resume 34adef2a-22c7-47bb-89b7-09b9fb717e64
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## What this is

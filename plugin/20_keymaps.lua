@@ -92,6 +92,7 @@ local xmap_leader = function(suffix, rhs, desc) vim.keymap.set("x", "<Leader>" .
 -- (keeps splits intact); `<Leader>Q` quits Neovim entirely.
 local explore_at_file = "<Cmd>lua MiniFiles.open(vim.api.nvim_buf_get_name(0))<CR>"
 
+nmap_leader("a", "ggVG", "Select all")
 nmap_leader("e", "<Cmd>lua MiniFiles.open()<CR>", "Explorer (cwd)")
 nmap_leader("E", explore_at_file, "Explorer (file dir)")
 nmap_leader("w", "<Cmd>write<CR>", "Write")
