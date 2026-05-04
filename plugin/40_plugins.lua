@@ -226,17 +226,6 @@ later(function() add({ "https://github.com/rafamadriz/friendly-snippets" }) end)
 --   require('mason').setup()
 -- end)
 
--- Beautiful, usable, well maintained color schemes outside of 'mini.nvim' and
--- have full support of its highlight groups. Use if you don't like 'miniwinter'
--- enabled in 'plugin/30_mini.lua' or other suggested 'mini.hues' based ones.
--- Config.now(function()
---  -- Install only those that you need
---  add({
---    'https://github.com/sainnhe/everforest',
---    'https://github.com/Shatur/neovim-ayu',
---    'https://github.com/ellisonleao/gruvbox.nvim',
---  })
---
---   -- Enable only one
---   vim.cmd('color everforest')
--- end)
+-- Color scheme: see 'plugin/30_mini.lua' (`everforest` is installed and applied
+-- there alongside the early `now()` setup so statusline highlights derive from
+-- it). Switch by editing that block.

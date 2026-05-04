@@ -27,19 +27,20 @@
 local now, now_if_args, later = Config.now, Config.now_if_args, Config.later
 
 -- Step one ===================================================================
--- Enable 'miniwinter' color scheme. It comes with 'mini.nvim' and uses 'mini.hues'.
+-- Color scheme. Installed and applied here (in `now()`) so that the rest of
+-- the immediate setup (statusline, tabline, etc.) derives highlights from it.
+-- Replace with the dedicated Nord Deep build once that round happens.
 --
 -- See also:
--- - `:h mini.nvim-color-schemes` - list of other color schemes
--- - `:h MiniHues-examples` - how to define highlighting with 'mini.hues'
--- - 'plugin/40_plugins.lua' honorable mentions - other good color schemes
-now(function() vim.cmd("colorscheme miniwinter") end)
-
--- You can try these other 'mini.hues'-based color schemes (uncomment with `gcc`):
--- now(function() vim.cmd('colorscheme minispring') end)
--- now(function() vim.cmd('colorscheme minisummer') end)
--- now(function() vim.cmd('colorscheme miniautumn') end)
--- now(function() vim.cmd('colorscheme randomhue') end)
+-- - `:h mini.nvim-color-schemes` - mini.hues-based alternatives (`miniwinter`,
+--   `minispring`, `minisummer`, `miniautumn`, `randomhue`).
+-- - `:h everforest` - knobs for everforest itself.
+now(function()
+  vim.pack.add({ "https://github.com/sainnhe/everforest" })
+  vim.g.everforest_background = "soft" -- 'soft' | 'medium' | 'hard'
+  vim.g.everforest_better_performance = 1
+  vim.cmd("colorscheme everforest")
+end)
 
 -- Common configuration presets. Example usage:
 -- - `<C-s>` in Insert mode - save and go to Normal mode
