@@ -171,6 +171,17 @@ later(function()
   -- - `:h Conform`
   -- - `:h conform-options`
   -- - `:h conform-formatters`
+  -- Filetypes that get formatted on save. Other filetypes still format on
+  -- demand via `<Leader>lf`. Adding here is the only switch needed.
+  local format_on_save_fts = {
+    bash = true,
+    hcl = true,
+    markdown = true,
+    python = true,
+    sh = true,
+    terraform = true,
+  }
+
   require("conform").setup({
     default_format_opts = {
       -- Allow formatting from LSP server if no dedicated formatter is available
@@ -197,6 +208,9 @@ later(function()
       -- Match Helix: 4-space indent, indent switch cases.
       shfmt = { prepend_args = { "-i", "4", "-ci" } },
     },
+    format_on_save = function(bufnr)
+      if format_on_save_fts[vim.bo[bufnr].filetype] then return { timeout_ms = 1000, lsp_format = "fallback" } end
+    end,
   })
 end)
 
