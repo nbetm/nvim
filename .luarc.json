@@ -3,14 +3,22 @@
   "Lua.workspace.checkThirdParty": false,
   "diagnostics.globals": [
     "vim",
-    "MiniExtra",
+    "MiniBufremove",
     "MiniCompletion",
+    "MiniDiff",
+    "MiniExtra",
     "MiniFiles",
+    "MiniGit",
+    "MiniIcons",
     "MiniJump2d",
-    "MiniMisc",
-    "MiniPick",
-    "MiniVisits",
     "MiniKeymap",
-    "MiniIcons"
+    "MiniMap",
+    "MiniMisc",
+    "MiniNotify",
+    "MiniPick",
+    "MiniSessions",
+    "MiniSnippets",
+    "MiniTrailspace",
+    "MiniVisits"
   ]
 }
