@@ -37,7 +37,7 @@ local now, now_if_args, later = Config.now, Config.now_if_args, Config.later
 -- - `:h everforest` - knobs for everforest itself.
 now(function()
   vim.pack.add({ "https://github.com/sainnhe/everforest" })
-  vim.g.everforest_background = "soft" -- 'soft' | 'medium' | 'hard'
+  vim.g.everforest_background = "hard" -- 'soft' | 'medium' | 'hard'
   vim.g.everforest_better_performance = 1
   vim.cmd("colorscheme everforest")
 end)
