@@ -83,6 +83,18 @@ now_if_args(function()
   local to_install = vim.tbl_filter(isnt_installed, languages)
   if #to_install > 0 then require("nvim-treesitter").install(to_install) end
 
+  -- Route compound filetypes to base grammars. Without this, opening (e.g.)
+  -- a docker-compose file (filetype `yaml.docker-compose`) wouldn't start
+  -- tree-sitter because no `yaml.docker-compose` parser exists. The base
+  -- `yaml` grammar handles them all.
+  vim.treesitter.language.register("yaml", {
+    "yaml.docker-compose",
+    "yaml.ansible",
+    "yaml.gitlab",
+    "yaml.helm-values",
+  })
+  vim.treesitter.language.register("markdown", { "markdown.mdx" })
+
   -- Enable tree-sitter after opening a file for a target language
   local filetypes = {}
   for _, lang in ipairs(languages) do
