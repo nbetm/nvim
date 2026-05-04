@@ -91,12 +91,39 @@ local xmap_leader = function(suffix, rhs, desc) vim.keymap.set("x", "<Leader>" .
 -- (keeps splits intact); `<Leader>Q` quits Neovim entirely.
 local explore_at_file = "<Cmd>lua MiniFiles.open(vim.api.nvim_buf_get_name(0))<CR>"
 
+-- Smart close, in priority order:
+--   1. In a quickfix window -> `:cclose`.
+--   2. In a location-list window -> `:lclose`.
+--   3. In a help window -> `:helpclose`.
+--   4. Last listed buffer is the empty [No Name] -> `:quitall`.
+--   5. Otherwise -> MiniBufremove.delete() (protects unsaved work via E37).
+local smart_close = function()
+  local wintype = vim.fn.win_gettype(0)
+  if wintype == "quickfix" then return vim.cmd("cclose") end
+  if wintype == "loclist" then return vim.cmd("lclose") end
+  if vim.bo.buftype == "help" then return vim.cmd("helpclose") end
+
+  local buf = vim.api.nvim_get_current_buf()
+  local listed = vim.tbl_filter(function(b) return vim.bo[b].buflisted end, vim.api.nvim_list_bufs())
+  if #listed == 1 and listed[1] == buf then
+    local name = vim.api.nvim_buf_get_name(buf)
+    local modified = vim.bo[buf].modified
+    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    local is_empty = name == "" and not modified and #lines <= 1 and (lines[1] or "") == ""
+    if is_empty then
+      vim.cmd("quitall")
+      return
+    end
+  end
+  MiniBufremove.delete()
+end
+
 nmap_leader("a", "ggVG", "Select all")
 nmap_leader("e", "<Cmd>lua MiniFiles.open()<CR>", "Explorer (cwd)")
 nmap_leader("E", explore_at_file, "Explorer (file dir)")
 nmap_leader("w", "<Cmd>write<CR>", "Write")
 nmap_leader("W", "<Cmd>wall<CR>", "Write all")
-nmap_leader("q", "<Cmd>lua MiniBufremove.delete()<CR>", "Close buffer")
+nmap_leader("q", smart_close, "Close (qf/loc/help/buffer; quit if last & empty)")
 nmap_leader("Q", "<Cmd>quitall<CR>", "Quit all")
 nmap_leader("/", "<Cmd>Pick grep_live<CR>", "Grep live")
 nmap_leader("?", "<Cmd>Pick commands<CR>", "Commands")
