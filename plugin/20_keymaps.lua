@@ -95,6 +95,7 @@ local explore_at_file = "<Cmd>lua MiniFiles.open(vim.api.nvim_buf_get_name(0))<C
 nmap_leader("e", "<Cmd>lua MiniFiles.open()<CR>", "Explorer (cwd)")
 nmap_leader("E", explore_at_file, "Explorer (file dir)")
 nmap_leader("w", "<Cmd>write<CR>", "Write")
+nmap_leader("W", "<Cmd>wall<CR>", "Write all")
 nmap_leader("q", "<Cmd>lua MiniBufremove.delete()<CR>", "Close buffer")
 nmap_leader("Q", "<Cmd>quitall<CR>", "Quit all")
 nmap_leader("/", "<Cmd>Pick grep_live<CR>", "Grep live")
