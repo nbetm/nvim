@@ -27,20 +27,15 @@
 local now, now_if_args, later = Config.now, Config.now_if_args, Config.later
 
 -- Step one ===================================================================
--- Color scheme. Installed and applied here (in `now()`) so that the rest of
--- the immediate setup (statusline, tabline, etc.) derives highlights from it.
--- Replace with the dedicated Nord Deep build once that round happens.
+-- Color scheme. Applied here (in `now()`) so the rest of the immediate setup
+-- (statusline, tabline, etc.) derives highlights from it.
 --
--- See also:
--- - `:h mini.nvim-color-schemes` - mini.hues-based alternatives (`miniwinter`,
---   `minispring`, `minisummer`, `miniautumn`, `randomhue`).
--- - `:h everforest` - knobs for everforest itself.
-now(function()
-  vim.pack.add({ "https://github.com/sainnhe/everforest" })
-  vim.g.everforest_background = "hard" -- 'soft' | 'medium' | 'hard'
-  vim.g.everforest_better_performance = 1
-  vim.cmd("colorscheme everforest")
-end)
+-- `nord-deep` lives in 'colors/nord-deep.lua' (vendored; no plugin install).
+-- Set `vim.g.nord_deep_transparent = 1` before this block to drop the bg.
+--
+-- Other built-in alternatives (mini.hues-based, ship with mini.nvim):
+--   miniwinter, minispring, minisummer, miniautumn, randomhue
+now(function() vim.cmd("colorscheme nord-deep") end)
 
 -- Common configuration presets. Example usage:
 -- - `<C-s>` in Insert mode - save and go to Normal mode
