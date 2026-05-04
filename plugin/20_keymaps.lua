@@ -66,7 +66,7 @@ nmap("gy", vim.lsp.buf.type_definition, "Goto type definition (LSP)")
 -- Add an entry if you create a new group.
 Config.leader_group_clues = {
   { mode = "n", keys = "<Leader>b", desc = "+Buffer" },
-  { mode = "n", keys = "<Leader>e", desc = "+Explore/Edit" },
+  { mode = "n", keys = "<Leader>c", desc = "+Config" },
   { mode = "n", keys = "<Leader>f", desc = "+Find" },
   { mode = "n", keys = "<Leader>g", desc = "+Git" },
   { mode = "n", keys = "<Leader>l", desc = "+Language" },
@@ -90,6 +90,10 @@ local xmap_leader = function(suffix, rhs, desc) vim.keymap.set("x", "<Leader>" .
 -- Direct leader actions (no group). Helix-flavored shortcuts for the heavy
 -- hitters. `<Leader>q` mirrors `<Leader>bd` — closes the current buffer
 -- (keeps splits intact); `<Leader>Q` quits Neovim entirely.
+local explore_at_file = "<Cmd>lua MiniFiles.open(vim.api.nvim_buf_get_name(0))<CR>"
+
+nmap_leader("e", "<Cmd>lua MiniFiles.open()<CR>", "Explorer (cwd)")
+nmap_leader("E", explore_at_file, "Explorer (file dir)")
 nmap_leader("w", "<Cmd>write<CR>", "Write")
 nmap_leader("q", "<Cmd>lua MiniBufremove.delete()<CR>", "Close buffer")
 nmap_leader("Q", "<Cmd>quitall<CR>", "Quit all")
@@ -109,28 +113,16 @@ nmap_leader("bs", new_scratch_buffer, "Scratch")
 nmap_leader("bw", "<Cmd>lua MiniBufremove.wipeout()<CR>", "Wipeout")
 nmap_leader("bW", "<Cmd>lua MiniBufremove.wipeout(0, true)<CR>", "Wipeout!")
 
--- e is for 'Explore' and 'Edit'. Common usage:
--- - `<Leader>ed` - open explorer at current working directory
--- - `<Leader>ef` - open directory of current file (needs to be present on disk)
--- - `<Leader>ei` - edit 'init.lua'
--- - All mappings that use `edit_plugin_file` - edit 'plugin/' config files
+-- c is for 'Config'. Quick access to this Neovim config's files.
 local edit_plugin_file = function(filename)
   return string.format("<Cmd>edit %s/plugin/%s<CR>", vim.fn.stdpath("config"), filename)
 end
-local explore_at_file = "<Cmd>lua MiniFiles.open(vim.api.nvim_buf_get_name(0))<CR>"
-local explore_quickfix = function() vim.cmd(vim.fn.getqflist({ winid = true }).winid ~= 0 and "cclose" or "copen") end
-local explore_locations = function() vim.cmd(vim.fn.getloclist(0, { winid = true }).winid ~= 0 and "lclose" or "lopen") end
 
-nmap_leader("ed", "<Cmd>lua MiniFiles.open()<CR>", "Directory")
-nmap_leader("ef", explore_at_file, "File directory")
-nmap_leader("ei", "<Cmd>edit $MYVIMRC<CR>", "init.lua")
-nmap_leader("ek", edit_plugin_file("20_keymaps.lua"), "Keymaps config")
-nmap_leader("em", edit_plugin_file("30_mini.lua"), "MINI config")
-nmap_leader("en", "<Cmd>lua MiniNotify.show_history()<CR>", "Notifications")
-nmap_leader("eo", edit_plugin_file("10_options.lua"), "Options config")
-nmap_leader("ep", edit_plugin_file("40_plugins.lua"), "Plugins config")
-nmap_leader("eq", explore_quickfix, "Quickfix list")
-nmap_leader("eQ", explore_locations, "Location list")
+nmap_leader("ci", "<Cmd>edit $MYVIMRC<CR>", "init.lua")
+nmap_leader("ck", edit_plugin_file("20_keymaps.lua"), "Keymaps config")
+nmap_leader("cm", edit_plugin_file("30_mini.lua"), "MINI config")
+nmap_leader("co", edit_plugin_file("10_options.lua"), "Options config")
+nmap_leader("cp", edit_plugin_file("40_plugins.lua"), "Plugins config")
 
 -- f is for 'Fuzzy Find'. Common usage:
 -- - `<Leader>ff` - find files; for best performance requires `ripgrep`
@@ -219,8 +211,13 @@ nmap_leader("mr", "<Cmd>lua MiniMap.refresh()<CR>", "Refresh")
 nmap_leader("ms", "<Cmd>lua MiniMap.toggle_side()<CR>", "Side (toggle)")
 nmap_leader("mt", "<Cmd>lua MiniMap.toggle()<CR>", "Toggle")
 
--- o is for 'Other'. Common usage:
+-- o is for 'Other'. Grab-bag of utility actions.
+local toggle_quickfix = function() vim.cmd(vim.fn.getqflist({ winid = true }).winid ~= 0 and "cclose" or "copen") end
+local toggle_loclist = function() vim.cmd(vim.fn.getloclist(0, { winid = true }).winid ~= 0 and "lclose" or "lopen") end
 -- - `<Leader>oz` - toggle between "zoomed" and regular view of current buffer
+nmap_leader("on", "<Cmd>lua MiniNotify.show_history()<CR>", "Notifications")
+nmap_leader("oq", toggle_quickfix, "Quickfix list (toggle)")
+nmap_leader("oQ", toggle_loclist, "Location list (toggle)")
 nmap_leader("or", "<Cmd>lua MiniMisc.resize_window()<CR>", "Resize to default width")
 nmap_leader("ot", "<Cmd>lua MiniTrailspace.trim()<CR>", "Trim trailspace")
 nmap_leader("oz", "<Cmd>lua MiniMisc.zoom()<CR>", "Zoom toggle")
