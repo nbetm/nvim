@@ -19,6 +19,25 @@ end
 nmap("[p", '<Cmd>exe "iput! " . v:register<CR>', "Paste Above")
 nmap("]p", '<Cmd>exe "iput "  . v:register<CR>', "Paste Below")
 
+-- LSP navigation under `g*`. Falls back to the original built-in `gX` when no
+-- LSP client is attached to the current buffer (so opening a plain text file
+-- still gets you `gd`'s "go to local declaration", etc.).
+local lsp_or_builtin = function(lsp_fn, builtin_keys)
+  return function()
+    if next(vim.lsp.get_clients({ bufnr = 0 })) ~= nil then
+      lsp_fn()
+    else
+      vim.cmd("normal! " .. builtin_keys)
+    end
+  end
+end
+
+nmap("gd", lsp_or_builtin(vim.lsp.buf.definition, "gd"), "Goto definition (LSP)")
+nmap("gD", lsp_or_builtin(vim.lsp.buf.declaration, "gD"), "Goto declaration (LSP)")
+nmap("gI", lsp_or_builtin(vim.lsp.buf.implementation, "gI"), "Goto implementation (LSP)")
+nmap("gy", vim.lsp.buf.type_definition, "Goto type definition (LSP)")
+-- `K` (hover) is already wired by Neovim 0.10+ when an LSP attaches.
+
 -- Many general mappings are created by 'mini.basics'. See 'plugin/30_mini.lua'
 
 -- Leader mappings ============================================================
@@ -67,6 +86,15 @@ Config.leader_group_clues = {
 -- during mapping creation: a "lazy loading" approach to improve startup time.
 local nmap_leader = function(suffix, rhs, desc) vim.keymap.set("n", "<Leader>" .. suffix, rhs, { desc = desc }) end
 local xmap_leader = function(suffix, rhs, desc) vim.keymap.set("x", "<Leader>" .. suffix, rhs, { desc = desc }) end
+
+-- Direct leader actions (no group). Helix-flavored shortcuts for the heavy
+-- hitters. `<Leader>q` mirrors `<Leader>bd` — closes the current buffer
+-- (keeps splits intact); `<Leader>Q` quits Neovim entirely.
+nmap_leader("w", "<Cmd>write<CR>", "Write")
+nmap_leader("q", "<Cmd>lua MiniBufremove.delete()<CR>", "Close buffer")
+nmap_leader("Q", "<Cmd>quitall<CR>", "Quit all")
+nmap_leader("/", "<Cmd>Pick grep_live<CR>", "Grep live")
+nmap_leader("?", "<Cmd>Pick commands<CR>", "Commands")
 
 -- b is for 'Buffer'. Common usage:
 -- - `<Leader>bs` - create scratch (temporary) buffer
