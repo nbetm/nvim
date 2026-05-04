@@ -216,8 +216,15 @@ end)
 -- - `:h MiniFiles-manipulation` - more details about how to manipulate
 -- - `:h MiniFiles-examples` - examples of common setups
 now_if_args(function()
-  -- Enable directory/file preview
-  require("mini.files").setup({ windows = { preview = true } })
+  -- Enable directory/file preview with wider panes for readability.
+  require("mini.files").setup({
+    windows = {
+      preview = true,
+      width_focus = 50,
+      width_nofocus = 15,
+      width_preview = 80,
+    },
+  })
 
   -- Add common bookmarks for every explorer. Example usage inside explorer:
   -- - `'c` to navigate into your config directory
@@ -239,8 +246,11 @@ end)
 -- - `:lua put(MiniMisc.stat_summary(MiniMisc.bench_time(f, 100)))` - run
 --   function `f` 100 times and report statistical summary of execution times
 now_if_args(function()
-  -- Makes `:h MiniMisc.put()` and `:h MiniMisc.put_text()` public
-  require("mini.misc").setup()
+  -- Expose useful debug/benchmark helpers as global names: `put`, `put_text`,
+  -- `stat_summary` (e.g. `=put(stat_summary(...))`), and `bench_time`.
+  require("mini.misc").setup({
+    make_global = { "put", "put_text", "stat_summary", "bench_time" },
+  })
 
   -- Change current working directory based on the current file path. It
   -- searches up the file tree until the first root marker ('.git' or 'Makefile')
@@ -400,6 +410,8 @@ later(function()
       { mode = { "n", "x" }, keys = "s" }, -- `s` key (mini.surround, etc.)
       { mode = { "n", "x" }, keys = "z" }, -- `z` key
     },
+    -- Show the clue popup faster than the default ~1000ms.
+    window = { delay = 500 },
   })
 end)
 
@@ -436,10 +448,7 @@ later(function() require("mini.comment").setup() end)
 
 -- Autohighlight word under cursor with a customizable delay.
 -- Word boundaries are defined based on `:h 'iskeyword'` option.
---
--- It is not enabled by default because its effects are a matter of taste.
--- Uncomment next line (use `gcc`) to enable.
--- later(function() require('mini.cursorword').setup() end)
+later(function() require("mini.cursorword").setup() end)
 
 -- Work with diff hunks that represent the difference between the buffer text and
 -- some reference text set by a source. Default source uses text from Git index.
@@ -505,7 +514,13 @@ end)
 --
 -- See also:
 -- - `:h MiniIndentscope.gen_animation` - available animation rules
-later(function() require("mini.indentscope").setup() end)
+later(function()
+  require("mini.indentscope").setup({
+    -- Near-instant scope draw (5ms steps) — keeps the line useful without the
+    -- ease-out feeling laggy on big files.
+    draw = { animation = function() return 5 end },
+  })
+end)
 
 -- Jump to next/previous single character. It implements "smarter `fFtT` keys"
 -- (see `:h f`) that work across multiple lines, start "jumping mode", and
@@ -524,7 +539,25 @@ later(function() require("mini.jump").setup() end)
 --
 -- See also:
 -- - `:h MiniJump2d.gen_spotter` - list of available spotters
-later(function() require("mini.jump2d").setup() end)
+later(function()
+  local jump2d = require("mini.jump2d")
+  jump2d.setup({
+    -- Spot only word starts (non-space, non-punctuation runs). Less visual
+    -- noise than the default "every character" spotter.
+    spotter = jump2d.gen_spotter.pattern("[^%s%p]+"),
+    -- Home-row labels.
+    labels = "asdfghjkl;",
+    -- Dim non-target text and show 2 steps of label-trail ahead.
+    view = { dim = true, n_steps_ahead = 2 },
+  })
+  -- Free-form single-character jump (Helix-style "f then char then jump").
+  vim.keymap.set(
+    { "n", "x", "o" },
+    "sj",
+    function() MiniJump2d.start(MiniJump2d.builtin_opts.single_character) end,
+    { desc = "Jump to char (jump2d)" }
+  )
+end)
 
 -- Special key mappings. Provides helpers to map:
 -- - Multi-step actions. Apply action 1 if condition is met; else apply
@@ -589,7 +622,11 @@ end)
 --
 -- Example usage in Visual mode:
 -- - `<M-h>`/`<M-j>`/`<M-k>`/`<M-l>` - move selection left/down/up/right
-later(function() require("mini.move").setup() end)
+later(function()
+  -- `reindent_linewise = false` keeps the original indentation when moving
+  -- whole lines with `<M-j>`/`<M-k>`. Avoids surprise auto-reindent.
+  require("mini.move").setup({ options = { reindent_linewise = false } })
+end)
 
 -- Text edit operators. All operators have mappings for:
 -- - Regular operator (waits for motion/textobject to use)
@@ -664,7 +701,11 @@ end)
 -- - `:h MiniPick.builtin` and `:h MiniExtra.pickers` - available pickers;
 --   Execute one either with Lua function, `:Pick <picker-name>` command, or
 --   one of `<Leader>f` mappings defined in 'plugin/20_keymaps.lua'
-later(function() require("mini.pick").setup() end)
+later(function()
+  require("mini.pick").setup()
+  -- Route generic UI selectors (LSP code actions, etc.) through mini.pick.
+  vim.ui.select = MiniPick.ui_select
+end)
 
 -- Manage and expand snippets (templates for a frequently used text).
 -- Typical workflow is to type snippet's (configurable) prefix and expand it
@@ -770,7 +811,12 @@ later(function() require("mini.splitjoin").setup() end)
 -- - `:h MiniSurround-builtin-surroundings` - list of all supported surroundings
 -- - `:h MiniSurround-surrounding-specification` - examples of custom surroundings
 -- - `:h MiniSurround-vim-surround-config` - alternative set of action mappings
-later(function() require("mini.surround").setup() end)
+later(function()
+  require("mini.surround").setup()
+  -- Disable bare `s` (built-in substitute char — `cl` does the same) so the
+  -- `s*` prefix used by mini.surround (`sa`/`sd`/`sr`/...) feels clean.
+  vim.keymap.set({ "n", "x" }, "s", "<Nop>")
+end)
 
 -- Highlight and remove trailspace. Temporarily stops highlighting in Insert mode
 -- to reduce noise when typing. Example usage:
