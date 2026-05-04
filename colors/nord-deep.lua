@@ -543,8 +543,8 @@ hl("MiniIconsPurple", { fg = p.magenta }) -- closest purple is magenta
 hl("MiniIconsRed", { fg = p.red })
 hl("MiniIconsYellow", { fg = p.yellow })
 
--- mini.indentscope (use navy as accent — subtle but visible)
-hl("MiniIndentscopeSymbol", { fg = p.navy })
+-- mini.indentscope (matches Helix `ui.virtual.indent-guide` — subtle, blends in)
+hl("MiniIndentscopeSymbol", { fg = p.elevated })
 hl("MiniIndentscopeSymbolOff", { fg = p.red })
 
 -- mini.jump
@@ -579,8 +579,12 @@ hl("MiniPickCursor", { blend = 100, nocombine = true })
 hl("MiniPickIconDirectory", { link = "Directory" })
 hl("MiniPickIconFile", { link = "MiniPickNormal" })
 hl("MiniPickHeader", { link = "DiagnosticFloatingHint" })
-hl("MiniPickMatchCurrent", { link = "CursorLine" })
-hl("MiniPickMatchMarked", { link = "Visual" })
+-- Three-tier hierarchy on row highlights:
+--   Current = subtle (brightest, easy to track),
+--   Marked  = elevated (medium, distinct),
+--   Default = no bg.
+hl("MiniPickMatchCurrent", { fg = p.cyan, bg = p.subtle })
+hl("MiniPickMatchMarked", { bg = p.elevated })
 hl("MiniPickMatchRanges", { link = "DiagnosticFloatingHint" })
 hl("MiniPickNormal", { link = "NormalFloat" })
 hl("MiniPickPreviewLine", { link = "CursorLine" })
