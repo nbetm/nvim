@@ -413,7 +413,8 @@ later(function()
       { mode = { "n", "x" }, keys = "z" }, -- `z` key
     },
     -- Show the clue popup faster than the default ~1000ms.
-    window = { delay = 500 },
+    -- Wider config so descriptions don't truncate on busier groups.
+    window = { delay = 500, config = { width = 60 } },
   })
 end)
 
