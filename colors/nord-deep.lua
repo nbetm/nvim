@@ -68,8 +68,14 @@ hl("Folded", { fg = p.dim, bg = p.surface })
 hl("Visual", { bg = p.elevated })
 hl("VisualNOS", { bg = p.elevated })
 
+-- Pmenu (cmdline completion + LSP completion) — raised tier (LSP is system-
+-- reactive, shouldn't read as a destination). Selection + matches reuse the
+-- picker's row/query aliases.
 hl("Pmenu", { fg = p.text, bg = p.surface })
-hl("PmenuSel", { fg = p.cyan, bg = p.elevated })
+hl("PmenuBorder", { fg = p.subtle, bg = p.surface })
+hl("PmenuSel", { link = "NordRowCurrent" })
+hl("PmenuMatch", { link = "NordQueryMatch" })
+hl("PmenuMatchSel", { link = "NordQueryMatch" })
 hl("PmenuSbar", { bg = p.elevated })
 hl("PmenuThumb", { bg = p.subtle })
 hl("PmenuKind", { fg = p.aqua, bg = p.surface })
@@ -110,7 +116,7 @@ hl("Question", { fg = p.cyan })
 hl("MsgSeparator", { fg = p.dim, bg = p.surface })
 
 hl("QuickFixLine", { bg = p.elevated })
-hl("WildMenu", { fg = p.cyan, bg = p.elevated })
+hl("WildMenu", { link = "NordRowCurrent" })
 
 hl("Underlined", { underline = true })
 hl("Bold", { bold = true })
@@ -461,20 +467,46 @@ hl("markdownListMarker", { fg = p.text })
 hl("markdownBlockquote", { fg = p.magenta })
 -- }}}
 
--- 8. mini.nvim groups ------------------------------------------------------ {{{
+-- 8. Theme aliases --------------------------------------------------------- {{{
+-- Captures the design language so module-specific groups link instead of
+-- duplicating values. Tweaking a tier value (e.g., shifting `bg` for sunken
+-- floats) becomes a one-line change. New modules added later inherit the
+-- patterns by linking, not by remembering palette choices.
+
+-- Sunken float tier (pickers, explorer, clue). Workspace surfaces painted
+-- on editor `bg`. Notify, hover, diagnostic float, completion info, peek,
+-- and Pmenu stay raised on NormalFloat/FloatBorder.
+hl("NordSunkenNormal", { fg = p.text, bg = bg })
+hl("NordSunkenBorder", { fg = p.subtle, bg = bg })
+hl("NordSunkenTitle", { fg = p.cyan, bg = bg, bold = true })
+hl("NordSunkenTitleDim", { fg = p.dim, bg = bg, bold = true })
+
+-- Row state — three-tier hierarchy: Marked (intent) > Current (cursor) >
+-- Default (no bg). Brighter bg = more user attention.
+hl("NordRowMarked", { bg = p.subtle })
+hl("NordRowCurrent", { bg = p.elevated })
+
+-- Query state — matched chars in entries and the prompt-prefix marker.
+hl("NordQueryMatch", { fg = p.cyan })
+-- }}}
+
+-- 9. mini.nvim groups ------------------------------------------------------ {{{
 
 -- mini.animate
 hl("MiniAnimateCursor", { reverse = true, nocombine = true })
 hl("MiniAnimateNormalFloat", { link = "NormalFloat" })
 
 -- mini.clue
-hl("MiniClueBorder", { link = "FloatBorder" })
-hl("MiniClueDescGroup", { link = "DiagnosticFloatingWarn" })
-hl("MiniClueDescSingle", { link = "NormalFloat" })
-hl("MiniClueNextKey", { link = "DiagnosticFloatingHint" })
-hl("MiniClueNextKeyWithPostkeys", { link = "DiagnosticFloatingError" })
-hl("MiniClueSeparator", { link = "DiagnosticFloatingInfo" })
-hl("MiniClueTitle", { link = "FloatTitle" })
+-- Inline groups (NextKey/Separator/DescGroup/etc.) need explicit `bg = bg`:
+-- clue opens with `noautocmd = true`, so a winhighlight autocmd can't remap
+-- NormalFloat — fg-only extmarks would otherwise inherit surface.
+hl("MiniClueBorder", { link = "NordSunkenBorder" })
+hl("MiniClueDescGroup", { fg = p.magenta, bg = bg })
+hl("MiniClueDescSingle", { link = "NordSunkenNormal" })
+hl("MiniClueNextKey", { fg = p.blue, bg = bg })
+hl("MiniClueNextKeyWithPostkeys", { fg = p.orange, bg = bg })
+hl("MiniClueSeparator", { fg = p.subtle, bg = bg })
+hl("MiniClueTitle", { link = "NordSunkenTitle" })
 
 -- mini.cmdline
 hl("MiniCmdlinePeekBorder", { link = "FloatBorder" })
@@ -517,14 +549,14 @@ hl("MiniDiffOverContextBuf", {})
 hl("MiniDiffOverDelete", { link = "DiffDelete" })
 
 -- mini.files
-hl("MiniFilesBorder", { link = "FloatBorder" })
+hl("MiniFilesBorder", { link = "NordSunkenBorder" })
 hl("MiniFilesBorderModified", { link = "DiagnosticFloatingWarn" })
-hl("MiniFilesCursorLine", { link = "MiniPickMatchCurrent" })
+hl("MiniFilesCursorLine", { link = "NordRowCurrent" })
 hl("MiniFilesDirectory", { link = "Directory" })
 hl("MiniFilesFile", { fg = p.text })
-hl("MiniFilesNormal", { link = "NormalFloat" })
-hl("MiniFilesTitle", { link = "FloatTitle" })
-hl("MiniFilesTitleFocused", { fg = p.text, bg = p.elevated, bold = true })
+hl("MiniFilesNormal", { link = "NordSunkenNormal" })
+hl("MiniFilesTitle", { link = "NordSunkenTitleDim" })
+hl("MiniFilesTitleFocused", { link = "NordSunkenTitle" })
 
 -- mini.hipatterns (FIXME=red, HACK=orange, TODO=yellow, NOTE=cyan)
 hl("MiniHipatternsFixme", { fg = p.base, bg = p.red, bold = true })
@@ -572,26 +604,22 @@ hl("MiniNotifyTitle", { link = "FloatTitle" })
 hl("MiniOperatorsExchangeFrom", { link = "IncSearch" })
 
 -- mini.pick
-hl("MiniPickBorder", { link = "FloatBorder" })
+hl("MiniPickBorder", { link = "NordSunkenBorder" })
 hl("MiniPickBorderBusy", { link = "DiagnosticFloatingWarn" })
-hl("MiniPickBorderText", { link = "FloatTitle" })
+hl("MiniPickBorderText", { link = "NordSunkenTitle" })
 hl("MiniPickCursor", { blend = 100, nocombine = true })
 hl("MiniPickIconDirectory", { link = "Directory" })
 hl("MiniPickIconFile", { link = "MiniPickNormal" })
-hl("MiniPickHeader", { link = "DiagnosticFloatingHint" })
--- Three-tier hierarchy on row highlights:
---   Current = subtle (brightest, easy to track),
---   Marked  = elevated (medium, distinct),
---   Default = no bg.
-hl("MiniPickMatchCurrent", { fg = p.cyan, bg = p.subtle })
-hl("MiniPickMatchMarked", { bg = p.elevated })
-hl("MiniPickMatchRanges", { link = "DiagnosticFloatingHint" })
-hl("MiniPickNormal", { link = "NormalFloat" })
+hl("MiniPickHeader", { fg = p.magenta })
+hl("MiniPickMatchCurrent", { link = "NordRowCurrent" })
+hl("MiniPickMatchMarked", { link = "NordRowMarked" })
+hl("MiniPickMatchRanges", { link = "NordQueryMatch" })
+hl("MiniPickNormal", { link = "NordSunkenNormal" })
 hl("MiniPickPreviewLine", { link = "CursorLine" })
 hl("MiniPickPreviewRegion", { link = "IncSearch" })
-hl("MiniPickPrompt", { link = "MiniPickMatchRanges" })
-hl("MiniPickPromptCaret", { link = "DiagnosticFloatingInfo" })
-hl("MiniPickPromptPrefix", { link = "DiagnosticFloatingInfo" })
+hl("MiniPickPrompt", { fg = p.text })
+hl("MiniPickPromptCaret", { fg = p.cyan })
+hl("MiniPickPromptPrefix", { link = "NordQueryMatch" })
 
 -- mini.snippets
 hl("MiniSnippetsCurrent", { sp = p.yellow, underdouble = true })
@@ -603,13 +631,13 @@ hl("MiniSnippetsVisited", { sp = p.blue, underdouble = true })
 -- mini.starter
 hl("MiniStarterCurrent", { link = "MiniStarterItem" })
 hl("MiniStarterFooter", { link = "Comment" })
-hl("MiniStarterHeader", { fg = p.cyan, bold = true })
+hl("MiniStarterHeader", { link = "NordSunkenTitle" })
 hl("MiniStarterInactive", { link = "Comment" })
 hl("MiniStarterItem", { link = "Normal" })
 hl("MiniStarterItemBullet", { fg = p.dim })
-hl("MiniStarterItemPrefix", { fg = p.yellow, bold = true })
+hl("MiniStarterItemPrefix", { fg = p.blue, bold = true })
 hl("MiniStarterSection", { fg = p.magenta })
-hl("MiniStarterQuery", { fg = p.green, bold = true })
+hl("MiniStarterQuery", { fg = p.cyan, bold = true })
 
 -- mini.statusline (modes mirror Helix statusline colors)
 -- Normal: nord-text bg, insert: nord-cyan bg, visual: nord-aqua bg
@@ -647,7 +675,7 @@ hl("MiniTestPass", { fg = p.green, bold = true })
 hl("MiniTrailspace", { bg = p.red })
 -- }}}
 
--- 9. Misc / link aliases --------------------------------------------------- {{{
+-- 10. Misc ----------------------------------------------------------------- {{{
 
 -- Virtual text helpers (inlay hints follow Helix ui.virtual.inlay-hint style)
 hl("NonText", { fg = p.elevated }) -- already set above — kept for clarity
@@ -668,20 +696,3 @@ hl("healthSuccess", { fg = p.green })
 
 -- Set colors_name LAST (signals successful load to Neovim)
 vim.g.colors_name = "nord-deep"
-
--- Helix scopes without direct nvim equivalents (skipped):
--- ui.background.separator      — no standard nvim group; FloatBorder covers the use-case
--- ui.cursor.primary.normal/insert/select — nvim doesn't split Cursor by mode in highlight groups
--- ui.cursor.normal/insert/select         — same reason
--- ui.cursorcolumn.primary/secondary      — maps to CursorColumn (single group)
--- ui.highlight                           — maps to Visual/CurSearch; no distinct Helix concept needed
--- ui.picker.header / header.column / header.column.active  — mini.pick uses FloatTitle / DiagnosticFloatingHint
--- ui.statusline.separator                — no nvim equivalent; WinSeparator used for window borders
--- ui.text.info / ui.text.focus           — covered by Normal / NormalFloat / CursorLine
--- ui.virtual.wrap                        — no nvim equivalent (no wrap-guide highlight group)
--- diagnostic.error/warning/info/hint as top-level (non-underline) — translated to DiagnosticSign* / DiagnosticVirtualText*
--- string.special (Helix = green like string) — @string.special uses green above
--- type.enum.variant / type.parameter    — both map to @type (aqua)
--- function.special / function.method.private — covered by @function / @lsp.mod.private
--- keyword.storage                       — mapped to @keyword.storage
--- keyword.directive                     — mapped to @keyword.directive
