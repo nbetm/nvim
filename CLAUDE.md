@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Personal Neovim config based on the **MiniMax** starter template. Centered on `mini.nvim` (a library of modules, not a single plugin). Lives at `~/.config/vmini/` and is intended to be loaded via `NVIM_APPNAME=vmini nvim` rather than as the default config.
+Personal Neovim config based on the **MiniMax** starter template, lives at `~/.config/nvim/`. Centered on `mini.nvim` (a library of modules, not a single plugin).
 
 ## Tooling
 
@@ -60,14 +60,14 @@ Leader is `<Space>`. Two-key convention: first key is the semantic group, second
 
 ### Where to look
 
-`<pack>` = `~/.local/share/vmini/site/pack/core/opt/`.
+`<pack>` = `~/.local/share/nvim/site/pack/core/opt/`.
 
 - **Mini knobs / source:** `:h MiniXxx.config`, `:h MiniXxx-examples`, `:h MiniXxx-overview`. Source at `<pack>/mini.nvim/lua/mini/<module>.lua`.
 - **nvim-lspconfig server defaults:** `<pack>/nvim-lspconfig/lsp/<server>.lua` (cmd, filetypes, default capabilities, root markers).
 - **Conform formatters:** `<pack>/conform.nvim/lua/conform/formatters/<name>.lua` (binary, args, stdin handling).
 - **Neovim built-ins:** `:h vim.lsp`, `:h vim.diagnostic`, `:h vim.treesitter`, `:h options`, `:h vim.keymap.set`.
 - **Live state inspection:** `:checkhealth <subsystem>`, `:LspInfo`, `:verbose nmap <key>`, `:lua print(vim.inspect(...))`.
-- **Headless probes:** `NVIM_APPNAME=vmini nvim --headless +'lua ...' +qa!`. For `later()`-deferred setup, wrap in `vim.defer_fn(..., 200)` so callbacks fire before quit.
+- **Headless probes:** `nvim --headless +'lua ...' +qa!`. For `later()`-deferred setup, wrap in `vim.defer_fn(..., 200)` so callbacks fire before quit.
 - **Plugin repo state:** `gh api repos/<owner>/<repo>` for archive status, recent commits.
 - **`.notes/`:** prior configs (Helix, the previous nvim attempt, theme spec) and gitignored upstream copies for grep-able lookup.
 
