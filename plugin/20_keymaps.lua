@@ -3,6 +3,12 @@
 -- └─────────────────┘
 --
 -- This file contains definitions of custom general and Leader mappings.
+--
+-- Heads up: 'mini.basics' ships defaults that don't appear here — `gy`/`gp`
+-- (yank/paste system clipboard), `gO`/`go` (empty line above/below), `<C-s>`
+-- (save + leave Insert), `\h`/`\w`/`\s`/`\b`/`\c`/`\l`/`\n`/`\r` toggles.
+-- Cross-check with `:verbose nmap <key>` before adding new mappings; easy to
+-- clobber. See `:h MiniBasics.config.mappings`.
 
 -- General mappings ===========================================================
 

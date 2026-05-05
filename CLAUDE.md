@@ -10,72 +10,68 @@ Personal Neovim config based on the **MiniMax** starter template. Centered on `m
 
 ## Tooling
 
-- **Format Lua:** `stylua .` (config in `.stylua.toml`: 2-space, 120 cols, Unix, `AutoPreferDouble`).
+- **Format Lua:** `stylua .` (config in `.stylua.toml`).
 - **Plugin manager:** built-in `vim.pack` (requires Neovim 0.12+). State in `nvim-pack-lock.json`.
 - **Update plugins (from inside Neovim):** `:lua vim.pack.update()` then `:write` to confirm.
 - **Update treesitter parsers:** `:TSUpdate` (runs automatically via `on_packchanged` hook when `nvim-treesitter` itself updates).
-- **Health checks:** `:checkhealth vim.lsp vim.treesitter nvim-treesitter`.
-- **Lua LS workspace:** `.luarc.json` declares `vim` as a global and disables third-party checks.
+- **Health checks:** `:checkhealth vim.lsp vim.treesitter nvim-treesitter provider`.
+- **Lua LS workspace:** known globals declared in `.luarc.json`.
 
 ## Architecture
 
 ### Load order
 
-`init.lua` runs first, then everything in `plugin/` is auto-sourced **alphabetically** — the numeric prefixes (`10_`, `20_`, `30_`, `40_`) are load order. `after/` files load after plugins.
+`init.lua` runs first, then everything in `plugin/` is auto-sourced **alphabetically** — the numeric prefixes (`10_`, `20_`, `30_`, etc.) are load order. `after/` files load after plugins.
 
 ```
-init.lua              entry; defines _G.Config, installs mini.nvim
-plugin/10_options.lua builtin options + diagnostics config
-plugin/20_keymaps.lua leader mappings + Config.leader_group_clues
-plugin/30_mini.lua    all mini.nvim module setup
-plugin/40_plugins.lua non-mini plugins (treesitter, lspconfig, conform, friendly-snippets)
-after/ftplugin/*.lua  per-filetype config
-after/lsp/*.lua       LSP server configs (consumed by vim.lsp.config/enable)
-after/snippets/*.json higher-priority snippet files
-snippets/global.json  always-loaded global snippets
+init.lua                entry; defines _G.Config, installs mini.nvim
+plugin/10_options.lua   builtin options + diagnostics config
+plugin/20_keymaps.lua   leader mappings + Config.leader_group_clues
+plugin/30_mini.lua      all mini.nvim module setup
+plugin/40_plugins.lua   non-mini plugins (treesitter, lspconfig, conform, friendly-snippets)
+plugin/50_filetypes.lua filetype detection rules
+after/ftplugin/*.lua    per-filetype config
+after/lsp/*.lua         LSP server configs (consumed by vim.lsp.config/enable)
+after/snippets/*.json   higher-priority snippet files
+snippets/global.json    always-loaded global snippets
+colors/*.lua            colorschemes
 ```
 
-### `_G.Config` helpers (defined in `init.lua`)
+### Staged loading
 
-All plugin files assume this global exists:
+`init.lua` exposes `_G.Config` with helpers wrapped in `mini.misc.safely` (so one failure doesn't cascade): `now`, `later`, `now_if_args`, `on_event`, `on_filetype`, `new_autocmd`, `on_packchanged`. See `init.lua` for what each does.
 
-- `Config.now(f)` — run immediately during startup. Use for colorscheme, statusline, tabline, dashboard.
-- `Config.later(f)` — defer past first draw. Default for everything non-critical.
-- `Config.now_if_args(f)` — `now` when `nvim <file>`, else `later`. Use for things needed when a file is opened at startup (completion, LSP, treesitter, `mini.files`).
-- `Config.on_event(ev, f)` / `Config.on_filetype(ft, f)` — lazier variants.
-- `Config.new_autocmd(event, pattern, callback, desc)` — autocmd in the `custom-config` augroup.
-- `Config.on_packchanged(name, kinds, cb, desc)` — hook into `vim.pack` update/install events (see `40_plugins.lua` for the `:TSUpdate` example).
+### Leader mappings
 
-All wrap `mini.misc.safely` so a failure in one setup block doesn't break startup.
+Leader is `<Space>`. Two-key convention: first key is the semantic group, second is the action. Uppercase second key = local/buffer variant of lowercase global (e.g., `<Leader>fs` workspace LSP symbols, `<Leader>fS` document symbols). New groups need an entry in `Config.leader_group_clues` (`plugin/20_keymaps.lua`) so `mini.clue` shows hints.
 
-### Leader mapping convention
+### Subsystems
 
-Leader is `<Space>`. Mappings are **two-key**: first key is the semantic group, second is the action. Uppercase second key = local/buffer variant of lowercase global action (e.g., `<Leader>fs` workspace LSP symbols, `<Leader>fS` document symbols).
+- **LSP servers:** per-server config in `after/lsp/<name>.lua`, enabled via `vim.lsp.enable` in `plugin/40_plugins.lua`.
+- **Formatters:** `conform.setup({ formatters_by_ft })` in `plugin/40_plugins.lua`. Trigger with `<Leader>lf`. Format-on-save is allowlisted in the same call.
+- **Snippets:** loaded in `plugin/30_mini.lua` from `snippets/global.json`, `after/snippets/<lang>.json`, and `friendly-snippets`. Expand with `<C-j>` in Insert.
 
-**When adding a new leader group,** add an entry to `Config.leader_group_clues` in `plugin/20_keymaps.lua` — `mini.clue` reads this table to show hints. Existing groups: `b` Buffer, `e` Explore/Edit, `f` Find, `g` Git, `l` Language, `m` Map, `o` Other, `s` Session, `t` Terminal, `v` Visits.
+## Working in this config
 
-### Adding an LSP server
+### Principles
 
-1. Create `after/lsp/<server>.lua` returning a config table (see `after/lsp/lua_ls.lua` for the shape — `on_attach`, `settings`, etc.).
-2. Uncomment and extend the `vim.lsp.enable({...})` call in `plugin/40_plugins.lua`.
+- **Read mini docs first.** Before customizing a mini module, try `:h MiniXxx.config` (knobs), then `-examples` (working setups), then `-overview` (concepts). When help is ambiguous, source is canonical. Many problems have a documented mini-native lever — don't write a workaround when there's a knob.
+- **Investigate at the right layer.** If filtering noise from a server (LSP progress, diagnostics), check whether the upstream layer can be told to stop emitting first — LSP `capabilities`, server `settings`, server CLI flags. Root-cause beats post-arrival filtering.
 
-`mini.completion` advertises its capabilities globally via `vim.lsp.config('*', { capabilities = ... })` in `30_mini.lua`, so per-server configs don't need to repeat that.
+### Where to look
 
-### Formatter config
+`<pack>` = `~/.local/share/vmini/site/pack/core/opt/`.
 
-Formatters are configured in `plugin/40_plugins.lua` under `conform.setup({ formatters_by_ft = { ... } })`. `lsp_format = 'fallback'` means LSP formatting is used if no formatter is registered for the filetype. Trigger with `<Leader>lf`.
-
-### Snippets
-
-Three sources, loaded in `plugin/30_mini.lua`:
-1. `snippets/global.json` — always available.
-2. `after/snippets/<lang>.json` — per-language overrides.
-3. `friendly-snippets` plugin — via `gen_loader.from_lang()`.
-
-Expand with `<C-j>` in Insert mode.
+- **Mini knobs / source:** `:h MiniXxx.config`, `:h MiniXxx-examples`, `:h MiniXxx-overview`. Source at `<pack>/mini.nvim/lua/mini/<module>.lua`.
+- **nvim-lspconfig server defaults:** `<pack>/nvim-lspconfig/lsp/<server>.lua` (cmd, filetypes, default capabilities, root markers).
+- **Conform formatters:** `<pack>/conform.nvim/lua/conform/formatters/<name>.lua` (binary, args, stdin handling).
+- **Neovim built-ins:** `:h vim.lsp`, `:h vim.diagnostic`, `:h vim.treesitter`, `:h options`, `:h vim.keymap.set`.
+- **Live state inspection:** `:checkhealth <subsystem>`, `:LspInfo`, `:verbose nmap <key>`, `:lua print(vim.inspect(...))`.
+- **Headless probes:** `NVIM_APPNAME=vmini nvim --headless +'lua ...' +qa!`. For `later()`-deferred setup, wrap in `vim.defer_fn(..., 200)` so callbacks fire before quit.
+- **Plugin repo state:** `gh api repos/<owner>/<repo>` for archive status, recent commits.
+- **`.notes/`:** prior configs (Helix, the previous nvim attempt, theme spec) and gitignored upstream copies for grep-able lookup.
 
 ## Editing conventions
 
-- The `stylua: ignore start` / `ignore end` blocks in `10_options.lua` and `20_keymaps.lua` are **intentionally manually aligned** for readability. Preserve alignment when editing, or remove the ignore comments to autoformat.
-- Many existing files have long heredoc-style comment blocks that serve as inline tutorials for the user. These are load-bearing documentation, not noise — don't strip them on cleanup.
-- `.notes/` is gitignored and contains reference copies of upstream configs (mini.nvim, echasnovski-nvim, catppuccin, etc.) for lookup. Don't treat it as project code.
+- Many existing files have long heredoc-style comment blocks that serve as inline tutorials. These are load-bearing documentation, not noise — don't strip them on cleanup.
+- `.notes/` is gitignored. Holds reference copies of upstream configs and working scratch (notes, cheat-sheets). Not tracked.
