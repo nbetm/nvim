@@ -93,23 +93,7 @@ end)
 --
 -- See also:
 -- - `:h MiniNotify.config` for some of common configuration examples.
-now(function()
-  -- Filter out chatty LSP servers' progress messages (pyright spams 0-100%
-  -- on every file analyze). Add a client name to `silenced_progress` to
-  -- mute future offenders.
-  local silenced_progress = { pyright = true }
-  require("mini.notify").setup({
-    content = {
-      sort = function(notif_arr)
-        local kept = vim.tbl_filter(
-          function(n) return not (n.data and n.data.source == "lsp_progress" and silenced_progress[n.data.client_name]) end,
-          notif_arr
-        )
-        return MiniNotify.default_sort(kept)
-      end,
-    },
-  })
-end)
+now(function() require("mini.notify").setup() end)
 
 -- Session management. A thin wrapper around `:h mksession` that consistently
 -- manages session files. Example usage:
