@@ -23,6 +23,14 @@
     "nvim-treesitter-textobjects": {
       "rev": "851e865342e5a4cb1ae23d31caf6e991e1c99f1e",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter-textobjects"
+    },
+    "octo.nvim": {
+      "rev": "bbd903ce905c301ac516d64c33b2511a05f6b59b",
+      "src": "https://github.com/pwntester/octo.nvim"
+    },
+    "plenary.nvim": {
+      "rev": "74b06c6c75e4eeb3108ec01852001636d85a932b",
+      "src": "https://github.com/nvim-lua/plenary.nvim"
     }
   }
 }

@@ -225,6 +225,35 @@ end)
 -- See `:h MiniSnippets.gen_loader.from_lang()`.
 later(function() add({ "https://github.com/rafamadriz/friendly-snippets" }) end)
 
+-- GitHub PR review ===========================================================
+
+-- 'octo.nvim' brings the GitHub PR review workflow into Neovim: open a PR,
+-- navigate the diff, leave inline comments, submit a multi-comment review.
+-- Used here as a review-only tool — PR browsing/management lives in `gh-dash`.
+--
+-- Typical flow:
+-- - `gh pr checkout <num>` (or pick from gh-dash) to switch branches
+-- - `:Octo pr edit` to open the PR for the current branch
+-- - `:Octo review start` to enter the review session
+-- - Navigate diff with built-in keymaps; `<Space>ca` leaves an inline comment
+-- - `:Octo review submit` to send the review
+--
+-- See also:
+-- - `:h octo` and `:Octo` (top-level command discovery)
+-- - https://github.com/pwntester/octo.nvim#commands for the full list
+later(function()
+  add({
+    "https://github.com/nvim-lua/plenary.nvim",
+    "https://github.com/pwntester/octo.nvim",
+  })
+  require("octo").setup({
+    -- `default` uses `vim.ui.select`, which is already routed to mini.pick
+    -- (see plugin/30_mini.lua). Avoids pulling in telescope/fzf-lua/snacks
+    -- just for this plugin's pickers.
+    picker = "default",
+  })
+end)
+
 -- Honorable mentions =========================================================
 
 -- 'mason-org/mason.nvim' (a.k.a. "Mason") is a great tool (package manager) for
