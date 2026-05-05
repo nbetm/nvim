@@ -93,7 +93,16 @@ end)
 --
 -- See also:
 -- - `:h MiniNotify.config` for some of common configuration examples.
-now(function() require("mini.notify").setup() end)
+now(function()
+  require("mini.notify").setup()
+  -- Quiet INFO/DEBUG/TRACE so daily noise reads as plain text. ERROR/WARN
+  -- keep their Diagnostic* tint to flag actual attention.
+  vim.notify = MiniNotify.make_notify({
+    INFO = { hl_group = "MiniNotifyNormal" },
+    DEBUG = { hl_group = "MiniNotifyNormal" },
+    TRACE = { hl_group = "MiniNotifyNormal" },
+  })
+end)
 
 -- Session management. A thin wrapper around `:h mksession` that consistently
 -- manages session files. Example usage:
@@ -696,7 +705,9 @@ end)
 --   Execute one either with Lua function, `:Pick <picker-name>` command, or
 --   one of `<Leader>f` mappings defined in 'plugin/20_keymaps.lua'
 later(function()
-  require("mini.pick").setup()
+  require("mini.pick").setup({
+    window = { prompt_prefix = "❱ " },
+  })
   -- Route generic UI selectors (LSP code actions, etc.) through mini.pick.
   vim.ui.select = MiniPick.ui_select
 end)
