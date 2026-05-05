@@ -25,6 +25,17 @@ vim.o.undofile = true -- Enable persistent undo
 
 vim.o.shada = "'100,<50,s10,:1000,/100,@100,h" -- Limit ShaDa file (for startup)
 
+-- Route the system clipboard through OSC 52 instead of xclip/wl-copy. Works
+-- uniformly: locally with/without tmux, and over SSH. Combined with tmux's
+-- `set-clipboard on`, yanks populate the tmux paste buffer too. See the
+-- `TextYankPost` autocmd below for the yank-only mirror that drives this.
+local osc52 = require("vim.ui.clipboard.osc52")
+vim.g.clipboard = {
+  name = "osc52",
+  copy = { ["+"] = osc52.copy("+"), ["*"] = osc52.copy("*") },
+  paste = { ["+"] = osc52.paste("+"), ["*"] = osc52.paste("*") },
+}
+
 -- Enable all filetype plugins and syntax (if not enabled, for better startup)
 vim.cmd("filetype plugin indent on")
 if vim.fn.exists("syntax_on") ~= 1 then vim.cmd("syntax enable") end
@@ -101,6 +112,14 @@ vim.o.completetimeout = 100 -- Limit sources delay
 -- Do on `FileType` to always override these changes from filetype plugins.
 local f = function() vim.cmd("setlocal formatoptions-=c formatoptions-=o") end
 Config.new_autocmd("FileType", nil, f, "Proper 'formatoptions'")
+
+-- Mirror yanks (only) to the system clipboard. Keeps `clipboard=""` so `dd`/`dw`
+-- don't clobber `+`, while still letting yanked text paste in tmux/browser/other
+-- nvim instances. Use `gp`/`gP` from mini.basics to read `+` back in.
+local mirror_yank = function()
+  if vim.v.event.operator == "y" then vim.fn.setreg("+", vim.fn.getreg('"'), vim.fn.getregtype('"')) end
+end
+Config.new_autocmd("TextYankPost", nil, mirror_yank, "Mirror yanks to clipboard")
 
 -- There are other autocommands created by 'mini.basics'. See 'plugin/30_mini.lua'.
 
