@@ -519,7 +519,7 @@ hl("MiniDiffOverDelete", { link = "DiffDelete" })
 -- mini.files
 hl("MiniFilesBorder", { link = "FloatBorder" })
 hl("MiniFilesBorderModified", { link = "DiagnosticFloatingWarn" })
-hl("MiniFilesCursorLine", { link = "CursorLine" })
+hl("MiniFilesCursorLine", { link = "MiniPickMatchCurrent" })
 hl("MiniFilesDirectory", { link = "Directory" })
 hl("MiniFilesFile", { fg = p.text })
 hl("MiniFilesNormal", { link = "NormalFloat" })
