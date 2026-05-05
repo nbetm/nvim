@@ -123,6 +123,10 @@ local smart_close = function()
   MiniBufremove.delete()
 end
 
+-- Git blame helpers (popup + inline toggle). Implementation lives in
+-- `lua/blame.lua` to keep this file focused on keymap registration.
+local blame = require("blame")
+
 nmap_leader("a", "ggVG", "Select all")
 nmap_leader("e", "<Cmd>lua MiniFiles.open()<CR>", "Explorer (cwd)")
 nmap_leader("E", explore_at_file, "Explorer (file dir)")
@@ -194,10 +198,12 @@ nmap_leader("fv", '<Cmd>Pick visit_paths cwd=""<CR>', "Visit paths (all)")
 nmap_leader("fV", "<Cmd>Pick visit_paths<CR>", "Visit paths (cwd)")
 
 -- g is for 'Git'. Common usage:
--- - `<Leader>gs` - show information at cursor
+-- - `<Leader>gb` - quick blame popup for the current line
+-- - `<Leader>gs` - show information at cursor (mini.git, opens a buffer)
 -- - `<Leader>go` - toggle 'mini.diff' overlay to show in-buffer unstaged changes
 -- - `<Leader>gd` - show unstaged changes as a patch in separate tabpage
 -- - `<Leader>gL` - show Git log of current file
+-- - `\b`         - toggle inline-blame virtual text per line
 local git_log_cmd = [[Git log --pretty=format:\%h\ \%as\ │\ \%s --topo-order]]
 local git_log_buf_cmd = git_log_cmd .. " --follow -- %"
 
@@ -210,9 +216,13 @@ nmap_leader("gD", "<Cmd>Git diff -- %<CR>", "Diff buffer")
 nmap_leader("gl", "<Cmd>" .. git_log_cmd .. "<CR>", "Log")
 nmap_leader("gL", "<Cmd>" .. git_log_buf_cmd .. "<CR>", "Log buffer")
 nmap_leader("go", "<Cmd>lua MiniDiff.toggle_overlay()<CR>", "Toggle overlay")
+nmap_leader("gb", blame.popup, "Blame popup")
 nmap_leader("gs", "<Cmd>lua MiniGit.show_at_cursor()<CR>", "Show at cursor")
 
 xmap_leader("gs", "<Cmd>lua MiniGit.show_at_cursor()<CR>", "Show at selection")
+
+-- Inline blame toggle (overrides mini.basics' `\b` = background toggle).
+vim.keymap.set("n", "\\b", blame.toggle, { desc = "Toggle inline blame" })
 
 -- l is for 'Language'. Common usage:
 -- - `<Leader>ld` - show more diagnostic details in a floating window

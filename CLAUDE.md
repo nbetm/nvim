@@ -30,6 +30,7 @@ plugin/20_keymaps.lua   leader mappings + Config.leader_group_clues
 plugin/30_mini.lua      all mini.nvim module setup
 plugin/40_plugins.lua   non-mini plugins (treesitter, lspconfig, conform, friendly-snippets)
 plugin/50_filetypes.lua filetype detection rules
+lua/<name>.lua          personal helpers required from plugin/ files
 after/ftplugin/*.lua    per-filetype config
 after/lsp/*.lua         LSP server configs (consumed by vim.lsp.config/enable)
 after/snippets/*.json   higher-priority snippet files
