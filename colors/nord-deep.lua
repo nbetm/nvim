@@ -470,8 +470,33 @@ hl("markdownBlockquote", { fg = p.magenta })
 -- 8. Theme aliases --------------------------------------------------------- {{{
 -- Captures the design language so module-specific groups link instead of
 -- duplicating values. Tweaking a tier value (e.g., shifting `bg` for sunken
--- floats) becomes a one-line change. New modules added later inherit the
--- patterns by linking, not by remembering palette choices.
+-- floats) becomes a one-line change.
+--
+-- Design language at a glance:
+--
+--   Float tiers
+--     Sunken (bg = base)    — workspace surfaces (pickers, explorer, clue)
+--     Raised (bg = surface) — transient feedback (notify, hover, peek, Pmenu)
+--
+--   Semantic color channels (popups)
+--     cyan    = active query / destination (titles, matches, prompt)
+--     magenta = navigational landmark (headers, group entries)
+--     blue    = actionable key (clue NextKey, starter prefix)
+--     orange  = submode-entry key (postkeys)
+--     subtle  = structural chrome (borders, separators)
+--     dim     = faded / inactive (unfocused titles)
+--     text    = neutral typed input (filter prompt body)
+--
+--   Row state hierarchy
+--     Marked (bg = subtle, brightest) > Current (bg = elevated) > Default
+--
+--   Other rules
+--     Selection modulates bg only — fg falls through to entry color.
+--     Severity (red/yellow/navy) reserved for actual attention, not noise.
+--     Focus signaled by fade — active stays at baseline, inactive dims.
+--     Structural chrome (borders/separators) recedes on `subtle`.
+--
+-- Full tool-agnostic spec: .notes/nord-deep.md
 
 -- Sunken float tier (pickers, explorer, clue). Workspace surfaces painted
 -- on editor `bg`. Notify, hover, diagnostic float, completion info, peek,
