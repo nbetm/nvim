@@ -601,50 +601,25 @@ later(function()
   MiniKeymap.map_multistep("i", "<BS>", { "minipairs_bs" })
 end)
 
--- Window with text overview. It is displayed on the right hand side. Can be used
--- for quick overview and navigation. Hidden by default. Example usage:
--- - `<Leader>mt` - toggle map window
--- - `<Leader>mf` - focus on the map for fast navigation
--- - `<Leader>ms` - change map's side (if it covers something underneath)
---
--- See also:
--- - `:h MiniMap.gen_encode_symbols` - list of symbols to use for text encoding
--- - `:h MiniMap.gen_integration` - list of integrations to show in the map
---
--- NOTE: Might introduce lag on very big buffers (10000+ lines)
+-- Search navigation tweaks (in `later()` so we win against any plugin that
+-- maps n/N during startup):
+--  1. Append `zv` so `*`/`#`/`n`/`N` open enough folds to land on the match.
+--  2. (n/N) Always mean forward/backward regardless of last search direction.
+--     Vim's default has `n` repeat in the search direction, so after `?foo`
+--     it goes backwards. `v:searchforward` is 1 after `/`/`*`, 0 after `?`/`#`.
 later(function()
-  local map = require("mini.map")
-  map.setup({
-    -- Use Braille dots to encode text
-    symbols = { encode = map.gen_encode_symbols.dot("4x2") },
-    -- Show built-in search matches, 'mini.diff' hunks, and diagnostic entries
-    integrations = {
-      map.gen_integration.builtin_search(),
-      map.gen_integration.diff(),
-      map.gen_integration.diagnostic(),
-    },
-  })
-
-  -- Map search-navigation characters to:
-  --  1. Open enough folds to land on the match (`zv`).
-  --  2. Force a mini.map refresh.
-  --  3. (n/N only) Always mean forward/backward regardless of last search
-  --     direction. Vim's default has `n` repeat in the search direction, so
-  --     after `?foo` it goes backwards — confusing. `v:searchforward` is 1
-  --     after `/foo` / `*` and 0 after `?foo` / `#`.
-  local refresh = "<Cmd>lua MiniMap.refresh({}, { lines = false, scrollbar = false })<CR>"
-  vim.keymap.set("n", "*", "*zv" .. refresh)
-  vim.keymap.set("n", "#", "#zv" .. refresh)
+  vim.keymap.set("n", "*", "*zv")
+  vim.keymap.set("n", "#", "#zv")
   vim.keymap.set(
     { "n", "x" },
     "n",
-    function() return (vim.v.searchforward == 1 and "n" or "N") .. "zv" .. refresh end,
+    function() return (vim.v.searchforward == 1 and "n" or "N") .. "zv" end,
     { expr = true, desc = "Next search (forward)" }
   )
   vim.keymap.set(
     { "n", "x" },
     "N",
-    function() return (vim.v.searchforward == 1 and "N" or "n") .. "zv" .. refresh end,
+    function() return (vim.v.searchforward == 1 and "N" or "n") .. "zv" end,
     { expr = true, desc = "Prev search (backward)" }
   )
 end)
