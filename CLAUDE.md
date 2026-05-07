@@ -44,7 +44,7 @@ colors/*.lua            colorschemes
 
 ### Leader mappings
 
-Leader is `<Space>`. Two-key convention: first key is the semantic group, second is the action. Uppercase second key = local/buffer variant of lowercase global (e.g., `<Leader>fs` workspace LSP symbols, `<Leader>fS` document symbols). New groups need an entry in `Config.leader_group_clues` (`plugin/20_keymaps.lua`) so `mini.clue` shows hints.
+Leader is `<Space>`. Two-key convention: first key is the semantic group, second is the action. Uppercase second key = local/buffer variant of lowercase global (e.g., `<Leader>ps` workspace LSP symbols, `<Leader>pS` document symbols). New groups need an entry in `Config.leader_group_clues` (`plugin/20_keymaps.lua`) so `mini.clue` shows hints.
 
 ### Subsystems
 

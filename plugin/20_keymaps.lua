@@ -57,12 +57,12 @@ nmap("gI", lsp_or_builtin(vim.lsp.buf.implementation, "gI"), "Goto implementatio
 -- This config uses a "two key Leader mappings" approach: first key describes
 -- semantic group, second key executes an action. Both keys are usually chosen
 -- to create some kind of mnemonic.
--- Example: `<Leader>f` groups "find" type of actions; `<Leader>ff` - find files.
+-- Example: `<Leader>p` groups picker actions; `<Leader>pb` - pick buffer.
 -- Use this section to add Leader mappings in a structural manner.
 --
 -- Usually if there are global and local kinds of actions, lowercase second key
 -- denotes global and uppercase - local.
--- Example: `<Leader>fs` / `<Leader>fS` - find workspace/document LSP symbols.
+-- Example: `<Leader>ps` / `<Leader>pS` - find workspace/document LSP symbols.
 --
 -- Many of the mappings use 'mini.nvim' modules set up in 'plugin/30_mini.lua'.
 
@@ -72,7 +72,7 @@ nmap("gI", lsp_or_builtin(vim.lsp.buf.implementation, "gI"), "Goto implementatio
 Config.leader_group_clues = {
   { mode = "n", keys = "<Leader>b", desc = "+Buffer" },
   { mode = "n", keys = "<Leader>c", desc = "+Config" },
-  { mode = "n", keys = "<Leader>f", desc = "+Find" },
+  { mode = "n", keys = "<Leader>p", desc = "+Picker" },
   { mode = "n", keys = "<Leader>g", desc = "+Git" },
   { mode = "n", keys = "<Leader>l", desc = "+Language" },
   { mode = "n", keys = "<Leader>o", desc = "+Other" },
@@ -130,6 +130,7 @@ local blame = require("blame")
 nmap_leader("a", "ggVG", "Select all")
 nmap_leader("e", "<Cmd>lua MiniFiles.open()<CR>", "Explorer (cwd)")
 nmap_leader("E", explore_at_file, "Explorer (file dir)")
+nmap_leader("f", "<Cmd>Pick files<CR>", "Files")
 nmap_leader("w", "<Cmd>write<CR>", "Write")
 nmap_leader("W", "<Cmd>wall<CR>", "Write all")
 nmap_leader("q", smart_close, "Close (qf/loc/help/buffer; quit if last & empty)")
@@ -161,41 +162,42 @@ nmap_leader("cm", edit_plugin_file("30_mini.lua"), "MINI config")
 nmap_leader("co", edit_plugin_file("10_options.lua"), "Options config")
 nmap_leader("cp", edit_plugin_file("40_plugins.lua"), "Plugins config")
 
--- f is for 'Fuzzy Find'. Common usage:
--- - `<Leader>ff` - find files; for best performance requires `ripgrep`
--- - `<Leader>fg` - find inside files; requires `ripgrep`
--- - `<Leader>fh` - find help tag
--- - `<Leader>fr` - resume latest picker
--- - `<Leader>fv` - all visited paths; requires 'mini.visits'
+-- p is for 'Picker'. Common usage:
+-- - `<Leader>f`  - find files (root shortcut, Helix-style)
+-- - `<Leader>/`  - grep inside files (root shortcut)
+-- - `<Leader>pb` - buffers
+-- - `<Leader>ph` - help tag
+-- - `<Leader>pr` - resume latest picker
+-- - `<Leader>pv` - all visited paths; requires 'mini.visits'
 --
 -- All these use 'mini.pick'. See `:h MiniPick-overview` for an overview.
 local pick_added_hunks_buf = '<Cmd>Pick git_hunks path="%" scope="staged"<CR>'
 local pick_workspace_symbols_live = '<Cmd>Pick lsp scope="workspace_symbol_live"<CR>'
 
-nmap_leader("f/", '<Cmd>Pick history scope="/"<CR>', '"/" history')
-nmap_leader("f:", '<Cmd>Pick history scope=":"<CR>', '":" history')
-nmap_leader("fa", '<Cmd>Pick git_hunks scope="staged"<CR>', "Added hunks (all)")
-nmap_leader("fA", pick_added_hunks_buf, "Added hunks (buf)")
-nmap_leader("fb", "<Cmd>Pick buffers<CR>", "Buffers")
-nmap_leader("fc", "<Cmd>Pick git_commits<CR>", "Commits (all)")
-nmap_leader("fC", '<Cmd>Pick git_commits path="%"<CR>', "Commits (buf)")
-nmap_leader("fd", '<Cmd>Pick diagnostic scope="all"<CR>', "Diagnostic workspace")
-nmap_leader("fD", '<Cmd>Pick diagnostic scope="current"<CR>', "Diagnostic buffer")
-nmap_leader("ff", "<Cmd>Pick files<CR>", "Files")
-nmap_leader("fg", "<Cmd>Pick grep_live<CR>", "Grep live")
-nmap_leader("fG", '<Cmd>Pick grep pattern="<cword>"<CR>', "Grep current word")
-nmap_leader("fh", "<Cmd>Pick help<CR>", "Help tags")
-nmap_leader("fH", "<Cmd>Pick hl_groups<CR>", "Highlight groups")
-nmap_leader("fl", '<Cmd>Pick buf_lines scope="all"<CR>', "Lines (all)")
-nmap_leader("fL", '<Cmd>Pick buf_lines scope="current"<CR>', "Lines (buf)")
-nmap_leader("fm", "<Cmd>Pick git_hunks<CR>", "Modified hunks (all)")
-nmap_leader("fM", '<Cmd>Pick git_hunks path="%"<CR>', "Modified hunks (buf)")
-nmap_leader("fr", "<Cmd>Pick resume<CR>", "Resume")
-nmap_leader("fR", '<Cmd>Pick lsp scope="references"<CR>', "References (LSP)")
-nmap_leader("fs", pick_workspace_symbols_live, "Symbols workspace (live)")
-nmap_leader("fS", '<Cmd>Pick lsp scope="document_symbol"<CR>', "Symbols document")
-nmap_leader("fv", '<Cmd>Pick visit_paths cwd=""<CR>', "Visit paths (all)")
-nmap_leader("fV", "<Cmd>Pick visit_paths<CR>", "Visit paths (cwd)")
+nmap_leader("p/", '<Cmd>Pick history scope="/"<CR>', '"/" history')
+nmap_leader("p:", '<Cmd>Pick history scope=":"<CR>', '":" history')
+nmap_leader("pa", '<Cmd>Pick git_hunks scope="staged"<CR>', "Added hunks (all)")
+nmap_leader("pA", pick_added_hunks_buf, "Added hunks (buf)")
+nmap_leader("pb", "<Cmd>Pick buffers<CR>", "Buffers")
+nmap_leader("pc", "<Cmd>Pick git_commits<CR>", "Commits (all)")
+nmap_leader("pC", '<Cmd>Pick git_commits path="%"<CR>', "Commits (buf)")
+nmap_leader("pd", '<Cmd>Pick diagnostic scope="all"<CR>', "Diagnostic workspace")
+nmap_leader("pD", '<Cmd>Pick diagnostic scope="current"<CR>', "Diagnostic buffer")
+nmap_leader("pf", "<Cmd>Pick files<CR>", "Files")
+nmap_leader("pg", "<Cmd>Pick grep_live<CR>", "Grep live")
+nmap_leader("pG", '<Cmd>Pick grep pattern="<cword>"<CR>', "Grep current word")
+nmap_leader("ph", "<Cmd>Pick help<CR>", "Help tags")
+nmap_leader("pH", "<Cmd>Pick hl_groups<CR>", "Highlight groups")
+nmap_leader("pl", '<Cmd>Pick buf_lines scope="all"<CR>', "Lines (all)")
+nmap_leader("pL", '<Cmd>Pick buf_lines scope="current"<CR>', "Lines (buf)")
+nmap_leader("pm", "<Cmd>Pick git_hunks<CR>", "Modified hunks (all)")
+nmap_leader("pM", '<Cmd>Pick git_hunks path="%"<CR>', "Modified hunks (buf)")
+nmap_leader("pr", "<Cmd>Pick resume<CR>", "Resume")
+nmap_leader("pR", '<Cmd>Pick lsp scope="references"<CR>', "References (LSP)")
+nmap_leader("ps", pick_workspace_symbols_live, "Symbols workspace (live)")
+nmap_leader("pS", '<Cmd>Pick lsp scope="document_symbol"<CR>', "Symbols document")
+nmap_leader("pv", '<Cmd>Pick visit_paths cwd=""<CR>', "Visit paths (all)")
+nmap_leader("pV", "<Cmd>Pick visit_paths<CR>", "Visit paths (cwd)")
 
 -- g is for 'Git'. Common usage:
 -- - `<Leader>gb` - quick blame popup for the current line

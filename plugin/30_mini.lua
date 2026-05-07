@@ -696,10 +696,10 @@ end)
 --   To close picker without choosing an item, press `<Esc>`.
 --
 -- Example usage:
--- - `<Leader>ff` - *f*ind *f*iles; for best performance requires `ripgrep`
--- - `<Leader>fg` - *f*ind inside files (a.k.a. "to *g*rep"); requires `ripgrep`
--- - `<Leader>fh` - *f*ind *h*elp tag
--- - `<Leader>fr` - *r*esume latest picker
+-- - `<Leader>f`  - find files (root shortcut, Helix-style)
+-- - `<Leader>/`  - grep inside files (root shortcut)
+-- - `<Leader>ph` - help tag
+-- - `<Leader>pr` - resume latest picker
 -- - `:h vim.ui.select()` - implemented with 'mini.pick'
 --
 -- See also:
@@ -836,7 +836,7 @@ later(function() require("mini.trailspace").setup() end)
 -- tracked on disk to later reuse: show in special frecency order, etc. It also
 -- supports adding labels to visited paths to quickly navigate between them.
 -- Example usage:
--- - `<Leader>fv` - find across all visits
+-- - `<Leader>pv` - find across all visits
 -- - `<Leader>vv` / `<Leader>vV` - add/remove special "core" label to current file
 -- - `<Leader>vc` / `<Leader>vC` - show files with "core" label; all or added within
 --   current working directory
