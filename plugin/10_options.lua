@@ -82,6 +82,7 @@ vim.o.foldtext = ""
 -- Editing ====================================================================
 vim.o.autoindent = true -- Use auto indent
 vim.o.expandtab = true -- Convert tabs to spaces
+vim.o.fixendofline = true -- Add a trailing newline on write if missing (default)
 vim.o.formatoptions = "rqnl1j" -- Improve comment editing
 vim.o.ignorecase = true -- Ignore case during search
 vim.o.incsearch = true -- Show search matches while typing
@@ -120,6 +121,18 @@ local mirror_yank = function()
   if vim.v.event.operator == "y" then vim.fn.setreg("+", vim.fn.getreg('"'), vim.fn.getregtype('"')) end
 end
 Config.new_autocmd("TextYankPost", nil, mirror_yank, "Mirror yanks to clipboard")
+
+-- Strip trailing whitespace on save. Skip `markdown`: two trailing spaces are
+-- a hard line break there, stripping silently would corrupt formatting.
+-- For format-on-save filetypes (python, bash, etc.) the formatter handles
+-- this anyway; the autocmd is a no-op there but keeps the rule global.
+local trim_trailing_ws = function()
+  if vim.bo.filetype == "markdown" then return end
+  local pos = vim.api.nvim_win_get_cursor(0)
+  vim.cmd([[silent! keepjumps keeppatterns %s/\s\+$//]])
+  pcall(vim.api.nvim_win_set_cursor, 0, pos)
+end
+Config.new_autocmd("BufWritePre", "*", trim_trailing_ws, "Strip trailing whitespace")
 
 -- There are other autocommands created by 'mini.basics'. See 'plugin/30_mini.lua'.
 
