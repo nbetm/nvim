@@ -482,7 +482,22 @@ later(function() require("mini.cursorword").setup() end)
 -- - `:h MiniDiff-overview` - overview of how module works
 -- - `:h MiniDiff-diff-summary` - available summary information
 -- - `:h MiniDiff.gen_source` - available built-in sources
-later(function() require("mini.diff").setup({}) end)
+later(function()
+  require("mini.diff").setup({
+    -- Use `g/G` as the hunk-navigation suffix (instead of the default `h/H`).
+    -- Trade-offs:
+    -- - Pro: hand alternation on a split keyboard (right pinky `[]`, left
+    --   index `g`) is faster than the same-hand `h` sequence.
+    -- - Pro: `g` for "git hunk" is a defensible mnemonic.
+    -- - Con: diverges from upstream mini.diff docs (which use `h/H`).
+    mappings = {
+      goto_first = "[G",
+      goto_prev = "[g",
+      goto_next = "]g",
+      goto_last = "]G",
+    },
+  })
+end)
 
 -- Git integration for more straightforward Git actions based on Neovim's state.
 -- It is not meant as a fully featured Git client, only to provide helpers that
