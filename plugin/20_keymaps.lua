@@ -101,7 +101,7 @@ local explore_at_file = "<Cmd>lua MiniFiles.open(vim.api.nvim_buf_get_name(0))<C
 --   1. In a quickfix window -> `:cclose`.
 --   2. In a location-list window -> `:lclose`.
 --   3. In a help window -> `:helpclose`.
---   4. Last listed buffer is the empty [No Name] -> `:quitall`.
+--   4. Last listed buffer -> `:quitall` (E162 still protects unsaved work).
 --   5. Otherwise -> MiniBufremove.delete() (protects unsaved work via E37).
 local smart_close = function()
   local wintype = vim.fn.win_gettype(0)
@@ -112,14 +112,8 @@ local smart_close = function()
   local buf = vim.api.nvim_get_current_buf()
   local listed = vim.tbl_filter(function(b) return vim.bo[b].buflisted end, vim.api.nvim_list_bufs())
   if #listed == 1 and listed[1] == buf then
-    local name = vim.api.nvim_buf_get_name(buf)
-    local modified = vim.bo[buf].modified
-    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-    local is_empty = name == "" and not modified and #lines <= 1 and (lines[1] or "") == ""
-    if is_empty then
-      vim.cmd("quitall")
-      return
-    end
+    vim.cmd("quitall")
+    return
   end
   MiniBufremove.delete()
 end
@@ -134,7 +128,7 @@ nmap_leader("E", "<Cmd>lua MiniFiles.open()<CR>", "Explorer (cwd)")
 nmap_leader("f", "<Cmd>Pick files<CR>", "Files")
 nmap_leader("w", "<Cmd>write<CR>", "Write")
 nmap_leader("W", "<Cmd>wall<CR>", "Write all")
-nmap_leader("q", smart_close, "Close (qf/loc/help/buffer; quit if last & empty)")
+nmap_leader("q", smart_close, "Close")
 nmap_leader("Q", "<Cmd>quitall<CR>", "Quit all")
 nmap_leader("/", "<Cmd>Pick grep_live<CR>", "Grep live")
 nmap_leader("?", "<Cmd>Pick commands<CR>", "Commands")
