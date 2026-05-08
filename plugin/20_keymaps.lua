@@ -25,6 +25,10 @@ end
 nmap("[p", '<Cmd>exe "iput! " . v:register<CR>', "Paste Above")
 nmap("]p", '<Cmd>exe "iput "  . v:register<CR>', "Paste Below")
 
+-- `<Esc>` clears the current search highlight. `\h` from mini.basics still
+-- toggles `'hlsearch'` globally if you want it off persistently.
+nmap("<Esc>", "<Cmd>noh<CR>", "Clear search highlight")
+
 -- LSP navigation under `g*`. Falls back to the original built-in `gX` when no
 -- LSP client is attached to the current buffer (so opening a plain text file
 -- still gets you `gd`'s "go to local declaration", etc.).
