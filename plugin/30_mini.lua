@@ -74,8 +74,53 @@ now(function()
   -- Set up to not prefer extension-based icon for some extensions
   local ext3_blocklist = { scm = true, txt = true, yml = true }
   local ext4_blocklist = { json = true, yaml = true }
+  -- Override LSP-kind highlights so symbol pickers (mini.extra `Pick lsp`) and
+  -- the completion popup's kind icons render in the same colors as source-code
+  -- syntax. Without this, mini.icons assigns its own colors per kind (e.g.,
+  -- Class → magenta, Field → yellow), which diverges from how the colorscheme
+  -- paints those tokens in actual code.
+  --
+  -- Mapping rule: each LSP kind links to the same highlight group that source
+  -- code uses for that token. Functions stay cyan, types stay aqua, etc.
+  local lsp_kind_hl = {
+    array = { hl = "@variable" },
+    boolean = { hl = "Boolean" },
+    class = { hl = "Type" },
+    color = { hl = "Constant" },
+    constant = { hl = "Constant" },
+    constructor = { hl = "@constructor" },
+    enum = { hl = "Type" },
+    enummember = { hl = "@constant" },
+    event = { hl = "Special" },
+    field = { hl = "@field" },
+    file = { hl = "Directory" },
+    folder = { hl = "Directory" },
+    ["function"] = { hl = "Function" },
+    interface = { hl = "Type" },
+    key = { hl = "@property" },
+    keyword = { hl = "Keyword" },
+    method = { hl = "Function" },
+    module = { hl = "@module" },
+    namespace = { hl = "@namespace" },
+    null = { hl = "@constant.builtin" },
+    number = { hl = "Number" },
+    object = { hl = "@variable" },
+    operator = { hl = "Operator" },
+    package = { hl = "@module" },
+    property = { hl = "@property" },
+    reference = { hl = "@variable" },
+    snippet = { hl = "@string.special" },
+    string = { hl = "String" },
+    struct = { hl = "Type" },
+    text = { hl = "@text" },
+    typeparameter = { hl = "@type.definition" },
+    unit = { hl = "@constant" },
+    value = { hl = "@variable" },
+    variable = { hl = "@variable" },
+  }
   require("mini.icons").setup({
     use_file_extension = function(ext, _) return not (ext3_blocklist[ext:sub(-3)] or ext4_blocklist[ext:sub(-4)]) end,
+    lsp = lsp_kind_hl,
   })
 
   -- Mock 'nvim-tree/nvim-web-devicons' for plugins without 'mini.icons' support.
