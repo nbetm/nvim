@@ -44,7 +44,7 @@ colors/*.lua            colorschemes
 
 ### Leader mappings
 
-Leader is `<Space>`. Two-key convention: first key is the semantic group, second is the action. Lowercase second key = narrow scope (current buffer / file dir / cwd), uppercase = broad scope (workspace / all). Mirrors Vim's `gd` (local) vs `gD` (global) split. Example: `<Leader>ps` document LSP symbols, `<Leader>pS` workspace LSP symbols. New groups need an entry in `Config.leader_group_clues` (`plugin/20_keymaps.lua`) so `mini.clue` shows hints.
+Leader is `<Space>`. Two-key convention: first key is the semantic group, second is the action. Lowercase second key = narrow scope (current buffer / file dir / cwd), uppercase = broad scope (workspace / all). Mirrors Vim's `gd` (local) vs `gD` (global) split. Example: `<Leader>s` document LSP symbols, `<Leader>S` workspace LSP symbols. New groups need an entry in `Config.leader_group_clues` (`plugin/20_keymaps.lua`) so `mini.clue` shows hints.
 
 ### Subsystems
 

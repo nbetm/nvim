@@ -80,8 +80,8 @@ Config.leader_group_clues = {
   { mode = "n", keys = "<Leader>p", desc = "+Picker" },
   { mode = "n", keys = "<Leader>g", desc = "+Git" },
   { mode = "n", keys = "<Leader>l", desc = "+Language" },
-  { mode = "n", keys = "<Leader>o", desc = "+Other" },
-  { mode = "n", keys = "<Leader>s", desc = "+Session" },
+  { mode = "n", keys = "<Leader>O", desc = "+Other" },
+  { mode = "n", keys = "<Leader>o", desc = "+Session" },
   { mode = "n", keys = "<Leader>v", desc = "+Visits" },
 
   { mode = "x", keys = "<Leader>g", desc = "+Git" },
@@ -127,11 +127,17 @@ end
 local blame = require("blame")
 local notes = require("notes")
 
+-- Picker shortcuts shared between root direct mappings and the +Picker group.
+local pick_added_hunks_buf = '<Cmd>Pick git_hunks path="%" scope="staged"<CR>'
+local pick_workspace_symbols_live = '<Cmd>Pick lsp scope="workspace_symbol_live"<CR>'
+
 nmap_leader("a", "ggVG", "Select all")
 nmap_leader("e", explore_at_file, "Explorer (file dir)")
 nmap_leader("E", "<Cmd>lua MiniFiles.open()<CR>", "Explorer (cwd)")
 nmap_leader("f", "<Cmd>Pick files<CR>", "Files")
 nmap_leader("n", notes.pick, "Notes")
+nmap_leader("s", '<Cmd>Pick lsp scope="document_symbol"<CR>', "Symbols document")
+nmap_leader("S", pick_workspace_symbols_live, "Symbols workspace (live)")
 nmap_leader("w", "<Cmd>write<CR>", "Write")
 nmap_leader("W", "<Cmd>wall<CR>", "Write all")
 nmap_leader("q", smart_close, "Close")
@@ -172,8 +178,6 @@ nmap_leader("cp", edit_plugin_file("40_plugins.lua"), "Plugins config")
 -- - `<Leader>pv` - all visited paths; requires 'mini.visits'
 --
 -- All these use 'mini.pick'. See `:h MiniPick-overview` for an overview.
-local pick_added_hunks_buf = '<Cmd>Pick git_hunks path="%" scope="staged"<CR>'
-local pick_workspace_symbols_live = '<Cmd>Pick lsp scope="workspace_symbol_live"<CR>'
 
 nmap_leader("p/", '<Cmd>Pick history scope="/"<CR>', '"/" history')
 nmap_leader("p:", '<Cmd>Pick history scope=":"<CR>', '":" history')
@@ -249,28 +253,30 @@ nmap_leader("lt", "<Cmd>lua vim.lsp.buf.type_definition()<CR>", "Type definition
 
 xmap_leader("lf", '<Cmd>lua require("conform").format()<CR>', "Format selection")
 
--- o is for 'Other'. Grab-bag of utility actions.
+-- O is for 'Other'. Grab-bag of utility actions (capital O so the lowercase
+-- `o` is free for the more frequent Session group below).
 local toggle_quickfix = function() vim.cmd(vim.fn.getqflist({ winid = true }).winid ~= 0 and "cclose" or "copen") end
 local toggle_loclist = function() vim.cmd(vim.fn.getloclist(0, { winid = true }).winid ~= 0 and "lclose" or "lopen") end
--- - `<Leader>oz` - toggle between "zoomed" and regular view of current buffer
-nmap_leader("on", "<Cmd>lua MiniNotify.show_history()<CR>", "Notifications")
-nmap_leader("oq", toggle_quickfix, "Quickfix list (toggle)")
-nmap_leader("oQ", toggle_loclist, "Location list (toggle)")
-nmap_leader("or", "<Cmd>lua MiniMisc.resize_window()<CR>", "Resize to default width")
-nmap_leader("ot", "<Cmd>lua MiniTrailspace.trim()<CR>", "Trim trailspace")
-nmap_leader("oz", "<Cmd>lua MiniMisc.zoom()<CR>", "Zoom toggle")
+-- - `<Leader>Oz` - toggle between "zoomed" and regular view of current buffer
+nmap_leader("On", "<Cmd>lua MiniNotify.show_history()<CR>", "Notifications")
+nmap_leader("Oq", toggle_quickfix, "Quickfix list (toggle)")
+nmap_leader("OQ", toggle_loclist, "Location list (toggle)")
+nmap_leader("Or", "<Cmd>lua MiniMisc.resize_window()<CR>", "Resize to default width")
+nmap_leader("Ot", "<Cmd>lua MiniTrailspace.trim()<CR>", "Trim trailspace")
+nmap_leader("Oz", "<Cmd>lua MiniMisc.zoom()<CR>", "Zoom toggle")
 
--- s is for 'Session'. Common usage:
--- - `<Leader>sn` - start new session
--- - `<Leader>sr` - read previously started session
--- - `<Leader>sR` - restart Neovim preserving current session
+-- o is for 'Session' (sessions are the most-used `o*` action; Other lives at
+-- `O*` above). Common usage:
+-- - `<Leader>on` - start new session
+-- - `<Leader>or` - read previously started session
+-- - `<Leader>oR` - restart Neovim preserving current session
 local session_new = 'vim.ui.input({ prompt = "Session name: " }, MiniSessions.write)'
 
-nmap_leader("sd", '<Cmd>lua MiniSessions.select("delete")<CR>', "Delete")
-nmap_leader("sn", "<Cmd>lua " .. session_new .. "<CR>", "New")
-nmap_leader("sr", '<Cmd>lua MiniSessions.select("read")<CR>', "Read")
-nmap_leader("sR", "<Cmd>lua MiniSessions.restart()<CR>", "Restart")
-nmap_leader("sw", "<Cmd>lua MiniSessions.write()<CR>", "Write current")
+nmap_leader("od", '<Cmd>lua MiniSessions.select("delete")<CR>', "Delete")
+nmap_leader("on", "<Cmd>lua " .. session_new .. "<CR>", "New")
+nmap_leader("or", '<Cmd>lua MiniSessions.select("read")<CR>', "Read")
+nmap_leader("oR", "<Cmd>lua MiniSessions.restart()<CR>", "Restart")
+nmap_leader("ow", "<Cmd>lua MiniSessions.write()<CR>", "Write current")
 
 -- v is for 'Visits'. Common usage:
 -- - `<Leader>vv` - add    "core" label to current file.
