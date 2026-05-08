@@ -68,11 +68,10 @@ hl("Folded", { fg = p.dim, bg = p.surface })
 hl("Visual", { bg = p.elevated })
 hl("VisualNOS", { bg = p.elevated })
 
--- Pmenu (cmdline completion + LSP completion) — raised tier (LSP is system-
--- reactive, shouldn't read as a destination). Selection + matches reuse the
--- picker's row/query aliases.
-hl("Pmenu", { fg = p.text, bg = p.surface })
-hl("PmenuBorder", { fg = p.subtle, bg = p.surface })
+-- Pmenu (cmdline + LSP completion) — raised tier, same `surface` bg as
+-- notify/hover/peek. Selection and matches reuse the picker aliases.
+hl("Pmenu", { link = "NormalFloat" })
+hl("PmenuBorder", { link = "FloatBorder" })
 hl("PmenuSel", { link = "NordRowCurrent" })
 hl("PmenuMatch", { link = "NordEntryMatch" })
 hl("PmenuMatchSel", { link = "NordEntryMatch" })
@@ -184,33 +183,32 @@ hl("DiagnosticInfo", { fg = p.navy })
 hl("DiagnosticHint", { fg = p.navy })
 hl("DiagnosticOk", { fg = p.green })
 
--- Virtual text (same colors, no bg)
-hl("DiagnosticVirtualTextError", { fg = p.red })
-hl("DiagnosticVirtualTextWarn", { fg = p.yellow })
-hl("DiagnosticVirtualTextInfo", { fg = p.navy })
-hl("DiagnosticVirtualTextHint", { fg = p.navy })
-hl("DiagnosticVirtualTextOk", { fg = p.green })
+-- Virtual text, signs (gutter), floating window — all share the base color
+-- per severity, so just link instead of repeating values.
+hl("DiagnosticVirtualTextError", { link = "DiagnosticError" })
+hl("DiagnosticVirtualTextWarn", { link = "DiagnosticWarn" })
+hl("DiagnosticVirtualTextInfo", { link = "DiagnosticInfo" })
+hl("DiagnosticVirtualTextHint", { link = "DiagnosticHint" })
+hl("DiagnosticVirtualTextOk", { link = "DiagnosticOk" })
 
--- Underline (undercurl with sp = color)
+hl("DiagnosticSignError", { link = "DiagnosticError" })
+hl("DiagnosticSignWarn", { link = "DiagnosticWarn" })
+hl("DiagnosticSignInfo", { link = "DiagnosticInfo" })
+hl("DiagnosticSignHint", { link = "DiagnosticHint" })
+hl("DiagnosticSignOk", { link = "DiagnosticOk" })
+
+hl("DiagnosticFloatingError", { link = "DiagnosticError" })
+hl("DiagnosticFloatingWarn", { link = "DiagnosticWarn" })
+hl("DiagnosticFloatingInfo", { link = "DiagnosticInfo" })
+hl("DiagnosticFloatingHint", { link = "DiagnosticHint" })
+hl("DiagnosticFloatingOk", { link = "DiagnosticOk" })
+
+-- Underline uses `sp` + `undercurl`, distinct from the fg-only base groups.
 hl("DiagnosticUnderlineError", { sp = p.red, undercurl = true })
 hl("DiagnosticUnderlineWarn", { sp = p.yellow, undercurl = true })
 hl("DiagnosticUnderlineInfo", { sp = p.navy, undercurl = true })
 hl("DiagnosticUnderlineHint", { sp = p.navy, undercurl = true })
 hl("DiagnosticUnderlineOk", { sp = p.green, undercurl = true })
-
--- Signs (gutter)
-hl("DiagnosticSignError", { fg = p.red })
-hl("DiagnosticSignWarn", { fg = p.yellow })
-hl("DiagnosticSignInfo", { fg = p.navy })
-hl("DiagnosticSignHint", { fg = p.navy })
-hl("DiagnosticSignOk", { fg = p.green })
-
--- Floating window
-hl("DiagnosticFloatingError", { fg = p.red })
-hl("DiagnosticFloatingWarn", { fg = p.yellow })
-hl("DiagnosticFloatingInfo", { fg = p.navy })
-hl("DiagnosticFloatingHint", { fg = p.navy })
-hl("DiagnosticFloatingOk", { fg = p.green })
 
 -- Special states
 hl("DiagnosticDeprecated", { fg = p.dim, strikethrough = true })
@@ -611,13 +609,15 @@ hl("MiniHipatternsTodo", { fg = p.base, bg = p.yellow, bold = true })
 hl("MiniHipatternsNote", { fg = p.base, bg = p.cyan, bold = true })
 
 -- mini.icons (link to closest named palette color)
-hl("MiniIconsAzure", { fg = p.cyan }) -- closest "azure" is cyan in this palette
+-- mini.icons named-color groups → palette. Azure → cyan and Purple → magenta
+-- because the palette doesn't have those exact names.
+hl("MiniIconsAzure", { fg = p.cyan })
 hl("MiniIconsBlue", { fg = p.blue })
 hl("MiniIconsCyan", { fg = p.cyan })
 hl("MiniIconsGreen", { fg = p.green })
 hl("MiniIconsGrey", { fg = p.dim })
 hl("MiniIconsOrange", { fg = p.orange })
-hl("MiniIconsPurple", { fg = p.magenta }) -- closest purple is magenta
+hl("MiniIconsPurple", { fg = p.magenta })
 hl("MiniIconsRed", { fg = p.red })
 hl("MiniIconsYellow", { fg = p.yellow })
 
@@ -685,8 +685,8 @@ hl("MiniStarterItemPrefix", { fg = p.blue, bold = true })
 hl("MiniStarterSection", { link = "NordSemanticHeader" })
 hl("MiniStarterQuery", { link = "NordEntryMatch" })
 
--- mini.statusline (modes mirror Helix statusline colors)
--- Normal: nord-text bg, insert: nord-cyan bg, visual: nord-aqua bg
+-- mini.statusline. Mode bgs mirror Helix statusline conventions: each mode
+-- gets a distinct palette color so you can read the active mode at a glance.
 hl("MiniStatuslineModeNormal", { fg = p.base, bg = p.text, bold = true })
 hl("MiniStatuslineModeInsert", { fg = p.base, bg = p.cyan, bold = true })
 hl("MiniStatuslineModeVisual", { fg = p.base, bg = p.aqua, bold = true })
@@ -722,10 +722,6 @@ hl("MiniTrailspace", { bg = p.red })
 -- }}}
 
 -- 10. Misc ----------------------------------------------------------------- {{{
-
--- Virtual text helpers (inlay hints follow Helix ui.virtual.inlay-hint style)
-hl("NonText", { fg = p.elevated }) -- already set above — kept for clarity
-hl("Conceal", { fg = p.subtle }) -- ditto
 
 -- Quickfix
 hl("qfLineNr", { fg = p.subtle })
