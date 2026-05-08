@@ -1,5 +1,4 @@
--- Tell bash-language-server to drive its diagnostics through `shellcheck`,
--- matching the Helix setup.
+-- Drive bash-language-server diagnostics through `shellcheck`.
 return {
   settings = {
     bashIde = {

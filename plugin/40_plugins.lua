@@ -205,7 +205,7 @@ later(function()
       hcl = { "terraform_fmt" },
     },
     formatters = {
-      -- Match Helix: 4-space indent, indent switch cases.
+      -- 4-space indent, indent switch cases (override shfmt's tab default).
       shfmt = { prepend_args = { "-i", "4", "-ci" } },
     },
     format_on_save = function(bufnr)

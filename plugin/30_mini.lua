@@ -628,7 +628,7 @@ later(function()
     -- Dim non-target text and show 2 steps of label-trail ahead.
     view = { dim = true, n_steps_ahead = 2 },
   })
-  -- Free-form single-character jump (Helix-style "f then char then jump").
+  -- Free-form single-character jump (press `sj`, then a char, then a label).
   vim.keymap.set(
     { "n", "x", "o" },
     "sj",
@@ -756,7 +756,7 @@ end)
 --   To close picker without choosing an item, press `<Esc>`.
 --
 -- Example usage:
--- - `<Leader>f`  - find files (root shortcut, Helix-style)
+-- - `<Leader>f`  - find files (root shortcut)
 -- - `<Leader>/`  - grep inside files (root shortcut)
 -- - `<Leader>ph` - help tag
 -- - `<Leader>pr` - resume latest picker

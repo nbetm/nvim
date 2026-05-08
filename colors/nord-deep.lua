@@ -1,7 +1,5 @@
 -- Nord Deep — an arctic, north-bluish color palette taken to deeper depths.
--- Hand-rolled from the Helix theme of the same name. See:
--- - .notes/nord-deep.md                      (palette spec)
--- - .notes/helix/themes/nord-deep.toml       (1:1 source)
+-- See .notes/nord-deep.md for the palette spec and design language.
 --
 -- Activate with `:colorscheme nord-deep`.
 -- Toggle transparent background by setting `vim.g.nord_deep_transparent = 1`
@@ -611,7 +609,7 @@ hl("MiniIconsPurple", { fg = p.magenta })
 hl("MiniIconsRed", { fg = p.red })
 hl("MiniIconsYellow", { fg = p.yellow })
 
--- mini.indentscope (matches Helix `ui.virtual.indent-guide` — subtle, blends in)
+-- mini.indentscope (subtle indent guides that blend into the background)
 hl("MiniIndentscopeSymbol", { fg = p.elevated })
 hl("MiniIndentscopeSymbolOff", { fg = p.red })
 
@@ -675,8 +673,8 @@ hl("MiniStarterItemPrefix", { fg = p.blue, bold = true })
 hl("MiniStarterSection", { link = "NordSemanticHeader" })
 hl("MiniStarterQuery", { link = "NordEntryMatch" })
 
--- mini.statusline. Mode bgs mirror Helix statusline conventions: each mode
--- gets a distinct palette color so you can read the active mode at a glance.
+-- mini.statusline. Each mode gets a distinct palette color so you can read
+-- the active mode at a glance.
 hl("MiniStatuslineModeNormal", { fg = p.base, bg = p.text, bold = true })
 hl("MiniStatuslineModeInsert", { fg = p.base, bg = p.cyan, bold = true })
 hl("MiniStatuslineModeVisual", { fg = p.base, bg = p.aqua, bold = true })
@@ -691,7 +689,7 @@ hl("MiniStatuslineInactive", { link = "StatusLineNC" })
 -- mini.surround
 hl("MiniSurround", { link = "IncSearch" })
 
--- mini.tabline (bufferline — mirrors Helix bufferline: inactive on surface, active on base)
+-- mini.tabline (bufferline — inactive tabs on surface, active on base)
 hl("MiniTablineCurrent", { fg = p.text, bg = p.base, bold = true })
 hl("MiniTablineVisible", { fg = p.dim, bg = p.surface, bold = true })
 hl("MiniTablineHidden", { fg = p.dim, bg = p.surface })

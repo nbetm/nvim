@@ -148,9 +148,8 @@ local diagnostic_opts = {
   -- Show all diagnostics as underline (for their messages type `<Leader>ld`)
   underline = { severity = { min = "HINT", max = "ERROR" } },
 
-  -- Show details inline for the current line at WARN+ severity (see `<Leader>ld`
-  -- for the full popup with all severities). Mirrors Helix's
-  -- `inline-diagnostics.cursor-line = "warning"`.
+  -- Show details inline for the current line at WARN+ severity. See
+  -- `<Leader>ld` for the full popup with all severities.
   virtual_lines = false,
   virtual_text = {
     current_line = true,

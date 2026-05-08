@@ -96,9 +96,9 @@ Config.leader_group_clues = {
 local nmap_leader = function(suffix, rhs, desc) vim.keymap.set("n", "<Leader>" .. suffix, rhs, { desc = desc }) end
 local xmap_leader = function(suffix, rhs, desc) vim.keymap.set("x", "<Leader>" .. suffix, rhs, { desc = desc }) end
 
--- Direct leader actions (no group). Helix-flavored shortcuts for the heavy
--- hitters. `<Leader>q` mirrors `<Leader>bd` — closes the current buffer
--- (keeps splits intact); `<Leader>Q` quits Neovim entirely.
+-- Direct leader actions (no group). Quick shortcuts for the heavy hitters.
+-- `<Leader>q` mirrors `<Leader>bd` — closes the current buffer (keeps splits
+-- intact); `<Leader>Q` quits Neovim entirely.
 local explore_at_file = "<Cmd>lua MiniFiles.open(vim.api.nvim_buf_get_name(0))<CR>"
 
 -- Smart close, in priority order:
@@ -170,7 +170,7 @@ nmap_leader("co", edit_plugin_file("10_options.lua"), "Options config")
 nmap_leader("cp", edit_plugin_file("40_plugins.lua"), "Plugins config")
 
 -- p is for 'Picker'. Common usage:
--- - `<Leader>f`  - find files (root shortcut, Helix-style)
+-- - `<Leader>f`  - find files (root shortcut)
 -- - `<Leader>/`  - grep inside files (root shortcut)
 -- - `<Leader>pb` - buffers
 -- - `<Leader>ph` - help tag
