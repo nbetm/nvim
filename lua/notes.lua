@@ -19,13 +19,15 @@ M.pick = function()
     return
   end
   -- `--no-ignore` to bypass parent .gitignore that excludes `.notes/`.
-  -- `--hidden` so dotfiles inside the notes dir show up. `!.git` excludes
-  -- any nested git repo metadata in case the notes dir contains one.
+  -- `--hidden` so dotfiles inside the notes dir show up. `--follow` traverses
+  -- symlinks so notes linked into `.notes/` from elsewhere show up.
+  -- `!.git` excludes any nested git repo metadata.
   local files = vim.fn.systemlist({
     "rg",
     "--files",
     "--no-ignore",
     "--hidden",
+    "--follow",
     "--glob",
     "!.git",
     "--",
