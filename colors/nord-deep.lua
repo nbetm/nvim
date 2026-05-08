@@ -513,6 +513,11 @@ hl("NordRowCurrent", { bg = p.elevated })
 
 -- Query state — matched chars in entries and the prompt-prefix marker.
 hl("NordQueryMatch", { fg = p.cyan })
+
+-- Navigational landmark — section headers, group entries that descend deeper.
+-- Inline-only callers (mini.clue's DescGroup, which needs an explicit bg due
+-- to the noautocmd quirk) keep their literal `fg = p.magenta` instead.
+hl("NordSemanticHeader", { fg = p.magenta })
 -- }}}
 
 -- 9. mini.nvim groups ------------------------------------------------------ {{{
@@ -635,7 +640,7 @@ hl("MiniPickBorderText", { link = "NordSunkenTitle" })
 hl("MiniPickCursor", { blend = 100, nocombine = true })
 hl("MiniPickIconDirectory", { link = "Directory" })
 hl("MiniPickIconFile", { link = "MiniPickNormal" })
-hl("MiniPickHeader", { fg = p.magenta })
+hl("MiniPickHeader", { link = "NordSemanticHeader" })
 hl("MiniPickMatchCurrent", { link = "NordRowCurrent" })
 hl("MiniPickMatchMarked", { link = "NordRowMarked" })
 hl("MiniPickMatchRanges", { link = "NordQueryMatch" })
@@ -643,7 +648,7 @@ hl("MiniPickNormal", { link = "NordSunkenNormal" })
 hl("MiniPickPreviewLine", { link = "CursorLine" })
 hl("MiniPickPreviewRegion", { link = "IncSearch" })
 hl("MiniPickPrompt", { fg = p.text })
-hl("MiniPickPromptCaret", { fg = p.cyan })
+hl("MiniPickPromptCaret", { link = "NordQueryMatch" })
 hl("MiniPickPromptPrefix", { link = "NordQueryMatch" })
 
 -- mini.snippets
@@ -661,7 +666,7 @@ hl("MiniStarterInactive", { link = "Comment" })
 hl("MiniStarterItem", { link = "Normal" })
 hl("MiniStarterItemBullet", { fg = p.dim })
 hl("MiniStarterItemPrefix", { fg = p.blue, bold = true })
-hl("MiniStarterSection", { fg = p.magenta })
+hl("MiniStarterSection", { link = "NordSemanticHeader" })
 hl("MiniStarterQuery", { fg = p.cyan, bold = true })
 
 -- mini.statusline (modes mirror Helix statusline colors)
