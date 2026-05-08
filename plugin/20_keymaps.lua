@@ -121,11 +121,13 @@ end
 -- Git blame helpers (popup + inline toggle). Implementation lives in
 -- `lua/blame.lua` to keep this file focused on keymap registration.
 local blame = require("blame")
+local notes = require("notes")
 
 nmap_leader("a", "ggVG", "Select all")
 nmap_leader("e", explore_at_file, "Explorer (file dir)")
 nmap_leader("E", "<Cmd>lua MiniFiles.open()<CR>", "Explorer (cwd)")
 nmap_leader("f", "<Cmd>Pick files<CR>", "Files")
+nmap_leader("n", notes.pick, "Notes")
 nmap_leader("w", "<Cmd>write<CR>", "Write")
 nmap_leader("W", "<Cmd>wall<CR>", "Write all")
 nmap_leader("q", smart_close, "Close")
@@ -187,6 +189,7 @@ nmap_leader("pl", '<Cmd>Pick buf_lines scope="current"<CR>', "Lines (buf)")
 nmap_leader("pL", '<Cmd>Pick buf_lines scope="all"<CR>', "Lines (all)")
 nmap_leader("pm", '<Cmd>Pick git_hunks path="%"<CR>', "Modified hunks (buf)")
 nmap_leader("pM", "<Cmd>Pick git_hunks<CR>", "Modified hunks (all)")
+nmap_leader("pn", notes.pick, "Notes (.notes/)")
 nmap_leader("pr", "<Cmd>Pick resume<CR>", "Resume")
 nmap_leader("pR", '<Cmd>Pick lsp scope="references"<CR>', "References (LSP)")
 nmap_leader("ps", '<Cmd>Pick lsp scope="document_symbol"<CR>', "Symbols document")
