@@ -569,18 +569,6 @@ hl("MiniCompletionInfoBorderOutdated", { link = "DiagnosticFloatingWarn" })
 hl("MiniCursorword", { underline = true })
 hl("MiniCursorwordCurrent", { underline = true })
 
--- mini.deps (not installed but groups defined for completeness)
-hl("MiniDepsChangeAdded", { link = "diffAdded" })
-hl("MiniDepsChangeRemoved", { link = "diffRemoved" })
-hl("MiniDepsHint", { link = "DiagnosticHint" })
-hl("MiniDepsInfo", { link = "DiagnosticInfo" })
-hl("MiniDepsMsgBreaking", { link = "DiagnosticWarn" })
-hl("MiniDepsPlaceholder", { link = "Comment" })
-hl("MiniDepsTitle", { link = "Title" })
-hl("MiniDepsTitleError", { link = "DiffDelete" })
-hl("MiniDepsTitleSame", { link = "DiffText" })
-hl("MiniDepsTitleUpdate", { link = "DiffAdd" })
-
 -- mini.diff
 hl("MiniDiffSignAdd", { fg = p.green })
 hl("MiniDiffSignChange", { fg = p.yellow })
