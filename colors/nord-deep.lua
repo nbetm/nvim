@@ -74,8 +74,8 @@ hl("VisualNOS", { bg = p.elevated })
 hl("Pmenu", { fg = p.text, bg = p.surface })
 hl("PmenuBorder", { fg = p.subtle, bg = p.surface })
 hl("PmenuSel", { link = "NordRowCurrent" })
-hl("PmenuMatch", { link = "NordQueryMatch" })
-hl("PmenuMatchSel", { link = "NordQueryMatch" })
+hl("PmenuMatch", { link = "NordEntryMatch" })
+hl("PmenuMatchSel", { link = "NordEntryMatch" })
 hl("PmenuSbar", { bg = p.elevated })
 hl("PmenuThumb", { bg = p.subtle })
 hl("PmenuKind", { fg = p.aqua, bg = p.surface })
@@ -478,14 +478,21 @@ hl("markdownBlockquote", { fg = p.magenta })
 --     Sunken (bg = base)    — workspace surfaces (pickers, explorer, clue)
 --     Raised (bg = surface) — transient feedback (notify, hover, peek, Pmenu)
 --
---   Semantic color channels (popups)
---     cyan    = active query / destination (titles, matches, prompt)
+--   Semantic color channels
+--     cyan    = live as-you-type matching: prompt prefix `❱`, sunken titles,
+--               picker/pmenu matches (bold), IncSearch in the buffer. Frost
+--               accent for "you're typing a query, here's what it matches."
+--     orange  = committed / paired result: CurSearch (the hit you'll jump
+--               to after Enter), MatchParen (bracket pair), clue's submode
+--               keys. Reads as "this is the resolved match."
+--     yellow  = passive search results in the buffer (Search) — universal
+--               find-in-page idiom for "all hits, none current."
 --     magenta = navigational landmark (headers, group entries)
 --     blue    = actionable key (clue NextKey, starter prefix)
---     orange  = submode-entry key (postkeys)
 --     subtle  = structural chrome (borders, separators)
 --     dim     = faded / inactive (unfocused titles)
---     text    = neutral typed input (filter prompt body)
+--     text    = neutral typed input + caret (filter prompt body, caret
+--               blends with what you're typing)
 --
 --   Row state hierarchy
 --     Marked (bg = subtle, brightest) > Current (bg = elevated) > Default
@@ -511,8 +518,17 @@ hl("NordSunkenTitleDim", { fg = p.dim, bg = bg, bold = true })
 hl("NordRowMarked", { bg = p.subtle })
 hl("NordRowCurrent", { bg = p.elevated })
 
--- Query state — matched chars in entries and the prompt-prefix marker.
-hl("NordQueryMatch", { fg = p.cyan })
+-- Prompt cue — prompt prefix and caret. The "you're typing here" accent for
+-- the picker query area. Doesn't apply to titles (those are NordSunkenTitle)
+-- or to matched content (that's NordEntryMatch).
+hl("NordPromptCue", { fg = p.cyan })
+
+-- Matched content — picker matched chars, completion-popup matched chars.
+-- `cyan + bold`: picks up the palette's primary accent on most kinds (a color
+-- shift signals "this is the match"); on cyan-fg entries (Function/Method,
+-- where the symbol picker also uses cyan) the bold weight carries the
+-- distinction. Stays Frost-dominant; doesn't pull the picker toward Aurora.
+hl("NordEntryMatch", { fg = p.cyan, bold = true })
 
 -- Navigational landmark — section headers, group entries that descend deeper.
 -- Inline-only callers (mini.clue's DescGroup, which needs an explicit bg due
@@ -643,13 +659,13 @@ hl("MiniPickIconFile", { link = "MiniPickNormal" })
 hl("MiniPickHeader", { link = "NordSemanticHeader" })
 hl("MiniPickMatchCurrent", { link = "NordRowCurrent" })
 hl("MiniPickMatchMarked", { link = "NordRowMarked" })
-hl("MiniPickMatchRanges", { link = "NordQueryMatch" })
+hl("MiniPickMatchRanges", { link = "NordEntryMatch" })
 hl("MiniPickNormal", { link = "NordSunkenNormal" })
 hl("MiniPickPreviewLine", { link = "CursorLine" })
 hl("MiniPickPreviewRegion", { link = "IncSearch" })
 hl("MiniPickPrompt", { fg = p.text })
-hl("MiniPickPromptCaret", { link = "NordQueryMatch" })
-hl("MiniPickPromptPrefix", { link = "NordQueryMatch" })
+hl("MiniPickPromptCaret", { fg = p.text })
+hl("MiniPickPromptPrefix", { link = "NordPromptCue" })
 
 -- mini.snippets
 hl("MiniSnippetsCurrent", { sp = p.yellow, underdouble = true })
@@ -667,7 +683,7 @@ hl("MiniStarterItem", { link = "Normal" })
 hl("MiniStarterItemBullet", { fg = p.dim })
 hl("MiniStarterItemPrefix", { fg = p.blue, bold = true })
 hl("MiniStarterSection", { link = "NordSemanticHeader" })
-hl("MiniStarterQuery", { fg = p.cyan, bold = true })
+hl("MiniStarterQuery", { link = "NordEntryMatch" })
 
 -- mini.statusline (modes mirror Helix statusline colors)
 -- Normal: nord-text bg, insert: nord-cyan bg, visual: nord-aqua bg
