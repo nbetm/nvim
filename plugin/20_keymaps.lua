@@ -75,7 +75,7 @@ nmap("gI", lsp_or_builtin(vim.lsp.buf.implementation, "gI"), "Goto implementatio
 -- This is used to provide 'mini.clue' with extra clues.
 -- Add an entry if you create a new group.
 Config.leader_group_clues = {
-  { mode = "n", keys = "<Leader>b", desc = "+Buffer" },
+  { mode = "n", keys = "<Leader>B", desc = "+Buffer" },
   { mode = "n", keys = "<Leader>p", desc = "+Picker" },
   { mode = "n", keys = "<Leader>g", desc = "+Git" },
   { mode = "n", keys = "<Leader>l", desc = "+Language" },
@@ -133,6 +133,7 @@ local pick_workspace_symbols_live = '<Cmd>Pick lsp scope="workspace_symbol_live"
 nmap_leader("a", "ggVG", "Select all")
 nmap_leader("e", explore_at_file, "Explorer (file dir)")
 nmap_leader("E", "<Cmd>lua MiniFiles.open()<CR>", "Explorer (cwd)")
+nmap_leader("b", "<Cmd>Pick buffers<CR>", "Buffers")
 nmap_leader("f", "<Cmd>Pick files<CR>", "Files")
 nmap_leader("n", notes.pick, "Notes")
 nmap_leader("s", '<Cmd>Pick lsp scope="document_symbol"<CR>', "Symbols document")
@@ -147,18 +148,19 @@ nmap_leader("Q", "<Cmd>quitall<CR>", "Quit all")
 nmap_leader("/", "<Cmd>Pick grep_live<CR>", "Grep live")
 nmap_leader("?", "<Cmd>Pick commands<CR>", "Commands")
 
--- b is for 'Buffer'. Common usage:
--- - `<Leader>bs` - create scratch (temporary) buffer
--- - `<Leader>ba` - navigate to the alternative buffer
--- - `<Leader>bw` - wipeout (fully delete) current buffer
+-- B is for 'Buffer' (capital so lowercase `b` is free for the buffer picker
+-- root shortcut). Common usage:
+-- - `<Leader>Bs` - create scratch (temporary) buffer
+-- - `<Leader>Ba` - navigate to the alternative buffer
+-- - `<Leader>Bw` - wipeout (fully delete) current buffer
 local new_scratch_buffer = function() vim.api.nvim_win_set_buf(0, vim.api.nvim_create_buf(true, true)) end
 
-nmap_leader("ba", "<Cmd>b#<CR>", "Alternate")
-nmap_leader("bd", "<Cmd>lua MiniBufremove.delete()<CR>", "Delete")
-nmap_leader("bD", "<Cmd>lua MiniBufremove.delete(0, true)<CR>", "Delete!")
-nmap_leader("bs", new_scratch_buffer, "Scratch")
-nmap_leader("bw", "<Cmd>lua MiniBufremove.wipeout()<CR>", "Wipeout")
-nmap_leader("bW", "<Cmd>lua MiniBufremove.wipeout(0, true)<CR>", "Wipeout!")
+nmap_leader("Ba", "<Cmd>b#<CR>", "Alternate")
+nmap_leader("Bd", "<Cmd>lua MiniBufremove.delete()<CR>", "Delete")
+nmap_leader("BD", "<Cmd>lua MiniBufremove.delete(0, true)<CR>", "Delete!")
+nmap_leader("Bs", new_scratch_buffer, "Scratch")
+nmap_leader("Bw", "<Cmd>lua MiniBufremove.wipeout()<CR>", "Wipeout")
+nmap_leader("BW", "<Cmd>lua MiniBufremove.wipeout(0, true)<CR>", "Wipeout!")
 
 -- p is for 'Picker'. Common usage:
 -- - `<Leader>f`  - find files (root shortcut)
