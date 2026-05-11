@@ -906,6 +906,10 @@ later(function() require("mini.trailspace").setup() end)
 -- - `:h MiniVisits-examples` - examples of common setups
 later(function() require("mini.visits").setup() end)
 
+-- Personal code-note system. See lua/codenotes.lua and the spec at
+-- docs/superpowers/specs/2026-05-11-codenotes-design.md.
+later(function() require("codenotes").setup() end)
+
 -- Not mentioned here, but can be useful:
 -- - 'mini.doc' - needed only for plugin developers.
 -- - 'mini.fuzzy' - not really needed on a daily basis.
