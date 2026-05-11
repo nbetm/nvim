@@ -131,8 +131,8 @@ local pick_added_hunks_buf = '<Cmd>Pick git_hunks path="%" scope="staged"<CR>'
 local pick_workspace_symbols_live = '<Cmd>Pick lsp scope="workspace_symbol_live"<CR>'
 
 nmap_leader("a", "ggVG", "Select all")
-nmap_leader("e", explore_at_file, "Explorer (file dir)")
-nmap_leader("E", "<Cmd>lua MiniFiles.open()<CR>", "Explorer (cwd)")
+nmap_leader("e", explore_at_file, "Explorer file dir")
+nmap_leader("E", "<Cmd>lua MiniFiles.open()<CR>", "Explorer cwd")
 nmap_leader("b", "<Cmd>Pick buffers<CR>", "Buffers")
 nmap_leader("f", "<Cmd>Pick files<CR>", "Files")
 nmap_leader("n", notes.pick, "Notes")
@@ -190,9 +190,9 @@ nmap_leader("pl", '<Cmd>Pick buf_lines scope="current"<CR>', "Lines buffer")
 nmap_leader("pL", '<Cmd>Pick buf_lines scope="all"<CR>', "Lines all")
 nmap_leader("pm", '<Cmd>Pick git_hunks path="%"<CR>', "Modified hunks buffer")
 nmap_leader("pM", "<Cmd>Pick git_hunks<CR>", "Modified hunks all")
-nmap_leader("pn", notes.pick, "Notes (.notes/)")
+nmap_leader("pn", notes.pick, "Notes")
 nmap_leader("pr", "<Cmd>Pick resume<CR>", "Resume")
-nmap_leader("pR", '<Cmd>Pick lsp scope="references"<CR>', "References (LSP)")
+nmap_leader("pR", '<Cmd>Pick lsp scope="references"<CR>', "References")
 nmap_leader("ps", '<Cmd>Pick lsp scope="document_symbol"<CR>', "Symbols buffer")
 nmap_leader("pS", pick_workspace_symbols_live, "Symbols workspace")
 nmap_leader("pv", "<Cmd>Pick visit_paths<CR>", "Visit paths cwd")
@@ -252,8 +252,8 @@ local toggle_quickfix = function() vim.cmd(vim.fn.getqflist({ winid = true }).wi
 local toggle_loclist = function() vim.cmd(vim.fn.getloclist(0, { winid = true }).winid ~= 0 and "lclose" or "lopen") end
 -- - `<Leader>Oz` - toggle between "zoomed" and regular view of current buffer
 nmap_leader("On", "<Cmd>lua MiniNotify.show_history()<CR>", "Notifications")
-nmap_leader("Oq", toggle_quickfix, "Quickfix list (toggle)")
-nmap_leader("OQ", toggle_loclist, "Location list (toggle)")
+nmap_leader("Oq", toggle_quickfix, "Quickfix toggle")
+nmap_leader("OQ", toggle_loclist, "Location toggle")
 nmap_leader("Or", "<Cmd>lua MiniMisc.resize_window()<CR>", "Resize to default width")
 nmap_leader("Ot", "<Cmd>lua MiniTrailspace.trim()<CR>", "Trim trailspace")
 nmap_leader("Oz", "<Cmd>lua MiniMisc.zoom()<CR>", "Zoom toggle")
