@@ -129,7 +129,6 @@ local git_files = require("git_files")
 local codenotes = require("codenotes")
 
 -- Picker shortcuts shared between root direct mappings and the +Picker group.
-local pick_added_hunks_buf = '<Cmd>Pick git_hunks path="%" scope="staged"<CR>'
 local pick_workspace_symbols_live = '<Cmd>Pick lsp scope="workspace_symbol_live"<CR>'
 
 nmap_leader("a", "ggVG", "Select all")
@@ -180,22 +179,18 @@ nmap_leader("BW", "<Cmd>lua MiniBufremove.wipeout(0, true)<CR>", "Wipeout!")
 
 nmap_leader("p/", '<Cmd>Pick history scope="/"<CR>', '"/" history')
 nmap_leader("p:", '<Cmd>Pick history scope=":"<CR>', '":" history')
-nmap_leader("pa", pick_added_hunks_buf, "Added hunks buffer")
-nmap_leader("pA", '<Cmd>Pick git_hunks scope="staged"<CR>', "Added hunks all")
 nmap_leader("pb", "<Cmd>Pick buffers<CR>", "Buffers")
 nmap_leader("pc", '<Cmd>Pick git_commits path="%"<CR>', "Commits buffer")
 nmap_leader("pC", "<Cmd>Pick git_commits<CR>", "Commits all")
 nmap_leader("pd", '<Cmd>Pick diagnostic scope="current"<CR>', "Diagnostic buffer")
 nmap_leader("pD", '<Cmd>Pick diagnostic scope="all"<CR>', "Diagnostic workspace")
 nmap_leader("pf", "<Cmd>Pick files<CR>", "Files")
-nmap_leader("pg", "<Cmd>Pick grep_live<CR>", "Grep")
-nmap_leader("pG", '<Cmd>Pick grep pattern="<cword>"<CR>', "Grep cword")
+nmap_leader("pg", '<Cmd>Pick git_hunks path="%"<CR>', "Git hunks buffer")
+nmap_leader("pG", "<Cmd>Pick git_hunks<CR>", "Git hunks all")
 nmap_leader("ph", "<Cmd>Pick help<CR>", "Help tags")
 nmap_leader("pH", "<Cmd>Pick hl_groups<CR>", "Highlight groups")
 nmap_leader("pl", '<Cmd>Pick buf_lines scope="current"<CR>', "Lines buffer")
 nmap_leader("pL", '<Cmd>Pick buf_lines scope="all"<CR>', "Lines all")
-nmap_leader("pm", '<Cmd>Pick git_hunks path="%"<CR>', "Modified hunks buffer")
-nmap_leader("pM", "<Cmd>Pick git_hunks<CR>", "Modified hunks all")
 nmap_leader("pn", codenotes.pick, "Code notes")
 nmap_leader("pN", notes.pick, "Project notes")
 nmap_leader("pr", "<Cmd>Pick resume<CR>", "Resume")
