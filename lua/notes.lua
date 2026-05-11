@@ -41,6 +41,10 @@ M.pick = function()
     source = {
       items = files,
       name = "Notes (" .. vim.fn.fnamemodify(notes_dir, ":~") .. ")",
+      -- Show mini.icons prefix per row, same as `Pick files`.
+      show = function(buf_id, items_to_show, query)
+        MiniPick.default_show(buf_id, items_to_show, query, { show_icons = true })
+      end,
     },
   })
 end
