@@ -76,7 +76,6 @@ nmap("gI", lsp_or_builtin(vim.lsp.buf.implementation, "gI"), "Goto implementatio
 -- Add an entry if you create a new group.
 Config.leader_group_clues = {
   { mode = "n", keys = "<Leader>b", desc = "+Buffer" },
-  { mode = "n", keys = "<Leader>c", desc = "+Config" },
   { mode = "n", keys = "<Leader>p", desc = "+Picker" },
   { mode = "n", keys = "<Leader>g", desc = "+Git" },
   { mode = "n", keys = "<Leader>l", desc = "+Language" },
@@ -157,17 +156,6 @@ nmap_leader("bD", "<Cmd>lua MiniBufremove.delete(0, true)<CR>", "Delete!")
 nmap_leader("bs", new_scratch_buffer, "Scratch")
 nmap_leader("bw", "<Cmd>lua MiniBufremove.wipeout()<CR>", "Wipeout")
 nmap_leader("bW", "<Cmd>lua MiniBufremove.wipeout(0, true)<CR>", "Wipeout!")
-
--- c is for 'Config'. Quick access to this Neovim config's files.
-local edit_plugin_file = function(filename)
-  return string.format("<Cmd>edit %s/plugin/%s<CR>", vim.fn.stdpath("config"), filename)
-end
-
-nmap_leader("ci", "<Cmd>edit $MYVIMRC<CR>", "init.lua")
-nmap_leader("ck", edit_plugin_file("20_keymaps.lua"), "Keymaps config")
-nmap_leader("cm", edit_plugin_file("30_mini.lua"), "MINI config")
-nmap_leader("co", edit_plugin_file("10_options.lua"), "Options config")
-nmap_leader("cp", edit_plugin_file("40_plugins.lua"), "Plugins config")
 
 -- p is for 'Picker'. Common usage:
 -- - `<Leader>f`  - find files (root shortcut)
