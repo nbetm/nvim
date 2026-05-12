@@ -1,5 +1,6 @@
 -- Nord Deep — an arctic, north-bluish color palette taken to deeper depths.
--- See .notes/nord-deep.md for the palette spec and design language.
+-- See https://github.com/nbetm/nix-config/blob/main/docs/nord-deep.md for
+-- the palette spec and design language.
 --
 -- Activate with `:colorscheme nord-deep`.
 -- Toggle transparent background by setting `vim.g.nord_deep_transparent = 1`
@@ -501,7 +502,7 @@ hl("markdownBlockquote", { fg = p.magenta })
 --     Focus signaled by fade — active stays at baseline, inactive dims.
 --     Structural chrome (borders/separators) recedes on `subtle`.
 --
--- Full tool-agnostic spec: .notes/nord-deep.md
+-- Full tool-agnostic spec: https://github.com/nbetm/nix-config/blob/main/docs/nord-deep.md
 
 -- Sunken float tier (pickers, explorer, clue). Workspace surfaces painted
 -- on editor `bg`. Notify, hover, diagnostic float, completion info, peek,

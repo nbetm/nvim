@@ -62,7 +62,7 @@ Other plugins kept to a minimum: [`nvim-treesitter`], [`nvim-lspconfig`], [`conf
 - [`git_files.lua`](lua/git_files.lua): modified, staged, and untracked file picker.
 
 **Colorscheme:** `nord-deep`, vendored at [`colors/nord-deep.lua`](colors/nord-deep.lua).
-A Nord variant with a header comment explaining what each color is for.
+An arctic, north-bluish color palette taken to deeper depths.
 Full palette spec at [nbetm/nix-config docs/nord-deep.md].
 
 **Keymap cheatsheet:** [`docs/keymap-cheatsheet.html`](docs/keymap-cheatsheet.html).
