@@ -259,7 +259,7 @@ nmap_leader("cM", codenotes.delete_at_cursor, "Delete note at cursor")
 nmap_leader("cn", codenotes.pick, "Code notes")
 nmap_leader("cN", notes.pick, "Project notes")
 nmap_leader("cr", "<Cmd>lua vim.lsp.buf.rename()<CR>", "Rename")
-nmap_leader("cR", "<Cmd>lua vim.lsp.buf.references()<CR>", "References")
+nmap_leader("cR", '<Cmd>Pick lsp scope="references"<CR>', "References")
 nmap_leader("cs", "<Cmd>lua vim.lsp.buf.definition()<CR>", "Source definition")
 nmap_leader("ct", "<Cmd>lua vim.lsp.buf.type_definition()<CR>", "Type definition")
 
