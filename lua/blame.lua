@@ -6,8 +6,9 @@
 --                Press the bound key again while the popup is open to enter
 --                it (then scroll, yank, etc; `<C-w>q` to close).
 --   `M.toggle` - toggle persistent inline virtual text. While on, every line
---                shows " <author> · <relative> · <subject>" in navy at EOL.
---                Refreshes ~250ms after the cursor settles.
+--                shows " <author> · <relative>" in navy at EOL. Subject is
+--                popup-only to keep the inline scannable without horizontal
+--                scrolling. Refreshes ~250ms after the cursor settles.
 --
 -- Both shell out to `git log -1 -L <line>,<line>:<file>` so they show the
 -- commit that introduced the current state of the line, not the latest commit
@@ -17,9 +18,10 @@ local M = {}
 
 -- ─── Glyph + host detection ────────────────────────────────────────────────
 
--- nf-md-source_commit. Built from codepoint so the source stays ASCII-safe
--- and survives any transport stripping multibyte glyphs.
-local GLYPH = vim.fn.nr2char(0xf0717)
+-- nf-dev-git_commit (a node on a vertical line, like a commit graph dot).
+-- Built from codepoint so the source stays ASCII-safe and survives any
+-- transport stripping multibyte glyphs.
+local GLYPH = vim.fn.nr2char(0xe729)
 
 -- Unit separator: never appears in commit text, safe to use as a field
 -- delimiter inside git's `--format=...` template.
@@ -91,6 +93,26 @@ local function pretty_date(iso)
   return string.format("%s %d, %s", MONTHS[tonumber(mo)], tonumber(d), y)
 end
 
+-- Open a markdown float using the LSP popup helper (same code path as
+-- vim.lsp.buf.hover, so conceal/treesitter wiring matches what works in
+-- the rest of the config). Forces `vim.treesitter.start` afterward as a
+-- belt-and-braces measure in case the FileType autocmd missed.
+local function open_md_float(lines)
+  local _, winid = vim.lsp.util.open_floating_preview(lines, "markdown", {
+    border = "single",
+    focus = false,
+    max_height = 20,
+    wrap = true,
+  })
+  if winid and vim.api.nvim_win_is_valid(winid) then
+    local pbuf = vim.api.nvim_win_get_buf(winid)
+    pcall(vim.treesitter.start, pbuf, "markdown")
+    vim.wo[winid].conceallevel = 2
+    vim.wo[winid].concealcursor = ""
+  end
+  return winid
+end
+
 -- ─── Popup ──────────────────────────────────────────────────────────────────
 
 local popup_win = nil
@@ -129,11 +151,15 @@ M.popup = function()
     vim.notify("blame: parse error", vim.log.levels.WARN)
     return
   end
-  local full_sha, short_sha, author, date, subject = parts[1], parts[2], parts[3], parts[4], parts[5]
+  local _, short_sha, author, date, subject = parts[1], parts[2], parts[3], parts[4], parts[5]
   local body = (parts[6] or ""):gsub("^\n", ""):gsub("\n+$", "")
 
   local info = repo_for(buf) or { host = "other" }
-  local curl = commit_url(info, full_sha)
+  -- Use the short SHA in the URL too — GitHub/GitLab/Bitbucket auto-expand
+  -- it. Keeps the raw markdown line short so Neovim's wrap (which operates
+  -- on raw length, not post-conceal display length) doesn't break the line
+  -- mid-URL and leave the closing `)` on its own line.
+  local curl = commit_url(info, short_sha)
   local sha_link = curl and string.format("[%s](%s)", short_sha, curl) or short_sha
 
   local pr_num = parse_pr(subject)
@@ -156,16 +182,7 @@ M.popup = function()
     end
   end
 
-  local _, winid = vim.lsp.util.open_floating_preview(lines, "markdown", {
-    border = "single",
-    focus = false,
-    max_height = 20,
-  })
-  popup_win = winid
-  if winid and vim.api.nvim_win_is_valid(winid) then
-    vim.wo[winid].conceallevel = 2
-    vim.wo[winid].concealcursor = "n"
-  end
+  popup_win = open_md_float(lines)
 end
 
 -- ─── Inline (toggle) ────────────────────────────────────────────────────────
@@ -182,7 +199,7 @@ local show = function()
   local line = vim.fn.line(".")
   local file = vim.fn.expand("%:p")
   if file == "" or vim.fn.filereadable(file) == 0 then return end
-  local fmt = table.concat({ "%an", "%ar", "%s" }, US)
+  local fmt = table.concat({ "%an", "%ar" }, US)
   vim.system({
     "git",
     "log",
@@ -195,14 +212,17 @@ local show = function()
     local first = vim.split(res.stdout, "\n", { plain = true })[1] or ""
     if first == "" then return end
     local parts = vim.split(first, US, { plain = true })
-    if #parts < 3 then return end
-    local author, relative, subject = parts[1], parts[2], parts[3]
-    subject = subject:gsub("%s*%(#%d+%)%s*$", "")
-    local text = string.format("  %s %s · %s · %s", GLYPH, author, relative, subject)
+    if #parts < 2 then return end
+    local author, relative = parts[1], parts[2]
+    local text = string.format("  %s %s · %s", GLYPH, author, relative)
     vim.schedule(function()
       if not enabled then return end
       if vim.api.nvim_get_current_buf() ~= buf then return end
       if vim.fn.line(".") ~= line then return end
+      -- Clear any prior extmark before placing the new one so repeated
+      -- show() calls (CursorHold re-fires before CursorMoved clears) don't
+      -- stack duplicate annotations on the same line.
+      vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
       vim.api.nvim_buf_set_extmark(buf, ns, line - 1, 0, {
         virt_text = { { text, "BlameInline" } },
         virt_text_pos = "eol",
