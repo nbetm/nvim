@@ -715,6 +715,10 @@ hl("MiniTrailspace", { bg = p.red })
 hl("qfLineNr", { fg = p.subtle })
 hl("qfFileName", { fg = p.blue })
 
+-- Inline git blame (lua/blame.lua) — navy reads as "annotation that lives
+-- next to live code without competing for attention with Aurora warnings."
+hl("BlameInline", { fg = p.navy })
+
 -- Nvim built-in float popup title conventions
 hl("NvimInternalError", { fg = p.red })
 
