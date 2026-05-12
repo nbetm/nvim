@@ -233,14 +233,14 @@ vim.keymap.set("n", "\\b", blame.toggle, { desc = "Toggle inline blame" })
 -- Common usage:
 -- - `<Leader>cd` - show more diagnostic details in a floating window
 -- - `<Leader>cr` - perform rename via LSP
--- - `<Leader>cs` - navigate to source definition of symbol under cursor
+-- - `<Leader>cs` / `cS` - document / workspace symbols picker (mirrors `<Leader>s` / `S`)
 -- - `<Leader>cc` - toggle comment on current line / visual selection
 -- - `<Leader>cm` / `cM` - new-or-edit / delete code note at cursor (mirrors `<Leader>m` / `M`)
 -- - `<Leader>cn` / `cN` - code notes / project notes picker (mirrors `<Leader>n` / `N`)
 --
--- NOTE: most LSP mappings represent a more structured way of replacing built-in
--- LSP mappings (like `:h gra` and others). This is needed because `gr` is mapped
--- by an "replace" operator in 'mini.operators' (which is more commonly used).
+-- Goto-style nav stays under the `g*` family (`gd`/`gD`/`gI` via `lsp_or_builtin`).
+-- This group keeps LSP *actions* and code-adjacent pickers; jumps live with vim
+-- convention.
 local function comment_visual()
   local s = math.min(vim.fn.line("v"), vim.fn.line("."))
   local e = math.max(vim.fn.line("v"), vim.fn.line("."))
@@ -252,7 +252,6 @@ nmap_leader("cc", "<Cmd>lua MiniComment.toggle_lines(vim.fn.line('.'), vim.fn.li
 nmap_leader("cd", "<Cmd>lua vim.diagnostic.open_float()<CR>", "Diagnostic popup")
 nmap_leader("cf", '<Cmd>lua require("conform").format()<CR>', "Format")
 nmap_leader("ch", "<Cmd>lua vim.lsp.buf.hover()<CR>", "Hover")
-nmap_leader("ci", "<Cmd>lua vim.lsp.buf.implementation()<CR>", "Implementation")
 nmap_leader("cl", "<Cmd>lua vim.lsp.codelens.run()<CR>", "Lens")
 nmap_leader("cm", codenotes.create, "New / edit note at cursor")
 nmap_leader("cM", codenotes.delete_at_cursor, "Delete note at cursor")
@@ -260,7 +259,8 @@ nmap_leader("cn", codenotes.pick, "Code notes")
 nmap_leader("cN", notes.pick, "Project notes")
 nmap_leader("cr", "<Cmd>lua vim.lsp.buf.rename()<CR>", "Rename")
 nmap_leader("cR", '<Cmd>Pick lsp scope="references"<CR>', "References")
-nmap_leader("cs", "<Cmd>lua vim.lsp.buf.definition()<CR>", "Source definition")
+nmap_leader("cs", '<Cmd>Pick lsp scope="document_symbol"<CR>', "Symbols buffer")
+nmap_leader("cS", pick_workspace_symbols_live, "Symbols workspace")
 nmap_leader("ct", "<Cmd>lua vim.lsp.buf.type_definition()<CR>", "Type definition")
 
 xmap_leader("cc", comment_visual, "Comment toggle")

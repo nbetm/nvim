@@ -910,6 +910,35 @@ later(function() require("mini.visits").setup() end)
 -- docs/superpowers/specs/2026-05-11-codenotes-design.md.
 later(function() require("codenotes").setup() end)
 
+-- `\` toggle customizations (runs after mini.basics):
+-- - Drop toggles I don't use (cursorline/column, line numbers).
+-- - Rewrite the surviving descs to drop mini.basics' "'option'" single-quotes.
+-- - Add `\I` for LSP inlay-hints toggle (lowercase `\i` is ignorecase).
+later(function()
+  for _, key in ipairs({ "\\C", "\\c", "\\n", "\\r" }) do
+    pcall(vim.keymap.del, "n", key)
+  end
+
+  local descs = {
+    ["\\i"] = "Toggle ignorecase",
+    ["\\l"] = "Toggle listchars",
+    ["\\s"] = "Toggle spell",
+    ["\\w"] = "Toggle wrap",
+  }
+  for key, label in pairs(descs) do
+    local existing = vim.fn.maparg(key, "n", false, true)
+    local rhs = existing and (existing.callback or existing.rhs)
+    if rhs and rhs ~= "" then vim.keymap.set("n", key, rhs, { desc = label, silent = true }) end
+  end
+
+  vim.keymap.set(
+    "n",
+    "\\I",
+    function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
+    { desc = "Toggle inlay hints" }
+  )
+end)
+
 -- Not mentioned here, but can be useful:
 -- - 'mini.doc' - needed only for plugin developers.
 -- - 'mini.fuzzy' - not really needed on a daily basis.
