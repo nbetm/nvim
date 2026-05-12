@@ -2,8 +2,17 @@
 .DS_Store
 Thumbs.db
 
-# Swap Vim Files
+# Vim / Neovim
 *~
+.*.swp
+.*.swo
+.*.swn
+.netrwhist
+Session.vim
+
+# Tags
+tags
+TAGS
 
 # Notes and plans
 .notes/
