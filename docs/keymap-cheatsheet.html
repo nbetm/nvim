@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>nvim keymap cheatsheet</title>
+<style>
+  :root {
+    --fg: #212732;
+    --muted: #5e6779;
+    --rule: #d4dce6;
+    --kb-bg: #eef1f5;
+    --section-bg: transparent;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", sans-serif;
+    font-size: 9.25pt;
+    line-height: 1.32;
+    color: var(--fg);
+    background: #fafbfc;
+  }
+  @page { size: letter landscape; margin: 0.4in; }
+  @media print {
+    body { background: #fff; font-size: 8.5pt; }
+    .page { box-shadow: none; padding: 0; max-width: none; }
+  }
+
+  .page {
+    max-width: 11in;
+    margin: 0 auto;
+    padding: 0.4in 0.5in;
+    column-count: 2;
+    column-gap: 1.4em;
+    column-fill: balance;
+  }
+  header {
+    column-span: all;
+    margin-bottom: 0.5em;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.3em;
+  }
+  header h1 {
+    font-size: 13pt;
+    margin: 0;
+    letter-spacing: 0.01em;
+  }
+  header p {
+    margin: 0.15em 0 0;
+    color: var(--muted);
+    font-size: 8.5pt;
+  }
+
+  section {
+    break-inside: avoid;
+    margin: 0 0 0.55em;
+  }
+  section h2 {
+    font-size: 9.5pt;
+    margin: 0 0 0.15em;
+    padding-bottom: 0.08em;
+    border-bottom: 1px solid var(--rule);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #2e3440;
+    break-after: avoid;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+  td {
+    padding: 0.1em 0.4em 0.1em 0;
+    vertical-align: top;
+    border: none;
+  }
+  td.k { white-space: nowrap; }
+  td.k + td { width: 100%; }
+
+  kbd {
+    font-family: ui-monospace, "JetBrains Mono", "Fira Code", "SF Mono", "Menlo", monospace;
+    font-size: 0.88em;
+    background: var(--kb-bg);
+    padding: 0.03em 0.32em;
+    border: 1px solid var(--rule);
+    border-bottom-width: 1.5px;
+    border-radius: 3px;
+    white-space: nowrap;
+    color: #2e3440;
+  }
+  code {
+    font-family: ui-monospace, "JetBrains Mono", "Fira Code", monospace;
+    font-size: 0.92em;
+    color: #5e81ac;
+  }
+  .muted { color: var(--muted); }
+  .small { font-size: 0.92em; }
+  p.note {
+    margin: 0.1em 0 0.3em;
+    font-size: 8.4pt;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>nvim keymap cheatsheet</h1>
+      <p>Leader = <kbd>Space</kbd>. Text objects: <kbd>i</kbd> = inside, <kbd>a</kbd> = around. Prefix with <kbd>n</kbd>/<kbd>l</kbd> for next/last (mini.ai). Wait after a prefix → mini.clue popup.</p>
+    </header>
+
+    <section>
+      <h2>Motion &amp; search</h2>
+      <table>
+        <tr><td class="k"><kbd>h</kbd> <kbd>j</kbd> <kbd>k</kbd> <kbd>l</kbd></td><td>Char left / down / up / right</td></tr>
+        <tr><td class="k"><kbd>w</kbd> <kbd>b</kbd> <kbd>e</kbd></td><td>Word forward / back / end (cap = WORD)</td></tr>
+        <tr><td class="k"><kbd>0</kbd> <kbd>^</kbd> <kbd>$</kbd></td><td>Line start / first non-blank / end</td></tr>
+        <tr><td class="k"><kbd>gg</kbd> <kbd>G</kbd></td><td>First / last line</td></tr>
+        <tr><td class="k"><kbd>H</kbd> <kbd>M</kbd> <kbd>L</kbd></td><td>Top / middle / bottom of screen</td></tr>
+        <tr><td class="k"><kbd>zt</kbd> <kbd>zz</kbd> <kbd>zb</kbd></td><td>Scroll cursor to top / center / bottom</td></tr>
+        <tr><td class="k"><kbd>%</kbd></td><td>Match bracket</td></tr>
+        <tr><td class="k"><kbd>f</kbd><kbd>{c}</kbd> <kbd>t</kbd><kbd>{c}</kbd></td><td>Find / till char (multiline, mini.jump)</td></tr>
+        <tr><td class="k"><kbd>;</kbd> <kbd>,</kbd></td><td>Repeat / reverse last <kbd>f</kbd>/<kbd>t</kbd></td></tr>
+        <tr><td class="k"><kbd>/</kbd> <kbd>?</kbd></td><td>Search forward / back</td></tr>
+        <tr><td class="k"><kbd>*</kbd> <kbd>#</kbd></td><td>Search word under cursor</td></tr>
+        <tr><td class="k"><kbd>n</kbd> <kbd>N</kbd></td><td><strong>Always</strong> next / prev (we flipped)</td></tr>
+        <tr><td class="k"><kbd>gn</kbd> <kbd>gN</kbd></td><td>Next/prev match as text-object &nbsp;<span class="muted">(<kbd>*</kbd> then <kbd>cgn</kbd> then <kbd>.</kbd> = step-and-replace)</span></td></tr>
+        <tr><td class="k"><kbd>q:</kbd> <kbd>q/</kbd></td><td>Open command / search history as editable window</td></tr>
+        <tr><td class="k"><kbd>&lt;C-o&gt;</kbd> <kbd>&lt;C-i&gt;</kbd></td><td>Jumplist back / forward</td></tr>
+        <tr><td class="k"><kbd>g;</kbd> <kbd>g,</kbd></td><td>Changelist back / forward (recent edits)</td></tr>
+        <tr><td class="k"><kbd>''</kbd> <kbd>'.</kbd></td><td>Jump to last position / last edit</td></tr>
+        <tr><td class="k"><kbd>\h</kbd></td><td>Toggle <code>hlsearch</code></td></tr>
+        <tr><td class="k"><kbd>&lt;CR&gt;</kbd></td><td>Start 2-D jump (mini.jump2d)</td></tr>
+        <tr><td class="k"><kbd>sj</kbd></td><td>Single-char 2-D jump</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Editing</h2>
+      <table>
+        <tr><td class="k"><kbd>i</kbd> <kbd>a</kbd></td><td>Insert before / after cursor</td></tr>
+        <tr><td class="k"><kbd>I</kbd> <kbd>A</kbd></td><td>Insert at line start / end</td></tr>
+        <tr><td class="k"><kbd>o</kbd> <kbd>O</kbd></td><td>New line below / above + Insert</td></tr>
+        <tr><td class="k"><kbd>r</kbd><kbd>{c}</kbd> <kbd>R</kbd></td><td>Replace char / Replace mode</td></tr>
+        <tr><td class="k"><kbd>x</kbd> <kbd>X</kbd></td><td>Delete char fwd / back</td></tr>
+        <tr><td class="k"><kbd>J</kbd></td><td>Join with line below</td></tr>
+        <tr><td class="k"><kbd>~</kbd> <kbd>g~</kbd><kbd>{m}</kbd></td><td>Toggle case (char / motion)</td></tr>
+        <tr><td class="k"><kbd>gu</kbd><kbd>{m}</kbd> <kbd>gU</kbd><kbd>{m}</kbd></td><td>Lower / upper case</td></tr>
+        <tr><td class="k"><kbd>.</kbd></td><td>Repeat last change</td></tr>
+        <tr><td class="k"><kbd>u</kbd> <kbd>&lt;C-r&gt;</kbd></td><td>Undo / redo</td></tr>
+        <tr><td class="k"><kbd>g-</kbd> <kbd>g+</kbd></td><td>Walk undo tree (older / newer state by branch)</td></tr>
+        <tr><td class="k"><kbd>:earlier</kbd> <kbd>:later</kbd></td><td>Time-based undo &nbsp;<span class="muted">(<code>:earlier 30s</code>, <code>:later 5m</code>, <code>:earlier 1f</code> per file write)</span></td></tr>
+        <tr><td class="k"><kbd>&lt;C-a&gt;</kbd> <kbd>&lt;C-x&gt;</kbd></td><td>Increment / decrement number &nbsp;<span class="muted">(visual block + <kbd>g&lt;C-a&gt;</kbd> = sequential)</span></td></tr>
+        <tr><td class="k"><kbd>dd</kbd> <kbd>yy</kbd> <kbd>cc</kbd></td><td>Line: delete / yank / change</td></tr>
+        <tr><td class="k"><kbd>D</kbd> <kbd>Y</kbd> <kbd>C</kbd></td><td>Same to end of line</td></tr>
+        <tr><td class="k"><kbd>p</kbd> <kbd>P</kbd></td><td>Paste after / before</td></tr>
+        <tr><td class="k"><kbd>[p</kbd> <kbd>]p</kbd></td><td>Paste linewise above / below</td></tr>
+        <tr><td class="k"><kbd>&lt;</kbd> <kbd>&gt;</kbd> <span class="muted">(Visual)</span></td><td>Outdent / indent</td></tr>
+        <tr><td class="k"><kbd>=</kbd> <span class="muted">(Visual)</span></td><td>Auto-indent</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Text objects (mini.ai)</h2>
+      <p class="note">Use after operator (<kbd>d</kbd> <kbd>c</kbd> <kbd>y</kbd> <kbd>v</kbd>). Swap <kbd>i</kbd>→<kbd>a</kbd> for "around".</p>
+      <table>
+        <tr><td class="k"><kbd>iw</kbd> <kbd>iW</kbd></td><td>word / WORD</td></tr>
+        <tr><td class="k"><kbd>is</kbd> <kbd>ip</kbd></td><td>sentence / paragraph</td></tr>
+        <tr><td class="k"><kbd>i)</kbd> <kbd>i]</kbd> <kbd>i}</kbd></td><td>brackets (any: pad with <kbd>(</kbd> etc)</td></tr>
+        <tr><td class="k"><kbd>i'</kbd> <kbd>i"</kbd> <kbd>i`</kbd></td><td>quotes</td></tr>
+        <tr><td class="k"><kbd>iq</kbd> <kbd>ib</kbd></td><td>any quote / any bracket</td></tr>
+        <tr><td class="k"><kbd>it</kbd></td><td>HTML tag</td></tr>
+        <tr><td class="k"><kbd>ia</kbd></td><td>argument</td></tr>
+        <tr><td class="k"><kbd>iF</kbd></td><td>function definition (treesitter)</td></tr>
+        <tr><td class="k"><kbd>iB</kbd></td><td>whole <strong>buffer</strong></td></tr>
+      </table>
+      <p class="note">Modifiers: <kbd>inw</kbd> next-word, <kbd>ilw</kbd> last-word, <kbd>ina</kbd> next-arg…</p>
+    </section>
+
+    <section>
+      <h2>Surround (mini.surround)</h2>
+      <table>
+        <tr><td class="k"><kbd>sa</kbd><kbd>{m}{c}</kbd></td><td>Add surround &nbsp;<span class="muted">(<kbd>saiw)</kbd> wraps word in <code>()</code>)</span></td></tr>
+        <tr><td class="k"><kbd>sd</kbd><kbd>{c}</kbd></td><td>Delete surround &nbsp;<span class="muted">(<kbd>sd"</kbd> strips <code>""</code>)</span></td></tr>
+        <tr><td class="k"><kbd>sr</kbd><kbd>{old}{new}</kbd></td><td>Replace &nbsp;<span class="muted">(<kbd>sr([</kbd> = <code>()</code>→<code>[]</code>)</span></td></tr>
+        <tr><td class="k"><kbd>sf</kbd><kbd>{c}</kbd> <kbd>sF</kbd><kbd>{c}</kbd></td><td>Find right / left</td></tr>
+        <tr><td class="k"><kbd>sh</kbd><kbd>{c}</kbd></td><td>Highlight surround</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Buffers &amp; windows</h2>
+      <table>
+        <tr><td class="k"><kbd>[b</kbd> <kbd>]b</kbd></td><td>Prev / next buffer (mini.bracketed)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;b</kbd></td><td>Buffer picker</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;Ba</kbd></td><td>Alternate buffer (<kbd>&lt;C-^&gt;</kbd>)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;Bd</kbd> / <kbd>BD</kbd></td><td>Delete / force</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;q</kbd></td><td>Smart close (qf · loc · help · buffer)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;Bs</kbd></td><td>New scratch buffer</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;Bw</kbd> / <kbd>BW</kbd></td><td>Wipeout / force</td></tr>
+        <tr><td class="k"><kbd>&lt;C-h/j/k/l&gt;</kbd></td><td>Move between windows</td></tr>
+        <tr><td class="k"><kbd>&lt;C-w&gt;s</kbd> <kbd>&lt;C-w&gt;v</kbd></td><td>Split horiz / vert</td></tr>
+        <tr><td class="k"><kbd>&lt;C-w&gt;=</kbd></td><td>Equalize windows</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;Oz</kbd></td><td>Zoom toggle</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;Or</kbd></td><td>Resize to default width</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Files &amp; pickers (mini.pick)</h2>
+      <p class="note">Most actions have a direct shortcut <strong>and</strong> a <kbd>&lt;Leader&gt;p*</kbd> mirror. Lowercase = buffer/narrow, uppercase = workspace/broad.</p>
+      <table>
+        <tr><td class="k"><kbd>&lt;Leader&gt;e</kbd> / <kbd>E</kbd></td><td>Explorer at file dir / cwd (mini.files)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;f</kbd> · <kbd>pf</kbd></td><td>Files</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;b</kbd> · <kbd>pb</kbd></td><td>Buffers</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;/</kbd></td><td>Live grep &nbsp;<span class="muted">(<kbd>&lt;C-r&gt;&lt;C-w&gt;</kbd> in prompt for cword)</span></td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;?</kbd></td><td>Commands</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;'</kbd> · <kbd>p'</kbd></td><td>Resume last picker</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;r</kbd> · <kbd>pr</kbd> · <kbd>cr</kbd></td><td>References (LSP)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;s</kbd> / <kbd>S</kbd></td><td>Symbols buffer / workspace</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;d</kbd> / <kbd>D</kbd></td><td>Diagnostics buffer / workspace</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;ph</kbd> / <kbd>pH</kbd></td><td>Help tags / highlight groups</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;pl</kbd> / <kbd>pL</kbd></td><td>Lines buffer / all</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;pc</kbd> / <kbd>pC</kbd></td><td>Git commits buffer / all</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;pR</kbd></td><td>LSP references</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;pv</kbd> / <kbd>pV</kbd></td><td>Visit paths cwd / all</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;p/</kbd> / <kbd>p:</kbd></td><td>Search / command history</td></tr>
+      </table>
+      <p class="note"><strong>In picker:</strong> <kbd>&lt;C-n&gt;</kbd>/<kbd>&lt;C-p&gt;</kbd> nav · <kbd>&lt;Tab&gt;</kbd> preview · <kbd>&lt;S-Tab&gt;</kbd> info · <kbd>&lt;CR&gt;</kbd> choose · <kbd>&lt;Esc&gt;</kbd> close</p>
+    </section>
+
+    <section>
+      <h2>Prompt inserts (<kbd>&lt;C-r&gt;</kbd>)</h2>
+      <p class="note">In any prompt — <kbd>:</kbd>, <kbd>/</kbd>, mini.pick, etc. Pure Vim built-in.</p>
+      <table>
+        <tr><td class="k"><kbd>&lt;C-r&gt;&lt;C-w&gt;</kbd></td><td>word under cursor</td></tr>
+        <tr><td class="k"><kbd>&lt;C-r&gt;&lt;C-a&gt;</kbd></td><td>WORD under cursor</td></tr>
+        <tr><td class="k"><kbd>&lt;C-r&gt;&lt;C-l&gt;</kbd></td><td>entire current line</td></tr>
+        <tr><td class="k"><kbd>&lt;C-r&gt;"</kbd></td><td>last yank / delete</td></tr>
+        <tr><td class="k"><kbd>&lt;C-r&gt;%</kbd></td><td>current buffer's filename</td></tr>
+        <tr><td class="k"><kbd>&lt;C-r&gt;/</kbd></td><td>last search pattern</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Notes (codenotes + project)</h2>
+      <table>
+        <tr><td class="k"><kbd>&lt;Leader&gt;n</kbd> · <kbd>pn</kbd> · <kbd>cn</kbd></td><td>Code notes picker</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;N</kbd> · <kbd>pN</kbd> · <kbd>cN</kbd></td><td>Project notes picker (<code>.notes/</code>)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;m</kbd> · <kbd>cm</kbd></td><td>New / edit code note at cursor</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;M</kbd> · <kbd>cM</kbd></td><td>Delete code note at cursor</td></tr>
+      </table>
+      <p class="note"><strong>In codenotes picker:</strong> <kbd>&lt;CR&gt;</kbd> jump · <kbd>&lt;C-d&gt;</kbd> delete · <kbd>&lt;C-q&gt;</kbd> to qf · <kbd>&lt;C-y&gt;</kbd> yank</p>
+    </section>
+
+    <section>
+      <h2>Code / LSP (<kbd>&lt;Leader&gt;c</kbd>)</h2>
+      <table>
+        <tr><td class="k"><kbd>gd</kbd> <kbd>gD</kbd> <kbd>gI</kbd></td><td>Goto def / decl / impl</td></tr>
+        <tr><td class="k"><kbd>K</kbd> · <kbd>&lt;Leader&gt;ch</kbd></td><td>Hover docs</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;ca</kbd></td><td>Code action</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;cc</kbd></td><td>Comment toggle (line / visual) &nbsp;<span class="muted">mirrors <kbd>gcc</kbd></span></td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;cr</kbd> · <kbd>r</kbd> · <kbd>pr</kbd></td><td>References &nbsp;<span class="muted">(read · navigation)</span></td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;cR</kbd></td><td>Rename &nbsp;<span class="muted">(refactor · write)</span></td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;cf</kbd></td><td>Format (also Visual)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;cs</kbd> / <kbd>cS</kbd></td><td>Symbols buffer / workspace &nbsp;<span class="muted">mirror <kbd>s</kbd> / <kbd>S</kbd></span></td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;ct</kbd></td><td>Type definition</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;cd</kbd></td><td>Diagnostic popup &nbsp;<span class="muted">(toggle visibility: <kbd>\d</kbd>)</span></td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;cl</kbd></td><td>Code lens</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;cn</kbd> / <kbd>cN</kbd></td><td>Code notes / project notes picker &nbsp;<span class="muted">mirror <kbd>n</kbd> / <kbd>N</kbd></span></td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;d</kbd> / <kbd>D</kbd></td><td>Diagnostic picker buf / workspace</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;s</kbd> / <kbd>S</kbd></td><td>Symbol picker buf / workspace</td></tr>
+        <tr><td class="k"><kbd>[d</kbd> <kbd>]d</kbd></td><td>Prev / next diagnostic (mini.bracketed)</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Git (<kbd>&lt;Leader&gt;g</kbd>) — mini.git / mini.diff</h2>
+      <table>
+        <tr><td class="k"><kbd>&lt;Leader&gt;gf</kbd></td><td>Changed-files picker (modified · staged · untracked)</td></tr>
+        <tr><td class="k"><kbd>[g</kbd> <kbd>]g</kbd></td><td>Prev / next hunk</td></tr>
+        <tr><td class="k"><kbd>gh</kbd><kbd>{m}</kbd> <kbd>gH</kbd><kbd>{m}</kbd></td><td>Apply / reset hunk</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;pg</kbd> / <kbd>pG</kbd></td><td>Pick hunks buffer / all</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;gs</kbd></td><td>Show info at cursor (also Visual)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;gd</kbd> / <kbd>gD</kbd></td><td>Diff buffer / all</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;ga</kbd> / <kbd>gA</kbd></td><td>Added (staged) diff buffer / all</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;gl</kbd> / <kbd>gL</kbd></td><td>Log buffer / all</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;gc</kbd> / <kbd>gC</kbd></td><td>Commit / amend</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;go</kbd></td><td>Toggle diff overlay</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;gb</kbd></td><td>Blame popup</td></tr>
+        <tr><td class="k"><kbd>\b</kbd></td><td>Toggle inline blame</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Operators (mini.operators)</h2>
+      <p class="note">Doubling the second char applies to the line.</p>
+      <table>
+        <tr><td class="k"><kbd>gr</kbd><kbd>{m}</kbd> · <kbd>grr</kbd></td><td>Replace from register</td></tr>
+        <tr><td class="k"><kbd>gx</kbd><kbd>{m}</kbd></td><td>Exchange (mark a, mark b → swap)</td></tr>
+        <tr><td class="k"><kbd>gm</kbd><kbd>{m}</kbd> · <kbd>gmm</kbd></td><td>Multiply / duplicate</td></tr>
+        <tr><td class="k"><kbd>gs</kbd><kbd>{m}</kbd></td><td>Sort lines</td></tr>
+        <tr><td class="k"><kbd>g=</kbd><kbd>{m}</kbd> · <kbd>g==</kbd></td><td>Eval as Lua, replace with output</td></tr>
+        <tr><td class="k"><kbd>(</kbd> <kbd>)</kbd></td><td>Swap argument left / right</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Comments / move</h2>
+      <table>
+        <tr><td class="k"><kbd>gc</kbd><kbd>{m}</kbd> · <kbd>gcc</kbd> · <kbd>&lt;Leader&gt;cc</kbd></td><td>Toggle comment (motion / line / leader)</td></tr>
+        <tr><td class="k"><kbd>&lt;M-j&gt;</kbd> <kbd>&lt;M-k&gt;</kbd></td><td>Move line / selection down / up</td></tr>
+        <tr><td class="k"><kbd>&lt;M-h&gt;</kbd> <kbd>&lt;M-l&gt;</kbd></td><td>Indent left / right</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Quickfix / location list</h2>
+      <p class="note">Quickfix is global; location list is per-window. Most commands have <kbd>l*</kbd> twins.</p>
+      <table>
+        <tr><td class="k"><kbd>[q</kbd> <kbd>]q</kbd></td><td>Prev / next qf entry (mini.bracketed)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;Oq</kbd> / <kbd>OQ</kbd></td><td>Toggle qf / loclist window</td></tr>
+        <tr><td class="k"><kbd>:cdo</kbd> <kbd>{cmd}</kbd></td><td>Run <kbd>{cmd}</kbd> on each qf <strong>entry</strong> (line-by-line)</td></tr>
+        <tr><td class="k"><kbd>:cfdo</kbd> <kbd>{cmd}</kbd></td><td>Run <kbd>{cmd}</kbd> per qf <strong>file</strong> &nbsp;<span class="muted">(faster for <code>%s/…</code>)</span></td></tr>
+        <tr><td class="k"><kbd>:ldo</kbd> <kbd>:lfdo</kbd></td><td>Same, on the location list</td></tr>
+        <tr><td class="k"><kbd>:cfilter</kbd> <kbd>{pat}</kbd></td><td>Narrow qf to entries matching <kbd>{pat}</kbd></td></tr>
+      </table>
+      <p class="note"><strong>Bulk refactor recipe:</strong> picker → filter → <kbd>&lt;C-q&gt;</kbd> → <code>:cfdo %s/old/new/g | update</code></p>
+    </section>
+
+    <section>
+      <h2>Bracketed (mini.bracketed)</h2>
+      <p class="note"><kbd>[</kbd> = prev, <kbd>]</kbd> = next; uppercase = first/last in range.</p>
+      <table>
+        <tr><td class="k"><kbd>[b</kbd> <kbd>]b</kbd></td><td>Buffer</td></tr>
+        <tr><td class="k"><kbd>[d</kbd> <kbd>]d</kbd></td><td>Diagnostic</td></tr>
+        <tr><td class="k"><kbd>[c</kbd> <kbd>]c</kbd></td><td>Comment block</td></tr>
+        <tr><td class="k"><kbd>[j</kbd> <kbd>]j</kbd></td><td>Jump (in buffer)</td></tr>
+        <tr><td class="k"><kbd>[q</kbd> <kbd>]q</kbd></td><td>Quickfix entry</td></tr>
+        <tr><td class="k"><kbd>[t</kbd> <kbd>]t</kbd></td><td>Treesitter node</td></tr>
+        <tr><td class="k"><kbd>[i</kbd> <kbd>]i</kbd></td><td>Indent scope</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Clipboard (mini.basics)</h2>
+      <table>
+        <tr><td class="k"><kbd>gy</kbd><kbd>{m}</kbd> <span class="muted">(n + Visual)</span></td><td>Yank to system clipboard</td></tr>
+        <tr><td class="k"><kbd>gp</kbd></td><td>Paste from system clipboard</td></tr>
+        <tr><td class="k"><kbd>"_d</kbd></td><td>Delete without affecting any register</td></tr>
+        <tr><td class="k"><kbd>"0p</kbd></td><td>Paste last yank (ignores deletes)</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Other (<kbd>&lt;Leader&gt;O</kbd>)</h2>
+      <table>
+        <tr><td class="k"><kbd>&lt;Leader&gt;On</kbd></td><td>Notification history</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;Oq</kbd> / <kbd>OQ</kbd></td><td>Quickfix / loclist toggle</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;Or</kbd></td><td>Resize to default width</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;Ot</kbd></td><td>Trim trailing whitespace</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;Oz</kbd></td><td>Zoom toggle</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Session (<kbd>&lt;Leader&gt;o</kbd>)</h2>
+      <table>
+        <tr><td class="k"><kbd>&lt;Leader&gt;on</kbd></td><td>New (prompted name)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;or</kbd></td><td>Read existing</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;oR</kbd></td><td>Restart nvim, preserve session</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;ow</kbd></td><td>Write current</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;od</kbd></td><td>Delete</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Visits (mini.visits, <kbd>&lt;Leader&gt;v</kbd>)</h2>
+      <table>
+        <tr><td class="k"><kbd>&lt;Leader&gt;vc</kbd> / <kbd>vC</kbd></td><td>Core visits cwd / all</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;vv</kbd> / <kbd>vV</kbd></td><td>Add / remove "core" label</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;vl</kbd> / <kbd>vL</kbd></td><td>Add / remove arbitrary label</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Direct leader (no group)</h2>
+      <table>
+        <tr><td class="k"><kbd>&lt;Leader&gt;w</kbd> / <kbd>W</kbd></td><td>Write / write all</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;q</kbd></td><td>Smart close (qf · loc · help · buffer; quit if last)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;Q</kbd></td><td>Quit all</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;a</kbd></td><td>Select all</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;/</kbd></td><td>Live grep</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;?</kbd></td><td>Commands</td></tr>
+      </table>
+      <p class="note">Other direct shortcuts live alongside their groups — see <strong>Files &amp; pickers</strong>, <strong>Notes</strong>, <strong>LSP</strong>, <strong>Git</strong>.</p>
+    </section>
+
+    <section>
+      <h2>Leader groups</h2>
+      <p class="note">Lowercase = narrow/buffer; uppercase = broad/workspace. Group letter uses the case opposite to its direct shortcut: <kbd>&lt;Leader&gt;b</kbd> = buffer picker, <kbd>&lt;Leader&gt;B*</kbd> = buffer group.</p>
+      <table>
+        <tr><td class="k"><kbd>&lt;Leader&gt;B</kbd></td><td>+Buffer (alternate · delete · scratch · wipeout)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;p</kbd></td><td>+Picker (catalog of mini.pick sources)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;g</kbd></td><td>+Git (diff · log · commit · blame · overlay)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;c</kbd></td><td>+Code (LSP · comment · notes)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;O</kbd></td><td>+Other (notif · qf · loc · zoom · trim)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;o</kbd></td><td>+Session (write · read · delete)</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;v</kbd></td><td>+Visits (mini.visits frecency)</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Insert mode</h2>
+      <table>
+        <tr><td class="k"><kbd>&lt;Tab&gt;</kbd> <kbd>&lt;S-Tab&gt;</kbd></td><td>Navigate completion menu</td></tr>
+        <tr><td class="k"><kbd>&lt;CR&gt;</kbd></td><td>Accept completion (or insert pair)</td></tr>
+        <tr><td class="k"><kbd>&lt;C-e&gt;</kbd></td><td>Cancel completion</td></tr>
+        <tr><td class="k"><kbd>&lt;C-f&gt;</kbd> <kbd>&lt;C-b&gt;</kbd></td><td>Scroll info window</td></tr>
+        <tr><td class="k"><kbd>&lt;C-j&gt;</kbd></td><td>Expand snippet</td></tr>
+        <tr><td class="k"><kbd>&lt;C-l&gt;</kbd> <kbd>&lt;C-h&gt;</kbd></td><td>Next / prev snippet tabstop</td></tr>
+        <tr><td class="k"><kbd>&lt;C-s&gt;</kbd></td><td>Save + back to Normal</td></tr>
+        <tr><td class="k"><kbd>&lt;M-h/j/k/l&gt;</kbd></td><td>Navigate while in Insert</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Toggles (after <kbd>\</kbd>)</h2>
+      <table>
+        <tr><td class="k"><kbd>\h</kbd></td><td>Search highlight</td></tr>
+        <tr><td class="k"><kbd>\w</kbd></td><td>Wrap</td></tr>
+        <tr><td class="k"><kbd>\s</kbd></td><td>Spell</td></tr>
+        <tr><td class="k"><kbd>\l</kbd></td><td>Listchars</td></tr>
+        <tr><td class="k"><kbd>\i</kbd></td><td>Ignore case</td></tr>
+        <tr><td class="k"><kbd>\d</kbd></td><td>Diagnostics visibility</td></tr>
+        <tr><td class="k"><kbd>\I</kbd></td><td>LSP inlay hints</td></tr>
+        <tr><td class="k"><kbd>\b</kbd></td><td>Inline blame (per-line virtual text)</td></tr>
+      </table>
+    </section>
+  </div>
+</body>
+</html>
