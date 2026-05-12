@@ -93,23 +93,15 @@ local function pretty_date(iso)
   return string.format("%s %d, %s", MONTHS[tonumber(mo)], tonumber(d), y)
 end
 
--- Open a markdown float using the LSP popup helper (same code path as
--- vim.lsp.buf.hover, so conceal/treesitter wiring matches what works in
--- the rest of the config). Forces `vim.treesitter.start` afterward as a
--- belt-and-braces measure in case the FileType autocmd missed.
+-- Open a markdown float using the LSP popup helper. Passing syntax="markdown"
+-- makes it start treesitter and set conceallevel=2 / concealcursor="" itself,
+-- so `[sha](url)` renders as just the SHA in a link highlight. `gx` opens.
 local function open_md_float(lines)
   local _, winid = vim.lsp.util.open_floating_preview(lines, "markdown", {
     border = "single",
     focus = false,
     max_height = 20,
-    wrap = true,
   })
-  if winid and vim.api.nvim_win_is_valid(winid) then
-    local pbuf = vim.api.nvim_win_get_buf(winid)
-    pcall(vim.treesitter.start, pbuf, "markdown")
-    vim.wo[winid].conceallevel = 2
-    vim.wo[winid].concealcursor = ""
-  end
   return winid
 end
 
@@ -129,7 +121,7 @@ M.popup = function()
     vim.notify("blame: no file", vim.log.levels.WARN)
     return
   end
-  local fmt = table.concat({ "%H", "%h", "%an", "%as", "%s", "%b" }, US) .. RS
+  local fmt = table.concat({ "%h", "%an", "%as", "%s", "%b" }, US) .. RS
   local res = vim
     .system({
       "git",
@@ -147,12 +139,12 @@ M.popup = function()
   -- Split off the per-line diff appended after the formatted block.
   local block = vim.split(res.stdout, RS, { plain = true })[1] or ""
   local parts = vim.split(block, US, { plain = true })
-  if #parts < 5 then
+  if #parts < 4 then
     vim.notify("blame: parse error", vim.log.levels.WARN)
     return
   end
-  local _, short_sha, author, date, subject = parts[1], parts[2], parts[3], parts[4], parts[5]
-  local body = (parts[6] or ""):gsub("^\n", ""):gsub("\n+$", "")
+  local short_sha, author, date, subject = parts[1], parts[2], parts[3], parts[4]
+  local body = (parts[5] or ""):gsub("^\n", ""):gsub("\n+$", "")
 
   local info = repo_for(buf) or { host = "other" }
   -- Use the short SHA in the URL too — GitHub/GitLab/Bitbucket auto-expand
