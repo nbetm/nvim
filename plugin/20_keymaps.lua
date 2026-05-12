@@ -77,13 +77,13 @@ nmap("gI", lsp_or_builtin(vim.lsp.buf.implementation, "gI"), "Goto implementatio
 Config.leader_group_clues = {
   { mode = "n", keys = "<Leader>B", desc = "+Buffer" },
   { mode = "n", keys = "<Leader>p", desc = "+Picker" },
-  { mode = "n", keys = "<Leader>G", desc = "+Git" },
+  { mode = "n", keys = "<Leader>g", desc = "+Git" },
   { mode = "n", keys = "<Leader>c", desc = "+Code" },
   { mode = "n", keys = "<Leader>O", desc = "+Other" },
   { mode = "n", keys = "<Leader>o", desc = "+Session" },
   { mode = "n", keys = "<Leader>v", desc = "+Visits" },
 
-  { mode = "x", keys = "<Leader>G", desc = "+Git" },
+  { mode = "x", keys = "<Leader>g", desc = "+Git" },
   { mode = "x", keys = "<Leader>c", desc = "+Code" },
 }
 
@@ -135,7 +135,6 @@ nmap_leader("a", "ggVG", "Select all")
 nmap_leader("e", explore_at_file, "Explorer file dir")
 nmap_leader("E", "<Cmd>lua MiniFiles.open()<CR>", "Explorer cwd")
 nmap_leader("b", "<Cmd>Pick buffers<CR>", "Buffers")
-nmap_leader("g", git_files.changed, "Changed files")
 nmap_leader("f", "<Cmd>Pick files<CR>", "Files")
 nmap_leader("N", notes.pick, "Project notes")
 nmap_leader("n", codenotes.pick, "Code notes")
@@ -201,31 +200,32 @@ nmap_leader("pS", pick_workspace_symbols_live, "Symbols workspace")
 nmap_leader("pv", "<Cmd>Pick visit_paths<CR>", "Visit paths cwd")
 nmap_leader("pV", '<Cmd>Pick visit_paths cwd=""<CR>', "Visit paths all")
 
--- G is for 'Git' (capital so lowercase `g` is free for the changed-files
--- picker root shortcut). Common usage:
--- - `<Leader>g`  - pick a modified/staged/untracked file (root shortcut)
--- - `<Leader>Gb` - quick blame popup for the current line
--- - `<Leader>Gs` - show information at cursor (mini.git, opens a buffer)
--- - `<Leader>Go` - toggle 'mini.diff' overlay to show in-buffer unstaged changes
--- - `<Leader>Gd` - show unstaged changes as a patch in separate tabpage
--- - `<Leader>GL` - show Git log of current file (workspace scope)
+-- g is for 'Git'. Lowercase group prefix dodges the shift+G muscle-memory
+-- clash with vim's "last line" motion. Common usage:
+-- - `<Leader>gf` - pick a modified/staged/untracked file
+-- - `<Leader>gb` - quick blame popup for the current line
+-- - `<Leader>gs` - show information at cursor (mini.git, opens a buffer)
+-- - `<Leader>go` - toggle 'mini.diff' overlay to show in-buffer unstaged changes
+-- - `<Leader>gd` - show unstaged changes as a patch in separate tabpage
+-- - `<Leader>gL` - show Git log of current file (workspace scope)
 -- - `\b`         - toggle inline-blame virtual text per line
 local git_log_cmd = [[Git log --pretty=format:\%h\ \%as\ │\ \%s --topo-order]]
 local git_log_buf_cmd = git_log_cmd .. " --follow -- %"
 
-nmap_leader("Ga", "<Cmd>Git diff --cached -- %<CR>", "Added diff buffer")
-nmap_leader("GA", "<Cmd>Git diff --cached<CR>", "Added diff all")
-nmap_leader("Gc", "<Cmd>Git commit<CR>", "Commit")
-nmap_leader("GC", "<Cmd>Git commit --amend<CR>", "Commit amend")
-nmap_leader("Gd", "<Cmd>Git diff -- %<CR>", "Diff buffer")
-nmap_leader("GD", "<Cmd>Git diff<CR>", "Diff all")
-nmap_leader("Gl", "<Cmd>" .. git_log_buf_cmd .. "<CR>", "Log buffer")
-nmap_leader("GL", "<Cmd>" .. git_log_cmd .. "<CR>", "Log all")
-nmap_leader("Go", "<Cmd>lua MiniDiff.toggle_overlay()<CR>", "Toggle overlay")
-nmap_leader("Gb", blame.popup, "Blame popup")
-nmap_leader("Gs", "<Cmd>lua MiniGit.show_at_cursor()<CR>", "Show at cursor")
+nmap_leader("ga", "<Cmd>Git diff --cached -- %<CR>", "Added diff buffer")
+nmap_leader("gA", "<Cmd>Git diff --cached<CR>", "Added diff all")
+nmap_leader("gb", blame.popup, "Blame popup")
+nmap_leader("gc", "<Cmd>Git commit<CR>", "Commit")
+nmap_leader("gC", "<Cmd>Git commit --amend<CR>", "Commit amend")
+nmap_leader("gd", "<Cmd>Git diff -- %<CR>", "Diff buffer")
+nmap_leader("gD", "<Cmd>Git diff<CR>", "Diff all")
+nmap_leader("gf", git_files.changed, "Changed files")
+nmap_leader("gl", "<Cmd>" .. git_log_buf_cmd .. "<CR>", "Log buffer")
+nmap_leader("gL", "<Cmd>" .. git_log_cmd .. "<CR>", "Log all")
+nmap_leader("go", "<Cmd>lua MiniDiff.toggle_overlay()<CR>", "Toggle overlay")
+nmap_leader("gs", "<Cmd>lua MiniGit.show_at_cursor()<CR>", "Show at cursor")
 
-xmap_leader("Gs", "<Cmd>lua MiniGit.show_at_cursor()<CR>", "Show at selection")
+xmap_leader("gs", "<Cmd>lua MiniGit.show_at_cursor()<CR>", "Show at selection")
 
 -- Inline blame toggle (overrides mini.basics' `\b` = background toggle).
 vim.keymap.set("n", "\\b", blame.toggle, { desc = "Toggle inline blame" })
