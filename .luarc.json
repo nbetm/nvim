@@ -4,6 +4,7 @@
   "diagnostics.globals": [
     "vim",
     "MiniBufremove",
+    "MiniComment",
     "MiniCompletion",
     "MiniDiff",
     "MiniExtra",

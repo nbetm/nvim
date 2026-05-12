@@ -78,13 +78,13 @@ Config.leader_group_clues = {
   { mode = "n", keys = "<Leader>B", desc = "+Buffer" },
   { mode = "n", keys = "<Leader>p", desc = "+Picker" },
   { mode = "n", keys = "<Leader>G", desc = "+Git" },
-  { mode = "n", keys = "<Leader>l", desc = "+Language" },
+  { mode = "n", keys = "<Leader>c", desc = "+Code" },
   { mode = "n", keys = "<Leader>O", desc = "+Other" },
   { mode = "n", keys = "<Leader>o", desc = "+Session" },
   { mode = "n", keys = "<Leader>v", desc = "+Visits" },
 
   { mode = "x", keys = "<Leader>G", desc = "+Git" },
-  { mode = "x", keys = "<Leader>l", desc = "+Language" },
+  { mode = "x", keys = "<Leader>c", desc = "+Code" },
 }
 
 -- Helpers for a more concise `<Leader>` mappings.
@@ -229,26 +229,39 @@ xmap_leader("Gs", "<Cmd>lua MiniGit.show_at_cursor()<CR>", "Show at selection")
 -- Inline blame toggle (overrides mini.basics' `\b` = background toggle).
 vim.keymap.set("n", "\\b", blame.toggle, { desc = "Toggle inline blame" })
 
--- l is for 'Language'. Common usage:
--- - `<Leader>ld` - show more diagnostic details in a floating window
--- - `<Leader>lr` - perform rename via LSP
--- - `<Leader>ls` - navigate to source definition of symbol under cursor
+-- c is for 'Code'. Spans LSP actions, comment toggle, and note pickers.
+-- Common usage:
+-- - `<Leader>cd` - show more diagnostic details in a floating window
+-- - `<Leader>cr` - perform rename via LSP
+-- - `<Leader>cs` - navigate to source definition of symbol under cursor
+-- - `<Leader>cc` - toggle comment on current line / visual selection
+-- - `<Leader>cn` / `cN` - code notes / project notes picker (mirrors `<Leader>n` / `N`)
 --
 -- NOTE: most LSP mappings represent a more structured way of replacing built-in
 -- LSP mappings (like `:h gra` and others). This is needed because `gr` is mapped
 -- by an "replace" operator in 'mini.operators' (which is more commonly used).
-nmap_leader("la", "<Cmd>lua vim.lsp.buf.code_action()<CR>", "Actions")
-nmap_leader("ld", "<Cmd>lua vim.diagnostic.open_float()<CR>", "Diagnostic popup")
-nmap_leader("lf", '<Cmd>lua require("conform").format()<CR>', "Format")
-nmap_leader("li", "<Cmd>lua vim.lsp.buf.implementation()<CR>", "Implementation")
-nmap_leader("lh", "<Cmd>lua vim.lsp.buf.hover()<CR>", "Hover")
-nmap_leader("ll", "<Cmd>lua vim.lsp.codelens.run()<CR>", "Lens")
-nmap_leader("lr", "<Cmd>lua vim.lsp.buf.rename()<CR>", "Rename")
-nmap_leader("lR", "<Cmd>lua vim.lsp.buf.references()<CR>", "References")
-nmap_leader("ls", "<Cmd>lua vim.lsp.buf.definition()<CR>", "Source definition")
-nmap_leader("lt", "<Cmd>lua vim.lsp.buf.type_definition()<CR>", "Type definition")
+local function comment_visual()
+  local s = math.min(vim.fn.line("v"), vim.fn.line("."))
+  local e = math.max(vim.fn.line("v"), vim.fn.line("."))
+  MiniComment.toggle_lines(s, e)
+end
 
-xmap_leader("lf", '<Cmd>lua require("conform").format()<CR>', "Format selection")
+nmap_leader("ca", "<Cmd>lua vim.lsp.buf.code_action()<CR>", "Actions")
+nmap_leader("cc", "<Cmd>lua MiniComment.toggle_lines(vim.fn.line('.'), vim.fn.line('.'))<CR>", "Comment toggle")
+nmap_leader("cd", "<Cmd>lua vim.diagnostic.open_float()<CR>", "Diagnostic popup")
+nmap_leader("cf", '<Cmd>lua require("conform").format()<CR>', "Format")
+nmap_leader("ch", "<Cmd>lua vim.lsp.buf.hover()<CR>", "Hover")
+nmap_leader("ci", "<Cmd>lua vim.lsp.buf.implementation()<CR>", "Implementation")
+nmap_leader("cl", "<Cmd>lua vim.lsp.codelens.run()<CR>", "Lens")
+nmap_leader("cn", codenotes.pick, "Code notes")
+nmap_leader("cN", notes.pick, "Project notes")
+nmap_leader("cr", "<Cmd>lua vim.lsp.buf.rename()<CR>", "Rename")
+nmap_leader("cR", "<Cmd>lua vim.lsp.buf.references()<CR>", "References")
+nmap_leader("cs", "<Cmd>lua vim.lsp.buf.definition()<CR>", "Source definition")
+nmap_leader("ct", "<Cmd>lua vim.lsp.buf.type_definition()<CR>", "Type definition")
+
+xmap_leader("cc", comment_visual, "Comment toggle")
+xmap_leader("cf", '<Cmd>lua require("conform").format()<CR>', "Format selection")
 
 -- O is for 'Other'. Grab-bag of utility actions (capital O so the lowercase
 -- `o` is free for the more frequent Session group below).
