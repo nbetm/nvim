@@ -235,6 +235,7 @@ vim.keymap.set("n", "\\b", blame.toggle, { desc = "Toggle inline blame" })
 -- - `<Leader>cr` - perform rename via LSP
 -- - `<Leader>cs` - navigate to source definition of symbol under cursor
 -- - `<Leader>cc` - toggle comment on current line / visual selection
+-- - `<Leader>cm` / `cM` - new-or-edit / delete code note at cursor (mirrors `<Leader>m` / `M`)
 -- - `<Leader>cn` / `cN` - code notes / project notes picker (mirrors `<Leader>n` / `N`)
 --
 -- NOTE: most LSP mappings represent a more structured way of replacing built-in
@@ -253,6 +254,8 @@ nmap_leader("cf", '<Cmd>lua require("conform").format()<CR>', "Format")
 nmap_leader("ch", "<Cmd>lua vim.lsp.buf.hover()<CR>", "Hover")
 nmap_leader("ci", "<Cmd>lua vim.lsp.buf.implementation()<CR>", "Implementation")
 nmap_leader("cl", "<Cmd>lua vim.lsp.codelens.run()<CR>", "Lens")
+nmap_leader("cm", codenotes.create, "New / edit note at cursor")
+nmap_leader("cM", codenotes.delete_at_cursor, "Delete note at cursor")
 nmap_leader("cn", codenotes.pick, "Code notes")
 nmap_leader("cN", notes.pick, "Project notes")
 nmap_leader("cr", "<Cmd>lua vim.lsp.buf.rename()<CR>", "Rename")
