@@ -75,7 +75,7 @@ hl("PmenuSel", { link = "NordRowCurrent" })
 hl("PmenuMatch", { link = "NordEntryMatch" })
 hl("PmenuMatchSel", { link = "NordEntryMatch" })
 hl("PmenuSbar", { bg = p.elevated })
-hl("PmenuThumb", { bg = p.subtle })
+hl("PmenuThumb", { bg = p.navy })
 hl("PmenuKind", { fg = p.aqua, bg = p.surface })
 hl("PmenuKindSel", { fg = p.aqua, bg = p.elevated })
 hl("PmenuExtra", { fg = p.dim, bg = p.surface })
@@ -87,8 +87,8 @@ hl("TabLine", { fg = p.dim, bg = p.surface })
 hl("TabLineSel", { fg = p.text, bg = p.base })
 hl("TabLineFill", { bg = p.surface })
 
-hl("WinSeparator", { fg = p.elevated })
-hl("VertSplit", { fg = p.elevated })
+hl("WinSeparator", { fg = p.subtle })
+hl("VertSplit", { fg = p.subtle })
 hl("WinBar", { fg = p.text, bg = p.surface })
 hl("WinBarNC", { fg = p.dim, bg = p.surface })
 
@@ -111,9 +111,9 @@ hl("MoreMsg", { fg = p.cyan })
 hl("ErrorMsg", { fg = p.red })
 hl("WarningMsg", { fg = p.yellow })
 hl("Question", { fg = p.cyan })
-hl("MsgSeparator", { fg = p.dim, bg = p.surface })
+hl("MsgSeparator", { fg = p.subtle, bg = p.surface })
 
-hl("QuickFixLine", { bg = p.elevated })
+hl("QuickFixLine", { fg = p.base, bg = p.orange })
 hl("WildMenu", { link = "NordRowCurrent" })
 
 hl("Underlined", { underline = true })
@@ -127,7 +127,7 @@ hl("LspReferenceText", { bg = p.elevated })
 hl("LspReferenceRead", { bg = p.elevated })
 hl("LspReferenceWrite", { bg = p.elevated })
 hl("LspCodeLens", { fg = p.dim, italic = true })
-hl("LspCodeLensSeparator", { fg = p.elevated })
+hl("LspCodeLensSeparator", { fg = p.subtle })
 
 -- Terminal colors (maps to palette entries)
 vim.g.terminal_color_0 = p.elevated -- color0  (black)
@@ -265,7 +265,7 @@ hl("@comment.documentation", { link = "Comment" })
 hl("@comment.error", { fg = p.red })
 hl("@comment.warning", { fg = p.yellow })
 hl("@comment.todo", { fg = p.base, bg = p.yellow, bold = true })
-hl("@comment.note", { fg = p.base, bg = p.cyan, bold = true })
+hl("@comment.note", { fg = p.base, bg = p.navy, bold = true })
 
 -- Strings
 hl("@string", { link = "String" })
@@ -368,13 +368,13 @@ hl("@symbol", { link = "Keyword" })
 hl("@none", {})
 
 -- Markup (Markdown / RST / etc.)
-hl("@markup.heading", { fg = p.cyan, bold = true })
-hl("@markup.heading.1", { fg = p.red, bold = true })
-hl("@markup.heading.2", { fg = p.orange, bold = true })
-hl("@markup.heading.3", { fg = p.yellow, bold = true })
-hl("@markup.heading.4", { fg = p.green, bold = true })
-hl("@markup.heading.5", { fg = p.cyan, bold = true })
-hl("@markup.heading.6", { fg = p.blue, bold = true })
+hl("@markup.heading", { link = "NordSemanticHeader" })
+hl("@markup.heading.1", { link = "NordSemanticHeader" })
+hl("@markup.heading.2", { link = "NordSemanticHeader" })
+hl("@markup.heading.3", { link = "NordSemanticHeader" })
+hl("@markup.heading.4", { link = "NordSemanticHeader" })
+hl("@markup.heading.5", { link = "NordSemanticHeader" })
+hl("@markup.heading.6", { link = "NordSemanticHeader" })
 
 hl("@markup.heading.1.delimiter.vimdoc", { fg = p.elevated, bold = true })
 hl("@markup.heading.2.delimiter.vimdoc", { fg = p.elevated, bold = true })
@@ -393,7 +393,7 @@ hl("@markup.list", { fg = p.text })
 hl("@markup.list.checked", { fg = p.green })
 hl("@markup.list.unchecked", { fg = p.subtle })
 
-hl("@markup.quote", { fg = p.magenta })
+hl("@markup.quote", { fg = p.navy })
 hl("@markup.raw", { fg = p.aqua })
 hl("@markup.raw.block", { fg = p.aqua })
 hl("@markup.math", { fg = p.yellow })
@@ -463,7 +463,7 @@ hl("markdownCodeBlock", { fg = p.aqua })
 hl("markdownBold", { fg = p.text, bold = true })
 hl("markdownItalic", { fg = p.text, italic = true })
 hl("markdownListMarker", { fg = p.text })
-hl("markdownBlockquote", { fg = p.magenta })
+hl("markdownBlockquote", { fg = p.navy })
 -- }}}
 
 -- 8. Theme aliases --------------------------------------------------------- {{{
@@ -477,6 +477,16 @@ hl("markdownBlockquote", { fg = p.magenta })
 --     Sunken (bg = base)    — workspace surfaces (pickers, explorer, clue)
 --     Raised (bg = surface) — transient feedback (notify, hover, peek, Pmenu)
 --
+--   Chrome strips (tabline / statusline) — intentionally asymmetric
+--     Tabline current tab = base (sinks to canvas).
+--       Tabs represent buffers; the current tab visually merges with the
+--       buffer it shows. Same "active workspace surface = canvas extension"
+--       logic as sunken floats.
+--     Statusline active sections = elevated (rises above canvas).
+--       Statusline is a meta-info strip, not a workspace surface. It rises
+--       so the strip reads as a distinct layer rather than buffer content.
+--     Both fall to `surface` for inactive / mid-recessed sections.
+--
 --   Semantic color channels
 --     cyan    = live as-you-type matching: prompt prefix `❱`, sunken titles,
 --               picker/pmenu matches (bold), IncSearch in the buffer. Frost
@@ -484,17 +494,25 @@ hl("markdownBlockquote", { fg = p.magenta })
 --     orange  = committed / paired result: CurSearch (the hit you'll jump
 --               to after Enter), MatchParen (bracket pair), clue's submode
 --               keys. Reads as "this is the resolved match."
---     yellow  = passive search results in the buffer (Search) — universal
---               find-in-page idiom for "all hits, none current."
+--     yellow  = passive attention / warm caution: search results (Search),
+--               warning severity (DiagnosticWarn, Todo, todo-class comments),
+--               diff changes (DiffChange). Visible but not alarming.
 --     magenta = navigational landmark (headers, group entries)
 --     blue    = actionable key (clue NextKey, starter prefix)
+--     navy    = secondary informational (info & hint diagnostics, inline
+--               blame, blockquotes, NOTE markers — visible but not loud)
+--     aqua    = type / structure noun (Type, code spans, @property/@field,
+--               LSP kinds). Frost sibling to cyan; mostly syntax.
 --     subtle  = structural chrome (borders, separators)
 --     dim     = faded / inactive (unfocused titles)
 --     text    = neutral typed input + caret (filter prompt body, caret
 --               blends with what you're typing)
 --
 --   Row state hierarchy
---     Marked (bg = subtle, brightest) > Current (bg = elevated) > Default
+--     Marked (bg = elevated, bold) > Current (bg = elevated) > Default
+--     Marked differs from Current by typographic weight + mini.pick's
+--     prefix glyph, not by bg shade. Keeps `subtle` reserved as a pure
+--     chrome (fg) color, no dual role.
 --
 --   Other rules
 --     Selection modulates bg only — fg falls through to entry color.
@@ -514,7 +532,7 @@ hl("NordSunkenTitleDim", { fg = p.dim, bg = bg, bold = true })
 
 -- Row state — three-tier hierarchy: Marked (intent) > Current (cursor) >
 -- Default (no bg). Brighter bg = more user attention.
-hl("NordRowMarked", { bg = p.subtle })
+hl("NordRowMarked", { bg = p.elevated, bold = true })
 hl("NordRowCurrent", { bg = p.elevated })
 
 -- Prompt cue — prompt prefix and caret. The "you're typing here" accent for
@@ -532,7 +550,7 @@ hl("NordEntryMatch", { fg = p.cyan, bold = true })
 -- Navigational landmark — section headers, group entries that descend deeper.
 -- Inline-only callers (mini.clue's DescGroup, which needs an explicit bg due
 -- to the noautocmd quirk) keep their literal `fg = p.magenta` instead.
-hl("NordSemanticHeader", { fg = p.magenta })
+hl("NordSemanticHeader", { fg = p.magenta, bold = true })
 -- }}}
 
 -- 9. mini.nvim groups ------------------------------------------------------ {{{
@@ -549,7 +567,7 @@ hl("MiniClueBorder", { link = "NordSunkenBorder" })
 hl("MiniClueDescGroup", { fg = p.magenta, bg = bg })
 hl("MiniClueDescSingle", { link = "NordSunkenNormal" })
 hl("MiniClueNextKey", { fg = p.blue, bg = bg })
-hl("MiniClueNextKeyWithPostkeys", { fg = p.orange, bg = bg })
+hl("MiniClueNextKeyWithPostkeys", { fg = p.magenta, bg = bg })
 hl("MiniClueSeparator", { fg = p.subtle, bg = bg })
 hl("MiniClueTitle", { link = "NordSunkenTitle" })
 
@@ -591,11 +609,10 @@ hl("MiniFilesNormal", { link = "NordSunkenNormal" })
 hl("MiniFilesTitle", { link = "NordSunkenTitleDim" })
 hl("MiniFilesTitleFocused", { link = "NordSunkenTitle" })
 
--- mini.hipatterns (FIXME=red, HACK=orange, TODO=yellow, NOTE=cyan)
+-- mini.hipatterns (FIXME=red, TODO=yellow, NOTE=navy)
 hl("MiniHipatternsFixme", { fg = p.base, bg = p.red, bold = true })
-hl("MiniHipatternsHack", { fg = p.base, bg = p.orange, bold = true })
 hl("MiniHipatternsTodo", { fg = p.base, bg = p.yellow, bold = true })
-hl("MiniHipatternsNote", { fg = p.base, bg = p.cyan, bold = true })
+hl("MiniHipatternsNote", { fg = p.base, bg = p.navy, bold = true })
 
 -- mini.icons (link to closest named palette color)
 -- mini.icons named-color groups → palette. Azure → cyan and Purple → magenta
@@ -694,12 +711,12 @@ hl("MiniSurround", { link = "IncSearch" })
 hl("MiniTablineCurrent", { fg = p.text, bg = p.base, bold = true })
 hl("MiniTablineVisible", { fg = p.dim, bg = p.surface, bold = true })
 hl("MiniTablineHidden", { fg = p.dim, bg = p.surface })
-hl("MiniTablineModifiedCurrent", { fg = p.blue, bg = p.base, bold = true, italic = true })
-hl("MiniTablineModifiedVisible", { fg = p.blue, bg = p.surface, bold = true, italic = true })
-hl("MiniTablineModifiedHidden", { fg = p.blue, bg = p.surface, italic = true })
+hl("MiniTablineModifiedCurrent", { fg = p.navy, bg = p.base, bold = true, italic = true })
+hl("MiniTablineModifiedVisible", { fg = p.navy, bg = p.surface, bold = true, italic = true })
+hl("MiniTablineModifiedHidden", { fg = p.navy, bg = p.surface, italic = true })
 hl("MiniTablineFill", { link = "MiniTablineHidden" })
-hl("MiniTablineTabpagesection", { fg = p.base, bg = p.green, bold = true })
-hl("MiniTablineTrunc", { fg = p.cyan, bg = p.surface, bold = true })
+hl("MiniTablineTabpagesection", { fg = p.text, bg = p.elevated, bold = true })
+hl("MiniTablineTrunc", { fg = p.dim, bg = p.surface, bold = true })
 
 -- mini.test
 hl("MiniTestEmphasis", { bold = true })
@@ -719,6 +736,10 @@ hl("qfFileName", { fg = p.blue })
 -- Inline git blame (lua/blame.lua) — navy reads as "annotation that lives
 -- next to live code without competing for attention with Aurora warnings."
 hl("BlameInline", { fg = p.navy })
+
+-- Codenotes sign glyph (lua/codenotes.lua) — same navy channel as blame:
+-- a personal informational marker, present in the gutter without screaming.
+hl("CodenoteSign", { fg = p.navy })
 
 -- Nvim built-in float popup title conventions
 hl("NvimInternalError", { fg = p.red })

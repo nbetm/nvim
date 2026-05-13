@@ -68,7 +68,7 @@ local buf_to_marks = {}
 -- nf-md-lightbulb (U+F0335), built from its codepoint at runtime so the
 -- source stays ASCII-only (grep-safe; survives editors that strip glyphs).
 local SIGN_TEXT = vim.fn.nr2char(0xf0335)
-local SIGN_HL = "MiniIconsYellow"
+local SIGN_HL = "CodenoteSign"
 
 -- Place signs for any notes in the store that match this buffer's relative path.
 local function place_signs(buf)
