@@ -62,15 +62,25 @@ now_if_args(function()
     -- Daily-driver languages
     "bash",
     "python",
+    "rust",
+    "go",
     "json",
     "yaml",
     "toml",
+    "ini",
     "nix",
     "dockerfile",
     "hcl",
     -- Templating / data
     "jinja",
     "jinja_inline",
+    -- Web stack. `html` doubles as the markdown injection target
+    -- for inline `<tag>`s in .md files; `css` and `javascript` then
+    -- inject from `<style>` and `<script>` blocks inside html.
+    "html",
+    "css",
+    "javascript",
+    "typescript",
     -- Diff / SCM helpers
     "diff",
     "git_config",
