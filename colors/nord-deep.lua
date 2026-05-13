@@ -50,8 +50,8 @@ hl("NormalFloat", { fg = p.text, bg = p.surface })
 hl("EndOfBuffer", { fg = p.elevated, bg = transparent and p.none or nil })
 
 hl("Cursor", { fg = p.base, bg = p.text })
-hl("CursorIM", { fg = p.base, bg = p.text })
-hl("lCursor", { fg = p.base, bg = p.text })
+hl("CursorIM", { link = "Cursor" })
+hl("lCursor", { link = "Cursor" })
 hl("CursorLine", { bg = p.cursorline })
 hl("CursorColumn", { bg = p.cursorline })
 hl("CursorLineNr", { fg = p.text, bg = p.cursorline })
@@ -62,7 +62,7 @@ hl("LineNrBelow", { fg = p.chrome })
 
 hl("SignColumn", { fg = p.chrome, bg = transparent and p.none or p.base })
 hl("FoldColumn", { fg = p.chrome, bg = p.base })
-hl("Folded", { fg = p.dim, bg = p.surface })
+hl("Folded", { link = "NordFadedSurface" })
 
 hl("Visual", { bg = p.elevated })
 hl("VisualNOS", { bg = p.elevated })
@@ -78,23 +78,23 @@ hl("PmenuSbar", { bg = p.elevated })
 hl("PmenuThumb", { bg = p.navy })
 hl("PmenuKind", { fg = p.aqua, bg = p.surface })
 hl("PmenuKindSel", { fg = p.aqua, bg = p.elevated })
-hl("PmenuExtra", { fg = p.dim, bg = p.surface })
+hl("PmenuExtra", { link = "NordFadedSurface" })
 hl("PmenuExtraSel", { fg = p.dim, bg = p.elevated })
 
 hl("StatusLine", { fg = p.text, bg = p.elevated })
-hl("StatusLineNC", { fg = p.dim, bg = p.surface })
-hl("TabLine", { fg = p.dim, bg = p.surface })
+hl("StatusLineNC", { link = "NordFadedSurface" })
+hl("TabLine", { link = "NordFadedSurface" })
 hl("TabLineSel", { fg = p.text, bg = p.base })
 hl("TabLineFill", { bg = p.surface })
 
 hl("WinSeparator", { fg = p.chrome })
 hl("VertSplit", { fg = p.chrome })
 hl("WinBar", { fg = p.text, bg = p.surface })
-hl("WinBarNC", { fg = p.dim, bg = p.surface })
+hl("WinBarNC", { link = "NordFadedSurface" })
 
 hl("FloatBorder", { fg = p.chrome, bg = p.surface })
 hl("FloatTitle", { fg = p.text, bg = p.surface, bold = true })
-hl("FloatFooter", { fg = p.dim, bg = p.surface })
+hl("FloatFooter", { link = "NordFadedSurface" })
 
 hl("ColorColumn", { bg = p.cursorline })
 hl("Conceal", { fg = p.chrome })
@@ -102,9 +102,9 @@ hl("Directory", { fg = p.blue })
 hl("Title", { fg = p.cyan, bold = true })
 hl("MatchParen", { fg = p.orange, bold = true })
 
-hl("NonText", { fg = p.elevated })
-hl("SpecialKey", { fg = p.elevated })
-hl("Whitespace", { fg = p.elevated })
+hl("NonText", { link = "NordLayoutMarker" })
+hl("SpecialKey", { link = "NordLayoutMarker" })
+hl("Whitespace", { link = "NordLayoutMarker" })
 
 hl("MsgArea", { fg = p.text })
 hl("MoreMsg", { fg = p.cyan })
@@ -121,12 +121,12 @@ hl("Bold", { bold = true })
 hl("Italic", { italic = true })
 
 -- Inlay hints
-hl("LspInlayHint", { fg = p.dim, italic = true })
+hl("LspInlayHint", { link = "Comment" })
 hl("LspSignatureActiveParameter", { fg = p.text, bg = p.elevated, bold = true })
 hl("LspReferenceText", { bg = p.elevated })
 hl("LspReferenceRead", { bg = p.elevated })
 hl("LspReferenceWrite", { bg = p.elevated })
-hl("LspCodeLens", { fg = p.dim, italic = true })
+hl("LspCodeLens", { link = "Comment" })
 hl("LspCodeLensSeparator", { fg = p.chrome })
 
 -- Terminal colors (maps to palette entries)
@@ -249,7 +249,7 @@ hl("Special", { fg = p.cyan })
 hl("SpecialChar", { fg = p.yellow })
 hl("Tag", { fg = p.blue })
 hl("Delimiter", { fg = p.text })
-hl("SpecialComment", { fg = p.dim, italic = true })
+hl("SpecialComment", { link = "Comment" })
 hl("Debug", { fg = p.red })
 
 hl("Ignore", { fg = p.dim })
@@ -264,7 +264,7 @@ hl("@comment", { link = "Comment" })
 hl("@comment.documentation", { link = "Comment" })
 hl("@comment.error", { fg = p.red })
 hl("@comment.warning", { fg = p.yellow })
-hl("@comment.todo", { fg = p.base, bg = p.yellow, bold = true })
+hl("@comment.todo", { link = "Todo" })
 hl("@comment.note", { fg = p.base, bg = p.navy, bold = true })
 
 -- Strings
@@ -557,6 +557,14 @@ hl("NordEntryMatch", { fg = p.cyan, bold = true })
 -- Inline-only callers (mini.clue's DescGroup, which needs an explicit bg due
 -- to the noautocmd quirk) keep their literal `fg = p.magenta` instead.
 hl("NordSemanticHeader", { fg = p.magenta, bold = true })
+
+-- Faded content on the raised float bg. Used by inactive statusline / tabline
+-- sections, fold lines, completion extra info, footer text, etc.
+hl("NordFadedSurface", { fg = p.dim, bg = p.surface })
+
+-- Faint layout markers — barely-visible glyphs for whitespace, indent guides,
+-- jump-target dimming. Quietest visible chrome.
+hl("NordLayoutMarker", { fg = p.elevated })
 -- }}}
 
 -- 9. mini.nvim groups ------------------------------------------------------ {{{
@@ -617,8 +625,8 @@ hl("MiniFilesTitleFocused", { link = "NordSunkenTitle" })
 
 -- mini.hipatterns (FIXME=red, TODO=yellow, NOTE=navy)
 hl("MiniHipatternsFixme", { fg = p.base, bg = p.red, bold = true })
-hl("MiniHipatternsTodo", { fg = p.base, bg = p.yellow, bold = true })
-hl("MiniHipatternsNote", { fg = p.base, bg = p.navy, bold = true })
+hl("MiniHipatternsTodo", { link = "Todo" })
+hl("MiniHipatternsNote", { link = "@comment.note" })
 
 -- mini.icons (link to closest named palette color)
 -- mini.icons named-color groups → palette. Azure → cyan and Purple → magenta
@@ -634,14 +642,14 @@ hl("MiniIconsRed", { fg = p.red })
 hl("MiniIconsYellow", { fg = p.yellow })
 
 -- mini.indentscope (subtle indent guides that blend into the background)
-hl("MiniIndentscopeSymbol", { fg = p.elevated })
+hl("MiniIndentscopeSymbol", { link = "NordLayoutMarker" })
 hl("MiniIndentscopeSymbolOff", { fg = p.red })
 
 -- mini.jump
 hl("MiniJump", { sp = p.cyan, undercurl = true })
 
 -- mini.jump2d
-hl("MiniJump2dDim", { fg = p.elevated })
+hl("MiniJump2dDim", { link = "NordLayoutMarker" })
 hl("MiniJump2dSpot", { fg = p.base, bg = p.bright, bold = true, nocombine = true })
 hl("MiniJump2dSpotAhead", { fg = p.base, bg = p.text, nocombine = true })
 hl("MiniJump2dSpotUnique", { link = "MiniJump2dSpot" })
@@ -716,7 +724,7 @@ hl("MiniSurround", { link = "IncSearch" })
 -- mini.tabline (bufferline — inactive tabs on surface, active on base)
 hl("MiniTablineCurrent", { fg = p.text, bg = p.base, bold = true })
 hl("MiniTablineVisible", { fg = p.dim, bg = p.surface, bold = true })
-hl("MiniTablineHidden", { fg = p.dim, bg = p.surface })
+hl("MiniTablineHidden", { link = "NordFadedSurface" })
 hl("MiniTablineModifiedCurrent", { fg = p.navy, bg = p.base, bold = true, italic = true })
 hl("MiniTablineModifiedVisible", { fg = p.navy, bg = p.surface, bold = true, italic = true })
 hl("MiniTablineModifiedHidden", { fg = p.navy, bg = p.surface, italic = true })
