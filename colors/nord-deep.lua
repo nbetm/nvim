@@ -17,7 +17,7 @@ local palette = {
   base = "#212732",
   surface = "#2e3440",
   elevated = "#3b4252",
-  subtle = "#434c5e",
+  chrome = "#434c5e",
   -- Snow Storm
   dim = "#798094",
   text = "#b8c5d1",
@@ -56,12 +56,12 @@ hl("CursorLine", { bg = p.cursorline })
 hl("CursorColumn", { bg = p.cursorline })
 hl("CursorLineNr", { fg = p.text, bg = p.cursorline })
 
-hl("LineNr", { fg = p.subtle })
-hl("LineNrAbove", { fg = p.subtle })
-hl("LineNrBelow", { fg = p.subtle })
+hl("LineNr", { fg = p.chrome })
+hl("LineNrAbove", { fg = p.chrome })
+hl("LineNrBelow", { fg = p.chrome })
 
-hl("SignColumn", { fg = p.subtle, bg = transparent and p.none or p.base })
-hl("FoldColumn", { fg = p.subtle, bg = p.base })
+hl("SignColumn", { fg = p.chrome, bg = transparent and p.none or p.base })
+hl("FoldColumn", { fg = p.chrome, bg = p.base })
 hl("Folded", { fg = p.dim, bg = p.surface })
 
 hl("Visual", { bg = p.elevated })
@@ -87,17 +87,17 @@ hl("TabLine", { fg = p.dim, bg = p.surface })
 hl("TabLineSel", { fg = p.text, bg = p.base })
 hl("TabLineFill", { bg = p.surface })
 
-hl("WinSeparator", { fg = p.subtle })
-hl("VertSplit", { fg = p.subtle })
+hl("WinSeparator", { fg = p.chrome })
+hl("VertSplit", { fg = p.chrome })
 hl("WinBar", { fg = p.text, bg = p.surface })
 hl("WinBarNC", { fg = p.dim, bg = p.surface })
 
-hl("FloatBorder", { fg = p.subtle, bg = p.surface })
+hl("FloatBorder", { fg = p.chrome, bg = p.surface })
 hl("FloatTitle", { fg = p.text, bg = p.surface, bold = true })
 hl("FloatFooter", { fg = p.dim, bg = p.surface })
 
 hl("ColorColumn", { bg = p.cursorline })
-hl("Conceal", { fg = p.subtle })
+hl("Conceal", { fg = p.chrome })
 hl("Directory", { fg = p.blue })
 hl("Title", { fg = p.cyan, bold = true })
 hl("MatchParen", { fg = p.orange, bold = true })
@@ -111,7 +111,7 @@ hl("MoreMsg", { fg = p.cyan })
 hl("ErrorMsg", { fg = p.red })
 hl("WarningMsg", { fg = p.yellow })
 hl("Question", { fg = p.cyan })
-hl("MsgSeparator", { fg = p.subtle, bg = p.surface })
+hl("MsgSeparator", { fg = p.chrome, bg = p.surface })
 
 hl("QuickFixLine", { fg = p.base, bg = p.orange })
 hl("WildMenu", { link = "NordRowCurrent" })
@@ -127,7 +127,7 @@ hl("LspReferenceText", { bg = p.elevated })
 hl("LspReferenceRead", { bg = p.elevated })
 hl("LspReferenceWrite", { bg = p.elevated })
 hl("LspCodeLens", { fg = p.dim, italic = true })
-hl("LspCodeLensSeparator", { fg = p.subtle })
+hl("LspCodeLensSeparator", { fg = p.chrome })
 
 -- Terminal colors (maps to palette entries)
 vim.g.terminal_color_0 = p.elevated -- color0  (black)
@@ -138,7 +138,7 @@ vim.g.terminal_color_4 = p.blue -- color4  (blue)
 vim.g.terminal_color_5 = p.magenta -- color5  (magenta)
 vim.g.terminal_color_6 = p.cyan -- color6  (cyan)
 vim.g.terminal_color_7 = p.text -- color7  (white)
-vim.g.terminal_color_8 = p.subtle -- color8  (bright black)
+vim.g.terminal_color_8 = p.chrome -- color8  (bright black)
 vim.g.terminal_color_9 = p.red -- color9  (bright red)
 vim.g.terminal_color_10 = p.green -- color10 (bright green)
 vim.g.terminal_color_11 = p.yellow -- color11 (bright yellow)
@@ -391,7 +391,7 @@ hl("@markup.link.url", { fg = p.cyan, underline = true })
 
 hl("@markup.list", { fg = p.text })
 hl("@markup.list.checked", { fg = p.green })
-hl("@markup.list.unchecked", { fg = p.subtle })
+hl("@markup.list.unchecked", { fg = p.chrome })
 
 hl("@markup.quote", { fg = p.navy })
 hl("@markup.raw", { fg = p.aqua })
@@ -473,6 +473,12 @@ hl("markdownBlockquote", { fg = p.navy })
 --
 -- Design language at a glance:
 --
+--   Polar Night ladder (bg shades, dark → light)
+--     base     — canvas / foundation
+--     surface  — slightly above (the "Raised" float tier)
+--     elevated — more lift (current row, statusline active)
+--     chrome   — brightest polar, borders / separators
+--
 --   Float tiers
 --     Sunken (bg = base)    — workspace surfaces (pickers, explorer, clue)
 --     Raised (bg = surface) — transient feedback (notify, hover, peek, Pmenu)
@@ -503,7 +509,7 @@ hl("markdownBlockquote", { fg = p.navy })
 --               blame, blockquotes, NOTE markers — visible but not loud)
 --     aqua    = type / structure noun (Type, code spans, @property/@field,
 --               LSP kinds). Frost sibling to cyan; mostly syntax.
---     subtle  = structural chrome (borders, separators)
+--     chrome  = visible polar trim (borders, separators)
 --     dim     = faded / inactive (unfocused titles)
 --     text    = neutral typed input + caret (filter prompt body, caret
 --               blends with what you're typing)
@@ -511,14 +517,14 @@ hl("markdownBlockquote", { fg = p.navy })
 --   Row state hierarchy
 --     Marked (bg = elevated, bold) > Current (bg = elevated) > Default
 --     Marked differs from Current by typographic weight + mini.pick's
---     prefix glyph, not by bg shade. Keeps `subtle` reserved as a pure
---     chrome (fg) color, no dual role.
+--     prefix glyph, not by bg shade. Keeps `chrome` reserved as a pure
+--     trim (fg) color, no dual role.
 --
 --   Other rules
 --     Selection modulates bg only — fg falls through to entry color.
 --     Severity (red/yellow/navy) reserved for actual attention, not noise.
 --     Focus signaled by fade — active stays at baseline, inactive dims.
---     Structural chrome (borders/separators) recedes on `subtle`.
+--     Borders and separators sit at `chrome` (brightest polar shade).
 --
 -- Full tool-agnostic spec: https://github.com/nbetm/nix-config/blob/main/docs/nord-deep.md
 
@@ -526,7 +532,7 @@ hl("markdownBlockquote", { fg = p.navy })
 -- on editor `bg`. Notify, hover, diagnostic float, completion info, peek,
 -- and Pmenu stay raised on NormalFloat/FloatBorder.
 hl("NordSunkenNormal", { fg = p.text, bg = bg })
-hl("NordSunkenBorder", { fg = p.subtle, bg = bg })
+hl("NordSunkenBorder", { fg = p.chrome, bg = bg })
 hl("NordSunkenTitle", { fg = p.cyan, bg = bg, bold = true })
 hl("NordSunkenTitleDim", { fg = p.dim, bg = bg, bold = true })
 
@@ -568,7 +574,7 @@ hl("MiniClueDescGroup", { fg = p.magenta, bg = bg })
 hl("MiniClueDescSingle", { link = "NordSunkenNormal" })
 hl("MiniClueNextKey", { fg = p.blue, bg = bg })
 hl("MiniClueNextKeyWithPostkeys", { fg = p.magenta, bg = bg })
-hl("MiniClueSeparator", { fg = p.subtle, bg = bg })
+hl("MiniClueSeparator", { fg = p.chrome, bg = bg })
 hl("MiniClueTitle", { link = "NordSunkenTitle" })
 
 -- mini.cmdline
@@ -730,7 +736,7 @@ hl("MiniTrailspace", { bg = p.red })
 -- 10. Misc ----------------------------------------------------------------- {{{
 
 -- Quickfix
-hl("qfLineNr", { fg = p.subtle })
+hl("qfLineNr", { fg = p.chrome })
 hl("qfFileName", { fg = p.blue })
 
 -- Inline git blame (lua/blame.lua) — navy reads as "annotation that lives
