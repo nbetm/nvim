@@ -368,7 +368,10 @@ hl("@symbol", { link = "Keyword" })
 hl("@none", {})
 
 -- Markup (Markdown / RST / etc.)
-hl("@markup.heading", { link = "NordSemanticHeader" })
+-- Bare `@markup.heading` (no level) is what markdown treesitter assigns to
+-- pipe-table header cells. Keep it distinct from section headings so the two
+-- don't both land on magenta and visually blur together inside docs with tables.
+hl("@markup.heading", { fg = p.bright, bold = true })
 hl("@markup.heading.1", { link = "NordSemanticHeader" })
 hl("@markup.heading.2", { link = "NordSemanticHeader" })
 hl("@markup.heading.3", { link = "NordSemanticHeader" })
