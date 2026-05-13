@@ -590,10 +590,10 @@ hl("MiniClueTitle", { link = "NordSunkenTitle" })
 
 -- mini.cmdline
 hl("MiniCmdlinePeekBorder", { link = "FloatBorder" })
-hl("MiniCmdlinePeekLineNr", { link = "DiagnosticSignWarn" })
+hl("MiniCmdlinePeekLineNr", { fg = p.dim, bg = p.surface })
 hl("MiniCmdlinePeekNormal", { link = "NormalFloat" })
-hl("MiniCmdlinePeekSep", { link = "SignColumn" })
-hl("MiniCmdlinePeekSign", { link = "DiagnosticSignHint" })
+hl("MiniCmdlinePeekSep", { fg = p.chrome, bg = p.surface })
+hl("MiniCmdlinePeekSign", { fg = p.cyan, bg = p.surface })
 hl("MiniCmdlinePeekTitle", { link = "FloatTitle" })
 
 -- mini.completion
