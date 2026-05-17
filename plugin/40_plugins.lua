@@ -61,6 +61,7 @@ now_if_args(function()
     "vimdoc",
     -- Daily-driver languages
     "bash",
+    "make",
     "python",
     "rust",
     "go",
