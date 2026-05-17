@@ -47,7 +47,7 @@ local bg = transparent and palette.none or palette.base
 hl("Normal", { fg = p.text, bg = bg })
 hl("NormalNC", { fg = p.text, bg = bg })
 hl("NormalFloat", { fg = p.text, bg = p.surface })
-hl("EndOfBuffer", { fg = p.elevated, bg = transparent and p.none or nil })
+hl("EndOfBuffer", { fg = p.chrome, bg = transparent and p.none or nil })
 
 hl("Cursor", { fg = p.base, bg = p.text })
 hl("CursorIM", { link = "Cursor" })
@@ -379,8 +379,8 @@ hl("@markup.heading.4", { link = "NordSemanticHeader" })
 hl("@markup.heading.5", { link = "NordSemanticHeader" })
 hl("@markup.heading.6", { link = "NordSemanticHeader" })
 
-hl("@markup.heading.1.delimiter.vimdoc", { fg = p.elevated, bold = true })
-hl("@markup.heading.2.delimiter.vimdoc", { fg = p.elevated, bold = true })
+hl("@markup.heading.1.delimiter.vimdoc", { fg = p.chrome, bold = true })
+hl("@markup.heading.2.delimiter.vimdoc", { fg = p.chrome, bold = true })
 hl("@markup.heading.4.vimdoc", { link = "Title" })
 
 hl("@markup.strong", { fg = p.text, bold = true })
@@ -565,9 +565,9 @@ hl("NordSemanticHeader", { fg = p.magenta, bold = true })
 -- sections, fold lines, completion extra info, footer text, etc.
 hl("NordFadedSurface", { fg = p.dim, bg = p.surface })
 
--- Faint layout markers — barely-visible glyphs for whitespace, indent guides,
--- jump-target dimming. Quietest visible chrome.
-hl("NordLayoutMarker", { fg = p.elevated })
+-- Layout markers — whitespace listchars, indent guides, jump-target dimming.
+-- Structural trim, same tier as LineNr.
+hl("NordLayoutMarker", { fg = p.chrome })
 -- }}}
 
 -- 9. mini.nvim groups ------------------------------------------------------ {{{
