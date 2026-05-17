@@ -66,7 +66,7 @@ vim.o.cursorlineopt = "screenline,number" -- Show cursor line per screen line
 
 -- Special UI symbols. More is set via 'mini.basics' later.
 vim.o.fillchars = "eob: ,fold:╌"
-vim.o.listchars = "extends:…,nbsp:␣,precedes:…,tab:> ,trail:·"
+vim.o.listchars = "extends:…,nbsp:␣,precedes:…,tab:→ ,trail:·"
 
 -- Folds (see `:h fold-commands`, `:h zM`, `:h zR`, `:h zA`, `:h zj`)
 -- Tree-sitter expression folding is accurate where a parser is installed and
