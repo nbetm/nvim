@@ -11,6 +11,17 @@ if vim.fn.exists("syntax_on") == 1 then vim.cmd("syntax reset") end
 
 local hl = function(name, opts) vim.api.nvim_set_hl(0, name, opts) end
 
+-- Alpha-composite two hex colors: `ratio` of `b` over `a`. Used to derive soft
+-- overlays (e.g. cursorline) without baking magic hex into the palette. The
+-- design doc describes these as transparency (e.g. `#2e344080` = surface @ 50%);
+-- Neovim hl groups don't honor alpha, so the result is precomputed here.
+local blend = function(a, b, ratio)
+  local ar, ag, ab = a:match("#(%x%x)(%x%x)(%x%x)")
+  local br, bg_, bb = b:match("#(%x%x)(%x%x)(%x%x)")
+  local mix = function(x, y) return math.floor(tonumber(x, 16) * (1 - ratio) + tonumber(y, 16) * ratio + 0.5) end
+  return string.format("#%02x%02x%02x", mix(ar, br), mix(ag, bg_), mix(ab, bb))
+end
+
 -- Palette ------------------------------------------------------------------ {{{
 local palette = {
   -- Polar Night
@@ -33,10 +44,10 @@ local palette = {
   yellow = "#ebcb8b",
   green = "#a3be8c",
   magenta = "#b48ead",
-  -- Derived
-  cursorline = "#282e39",
   none = "NONE",
 }
+-- Derived overlays. Kept separate so the alpha-composite intent is visible.
+palette.cursorline = blend(palette.base, palette.surface, 0.5) -- surface @ 50% on base
 
 local p = palette
 local transparent = vim.g.nord_deep_transparent
