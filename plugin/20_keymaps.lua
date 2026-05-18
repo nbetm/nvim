@@ -29,6 +29,10 @@ nmap("]p", '<Cmd>exe "iput "  . v:register<CR>', "Paste Below")
 -- toggles `'hlsearch'` globally if you want it off persistently.
 nmap("<Esc>", "<Cmd>noh<CR>", "Clear search highlight")
 
+-- Snap current window width to its 'textwidth' (or 79 by default), leaving
+-- other splits untouched. Different from `<C-w>=` which redistributes evenly.
+nmap("<C-w>0", "<Cmd>lua MiniMisc.resize_window()<CR>", "Resize to default width")
+
 -- LSP navigation under `g*`. Falls back to the original built-in `gX` when no
 -- LSP client is attached to the current buffer (so opening a plain text file
 -- still gets you `gd`'s "go to local declaration", etc.).
@@ -79,7 +83,6 @@ Config.leader_group_clues = {
   { mode = "n", keys = "<Leader>p", desc = "+Picker" },
   { mode = "n", keys = "<Leader>g", desc = "+Git" },
   { mode = "n", keys = "<Leader>c", desc = "+Code" },
-  { mode = "n", keys = "<Leader>O", desc = "+Other" },
   { mode = "n", keys = "<Leader>o", desc = "+Session" },
   { mode = "n", keys = "<Leader>v", desc = "+Visits" },
 
@@ -145,6 +148,7 @@ nmap_leader("S", pick_workspace_symbols_live, "Symbols workspace")
 nmap_leader("d", '<Cmd>Pick diagnostic scope="current"<CR>', "Diagnostic buffer")
 nmap_leader("D", '<Cmd>Pick diagnostic scope="all"<CR>', "Diagnostic workspace")
 nmap_leader("r", '<Cmd>Pick lsp scope="references"<CR>', "References")
+nmap_leader("l", "<Cmd>lua MiniNotify.show_history()<CR>", "Notification log")
 nmap_leader("'", "<Cmd>Pick resume<CR>", "Resume")
 nmap_leader("w", "<Cmd>write<CR>", "Write")
 nmap_leader("W", "<Cmd>wall<CR>", "Write all")
@@ -230,6 +234,14 @@ xmap_leader("gs", "<Cmd>lua MiniGit.show_at_cursor()<CR>", "Show at selection")
 -- Inline blame toggle (overrides mini.basics' `\b` = background toggle).
 vim.keymap.set("n", "\\b", blame.toggle, { desc = "Toggle inline blame" })
 
+-- Window/list toggles. Not in mini.basics' option-toggle set; share the `\`
+-- prefix so all togglable state lives in one namespace.
+local toggle_quickfix = function() vim.cmd(vim.fn.getqflist({ winid = true }).winid ~= 0 and "cclose" or "copen") end
+local toggle_loclist = function() vim.cmd(vim.fn.getloclist(0, { winid = true }).winid ~= 0 and "lclose" or "lopen") end
+vim.keymap.set("n", "\\q", toggle_quickfix, { desc = "Toggle quickfix" })
+vim.keymap.set("n", "\\Q", toggle_loclist, { desc = "Toggle loclist" })
+vim.keymap.set("n", "\\z", "<Cmd>lua MiniMisc.zoom()<CR>", { desc = "Toggle zoom" })
+
 -- c is for 'Code'. Spans LSP actions, comment toggle, and note pickers.
 -- Common usage:
 -- - `<Leader>cd` - show more diagnostic details in a floating window
@@ -263,24 +275,12 @@ nmap_leader("cR", "<Cmd>lua vim.lsp.buf.rename()<CR>", "Rename")
 nmap_leader("cs", '<Cmd>Pick lsp scope="document_symbol"<CR>', "Symbols buffer")
 nmap_leader("cS", pick_workspace_symbols_live, "Symbols workspace")
 nmap_leader("ct", "<Cmd>lua vim.lsp.buf.type_definition()<CR>", "Type definition")
+nmap_leader("cT", "<Cmd>lua MiniTrailspace.trim()<CR>", "Trim trailspace")
 
 xmap_leader("cc", comment_visual, "Comment toggle")
 xmap_leader("cf", '<Cmd>lua require("conform").format()<CR>', "Format selection")
 
--- O is for 'Other'. Grab-bag of utility actions (capital O so the lowercase
--- `o` is free for the more frequent Session group below).
-local toggle_quickfix = function() vim.cmd(vim.fn.getqflist({ winid = true }).winid ~= 0 and "cclose" or "copen") end
-local toggle_loclist = function() vim.cmd(vim.fn.getloclist(0, { winid = true }).winid ~= 0 and "lclose" or "lopen") end
--- - `<Leader>Oz` - toggle between "zoomed" and regular view of current buffer
-nmap_leader("On", "<Cmd>lua MiniNotify.show_history()<CR>", "Notifications")
-nmap_leader("Oq", toggle_quickfix, "Quickfix toggle")
-nmap_leader("OQ", toggle_loclist, "Location toggle")
-nmap_leader("Or", "<Cmd>lua MiniMisc.resize_window()<CR>", "Resize to default width")
-nmap_leader("Ot", "<Cmd>lua MiniTrailspace.trim()<CR>", "Trim trailspace")
-nmap_leader("Oz", "<Cmd>lua MiniMisc.zoom()<CR>", "Zoom toggle")
-
--- o is for 'Session' (sessions are the most-used `o*` action; Other lives at
--- `O*` above). Common usage:
+-- o is for 'Session'. Common usage:
 -- - `<Leader>on` - start new session
 -- - `<Leader>or` - read previously started session
 -- - `<Leader>oR` - restart Neovim preserving current session

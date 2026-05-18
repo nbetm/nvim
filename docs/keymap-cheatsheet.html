@@ -199,8 +199,8 @@
         <tr><td class="k"><kbd>&lt;C-h/j/k/l&gt;</kbd></td><td>Move between windows</td></tr>
         <tr><td class="k"><kbd>&lt;C-w&gt;s</kbd> <kbd>&lt;C-w&gt;v</kbd></td><td>Split horiz / vert</td></tr>
         <tr><td class="k"><kbd>&lt;C-w&gt;=</kbd></td><td>Equalize windows</td></tr>
-        <tr><td class="k"><kbd>&lt;Leader&gt;Oz</kbd></td><td>Zoom toggle</td></tr>
-        <tr><td class="k"><kbd>&lt;Leader&gt;Or</kbd></td><td>Resize to default width</td></tr>
+        <tr><td class="k"><kbd>&lt;C-w&gt;0</kbd></td><td>Snap this window to its textwidth (others untouched)</td></tr>
+        <tr><td class="k"><kbd>\z</kbd></td><td>Zoom toggle</td></tr>
       </table>
     </section>
 
@@ -263,6 +263,7 @@
         <tr><td class="k"><kbd>&lt;Leader&gt;cf</kbd></td><td>Format (also Visual)</td></tr>
         <tr><td class="k"><kbd>&lt;Leader&gt;cs</kbd> / <kbd>cS</kbd></td><td>Symbols buffer / workspace &nbsp;<span class="muted">mirror <kbd>s</kbd> / <kbd>S</kbd></span></td></tr>
         <tr><td class="k"><kbd>&lt;Leader&gt;ct</kbd></td><td>Type definition</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;cT</kbd></td><td>Trim trailing whitespace</td></tr>
         <tr><td class="k"><kbd>&lt;Leader&gt;cd</kbd></td><td>Diagnostic popup &nbsp;<span class="muted">(toggle visibility: <kbd>\d</kbd>)</span></td></tr>
         <tr><td class="k"><kbd>&lt;Leader&gt;cl</kbd></td><td>Code lens</td></tr>
         <tr><td class="k"><kbd>&lt;Leader&gt;cn</kbd> / <kbd>cN</kbd></td><td>Code notes / project notes picker &nbsp;<span class="muted">mirror <kbd>n</kbd> / <kbd>N</kbd></span></td></tr>
@@ -317,7 +318,7 @@
       <p class="note">Quickfix is global; location list is per-window. Most commands have <kbd>l*</kbd> twins.</p>
       <table>
         <tr><td class="k"><kbd>[q</kbd> <kbd>]q</kbd></td><td>Prev / next qf entry (mini.bracketed)</td></tr>
-        <tr><td class="k"><kbd>&lt;Leader&gt;Oq</kbd> / <kbd>OQ</kbd></td><td>Toggle qf / loclist window</td></tr>
+        <tr><td class="k"><kbd>\q</kbd> / <kbd>\Q</kbd></td><td>Toggle qf / loclist window</td></tr>
         <tr><td class="k"><kbd>:cdo</kbd> <kbd>{cmd}</kbd></td><td>Run <kbd>{cmd}</kbd> on each qf <strong>entry</strong> (line-by-line)</td></tr>
         <tr><td class="k"><kbd>:cfdo</kbd> <kbd>{cmd}</kbd></td><td>Run <kbd>{cmd}</kbd> per qf <strong>file</strong> &nbsp;<span class="muted">(faster for <code>%s/…</code>)</span></td></tr>
         <tr><td class="k"><kbd>:ldo</kbd> <kbd>:lfdo</kbd></td><td>Same, on the location list</td></tr>
@@ -351,17 +352,6 @@
     </section>
 
     <section>
-      <h2>Other (<kbd>&lt;Leader&gt;O</kbd>)</h2>
-      <table>
-        <tr><td class="k"><kbd>&lt;Leader&gt;On</kbd></td><td>Notification history</td></tr>
-        <tr><td class="k"><kbd>&lt;Leader&gt;Oq</kbd> / <kbd>OQ</kbd></td><td>Quickfix / loclist toggle</td></tr>
-        <tr><td class="k"><kbd>&lt;Leader&gt;Or</kbd></td><td>Resize to default width</td></tr>
-        <tr><td class="k"><kbd>&lt;Leader&gt;Ot</kbd></td><td>Trim trailing whitespace</td></tr>
-        <tr><td class="k"><kbd>&lt;Leader&gt;Oz</kbd></td><td>Zoom toggle</td></tr>
-      </table>
-    </section>
-
-    <section>
       <h2>Session (<kbd>&lt;Leader&gt;o</kbd>)</h2>
       <table>
         <tr><td class="k"><kbd>&lt;Leader&gt;on</kbd></td><td>New (prompted name)</td></tr>
@@ -388,6 +378,7 @@
         <tr><td class="k"><kbd>&lt;Leader&gt;q</kbd></td><td>Smart close (qf · loc · help · buffer; quit if last)</td></tr>
         <tr><td class="k"><kbd>&lt;Leader&gt;Q</kbd></td><td>Quit all</td></tr>
         <tr><td class="k"><kbd>&lt;Leader&gt;a</kbd></td><td>Select all</td></tr>
+        <tr><td class="k"><kbd>&lt;Leader&gt;l</kbd></td><td>Notification log (mini.notify history)</td></tr>
         <tr><td class="k"><kbd>&lt;Leader&gt;/</kbd></td><td>Live grep</td></tr>
         <tr><td class="k"><kbd>&lt;Leader&gt;?</kbd></td><td>Commands</td></tr>
       </table>
@@ -402,7 +393,6 @@
         <tr><td class="k"><kbd>&lt;Leader&gt;p</kbd></td><td>+Picker (catalog of mini.pick sources)</td></tr>
         <tr><td class="k"><kbd>&lt;Leader&gt;g</kbd></td><td>+Git (diff · log · commit · blame · overlay)</td></tr>
         <tr><td class="k"><kbd>&lt;Leader&gt;c</kbd></td><td>+Code (LSP · comment · notes)</td></tr>
-        <tr><td class="k"><kbd>&lt;Leader&gt;O</kbd></td><td>+Other (notif · qf · loc · zoom · trim)</td></tr>
         <tr><td class="k"><kbd>&lt;Leader&gt;o</kbd></td><td>+Session (write · read · delete)</td></tr>
         <tr><td class="k"><kbd>&lt;Leader&gt;v</kbd></td><td>+Visits (mini.visits frecency)</td></tr>
       </table>
@@ -433,6 +423,8 @@
         <tr><td class="k"><kbd>\d</kbd></td><td>Diagnostics visibility</td></tr>
         <tr><td class="k"><kbd>\I</kbd></td><td>LSP inlay hints</td></tr>
         <tr><td class="k"><kbd>\b</kbd></td><td>Inline blame (per-line virtual text)</td></tr>
+        <tr><td class="k"><kbd>\q</kbd> / <kbd>\Q</kbd></td><td>Quickfix / loclist window</td></tr>
+        <tr><td class="k"><kbd>\z</kbd></td><td>Zoom current buffer</td></tr>
       </table>
     </section>
   </div>
