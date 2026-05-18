@@ -117,8 +117,14 @@ Config.new_autocmd("FileType", nil, f, "Proper 'formatoptions'")
 -- Mirror yanks (only) to the system clipboard. Keeps `clipboard=""` so `dd`/`dw`
 -- don't clobber `+`, while still letting yanked text paste in tmux/browser/other
 -- nvim instances. Use `gp`/`gP` from mini.basics to read `+` back in.
+--
+-- Skip explicit-register yanks (`regname ~= ""`): the user either picked a
+-- specific register on purpose, or a plugin like mini.move stashed to one
+-- internally (its `"zy` would otherwise clobber the clipboard on every Alt+jk).
 local mirror_yank = function()
-  if vim.v.event.operator == "y" then vim.fn.setreg("+", vim.fn.getreg('"'), vim.fn.getregtype('"')) end
+  if vim.v.event.operator == "y" and vim.v.event.regname == "" then
+    vim.fn.setreg("+", vim.fn.getreg('"'), vim.fn.getregtype('"'))
+  end
 end
 Config.new_autocmd("TextYankPost", nil, mirror_yank, "Mirror yanks to clipboard")
 
