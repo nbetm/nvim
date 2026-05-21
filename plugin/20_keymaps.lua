@@ -134,7 +134,7 @@ local codenotes = require("codenotes")
 -- Picker shortcuts shared between root direct mappings and the +Picker group.
 local pick_workspace_symbols_live = '<Cmd>Pick lsp scope="workspace_symbol_live"<CR>'
 
-nmap_leader("a", "ggVG", "Select all")
+nmap_leader("a", "<Cmd>lua vim.lsp.buf.code_action()<CR>", "Code action")
 nmap_leader("e", explore_at_file, "Explorer file dir")
 nmap_leader("E", "<Cmd>lua MiniFiles.open()<CR>", "Explorer cwd")
 nmap_leader("b", "<Cmd>Pick buffers<CR>", "Buffers")
