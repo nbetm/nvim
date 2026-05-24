@@ -130,6 +130,7 @@ local blame = require("blame")
 local notes = require("notes")
 local git_files = require("git_files")
 local codenotes = require("codenotes")
+local floatterm = require("floatterm")
 
 -- Picker shortcuts shared between root direct mappings and the +Picker group.
 local pick_workspace_symbols_live = '<Cmd>Pick lsp scope="workspace_symbol_live"<CR>'
@@ -224,6 +225,8 @@ nmap_leader("gC", "<Cmd>Git commit --amend<CR>", "Commit amend")
 nmap_leader("gd", "<Cmd>Git diff -- %<CR>", "Diff buffer")
 nmap_leader("gD", "<Cmd>Git diff<CR>", "Diff all")
 nmap_leader("gf", git_files.changed, "Changed files")
+nmap_leader("gg", function() floatterm.open("lazygit") end, "Lazygit")
+nmap_leader("gj", function() floatterm.open("jjui") end, "jjui")
 nmap_leader("gl", "<Cmd>" .. git_log_buf_cmd .. "<CR>", "Log buffer")
 nmap_leader("gL", "<Cmd>" .. git_log_cmd .. "<CR>", "Log all")
 nmap_leader("go", "<Cmd>lua MiniDiff.toggle_overlay()<CR>", "Toggle overlay")

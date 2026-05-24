@@ -1,7 +1,5 @@
 -- Line-anchored code notes. Drop annotations on file:line pairs while
 -- exploring or refactoring; browse / walk-through / yank via mini.pick.
---
--- See docs/superpowers/specs/2026-05-11-codenotes-design.md for design rationale.
 
 local M = {}
 
