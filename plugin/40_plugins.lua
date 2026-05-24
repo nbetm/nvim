@@ -272,7 +272,10 @@ later(function() add({ "https://github.com/rafamadriz/friendly-snippets" }) end)
 -- See also:
 -- - `:h octo` and `:Octo` (top-level command discovery)
 -- - https://github.com/pwntester/octo.nvim#commands for the full list
-later(function()
+local octo_loaded = false
+local function setup_octo()
+  if octo_loaded then return end
+  octo_loaded = true
   add({
     "https://github.com/nvim-lua/plenary.nvim",
     "https://github.com/pwntester/octo.nvim",
@@ -313,7 +316,19 @@ later(function()
       end
     end)
   end, "octo file panel: lift current-row to bg2")
-end)
+end
+
+-- Eager stub: makes `:Octo` resolvable before the deferred preload runs.
+-- `setup_octo()` recreates `:Octo` with octo's real (completing) command, so
+-- we hand off by re-dispatching. Scheduled so windows open after startup.
+vim.api.nvim_create_user_command("Octo", function(opts)
+  pcall(vim.api.nvim_del_user_command, "Octo")
+  setup_octo()
+  vim.schedule(function() vim.cmd("Octo " .. opts.args) end)
+end, { nargs = "*" })
+
+-- Preload shortly after startup so the first interactive `:Octo` has no delay.
+later(setup_octo)
 
 -- Honorable mentions =========================================================
 

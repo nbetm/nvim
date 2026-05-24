@@ -311,7 +311,8 @@ now_if_args(function()
   -- Enable directory/file preview with wider panes for readability.
   require("mini.files").setup({
     -- Match mini.pick: <Esc> closes the explorer (default is `q`).
-    mappings = { close = "<Esc>" },
+    -- <CR> opens a file and closes the explorer (default key for that is `L`).
+    mappings = { close = "<Esc>", go_in_plus = "<CR>" },
     windows = {
       preview = true,
       width_focus = 50,
