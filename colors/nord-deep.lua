@@ -758,10 +758,15 @@ hl("MiniTrailspace", { bg = p.deep_yellow })
 -- but guards each one with `hlexists` (see octo/ui/colors.lua), so any group
 -- we define here wins and octo defers to it.
 
+-- Main
+hl("OctoGreen", { fg = p.green })
+hl("OctoRed", { fg = p.red })
+
 -- Bubbles
 hl("OctoBubbleBlue", { fg = p.fg_bright, bg = p.deep_blue })
-hl("OctoBubbleYellow", { fg = p.fg_bright, bg = p.deep_yellow })
 hl("OctoBubblePurple", { fg = p.fg_bright, bg = p.deep_magenta })
+hl("OctoBubbleYellow", { fg = p.fg_bright, bg = p.deep_yellow })
+hl("OctoBubbleDelimiterPurple", { fg = p.deep_magenta })
 hl("OctoBubbleDelimiterYellow", { fg = p.deep_yellow })
 
 -- File panel

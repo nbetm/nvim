@@ -84,6 +84,7 @@ Config.leader_group_clues = {
   { mode = "n", keys = "<Leader>g", desc = "+Git" },
   { mode = "n", keys = "<Leader>c", desc = "+Code" },
   { mode = "n", keys = "<Leader>o", desc = "+Session" },
+  { mode = "n", keys = "<Leader>O", desc = "+Octo" },
   { mode = "n", keys = "<Leader>v", desc = "+Visits" },
 
   { mode = "x", keys = "<Leader>g", desc = "+Git" },
@@ -149,6 +150,7 @@ nmap_leader("S", pick_workspace_symbols_live, "Symbols workspace")
 nmap_leader("d", '<Cmd>Pick diagnostic scope="current"<CR>', "Diagnostic buffer")
 nmap_leader("D", '<Cmd>Pick diagnostic scope="all"<CR>', "Diagnostic workspace")
 nmap_leader("r", '<Cmd>Pick lsp scope="references"<CR>', "References")
+nmap_leader("R", "<Cmd>lua vim.lsp.buf.rename()<CR>", "Rename symbol")
 nmap_leader("l", "<Cmd>lua MiniNotify.show_history()<CR>", "Notification log")
 nmap_leader("'", "<Cmd>Pick resume<CR>", "Resume")
 nmap_leader("w", "<Cmd>write<CR>", "Write")
@@ -281,7 +283,7 @@ nmap_leader("cM", codenotes.delete_at_cursor, "Delete note at cursor")
 nmap_leader("cn", codenotes.pick, "Code notes")
 nmap_leader("cN", notes.pick, "Project notes")
 nmap_leader("cr", '<Cmd>Pick lsp scope="references"<CR>', "References")
-nmap_leader("cR", "<Cmd>lua vim.lsp.buf.rename()<CR>", "Rename")
+nmap_leader("cR", "<Cmd>lua vim.lsp.buf.rename()<CR>", "Rename symbol")
 nmap_leader("cs", '<Cmd>Pick lsp scope="document_symbol"<CR>', "Symbols buffer")
 nmap_leader("cS", pick_workspace_symbols_live, "Symbols workspace")
 nmap_leader("ct", "<Cmd>lua vim.lsp.buf.type_definition()<CR>", "Type definition")
@@ -301,6 +303,11 @@ nmap_leader("on", "<Cmd>lua " .. session_new .. "<CR>", "New")
 nmap_leader("or", '<Cmd>lua MiniSessions.select("read")<CR>', "Read")
 nmap_leader("oR", "<Cmd>lua MiniSessions.restart()<CR>", "Restart")
 nmap_leader("ow", "<Cmd>lua MiniSessions.write()<CR>", "Write current")
+
+-- O is for 'Octo' (GitHub PR reviews). `<Leader>Op` opens the PR-list picker to
+-- start a review. Once inside an octo buffer, octo's own actions also live under
+-- `<Leader>O…` (remapped off `\` in plugin/40_plugins.lua so the `\` toggles stay).
+nmap_leader("Op", "<Cmd>Octo pr list<CR>", "PR list")
 
 -- v is for 'Visits'. Common usage:
 -- - `<Leader>vv` - add    "core" label to current file.
