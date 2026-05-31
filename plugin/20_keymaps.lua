@@ -229,13 +229,14 @@ nmap_leader("gg", function() floatterm.open("lazygit") end, "Lazygit")
 nmap_leader("gj", function() floatterm.open("jjui") end, "jjui")
 nmap_leader("gl", "<Cmd>" .. git_log_buf_cmd .. "<CR>", "Log buffer")
 nmap_leader("gL", "<Cmd>" .. git_log_cmd .. "<CR>", "Log all")
-nmap_leader("go", "<Cmd>lua MiniDiff.toggle_overlay()<CR>", "Toggle overlay")
 nmap_leader("gs", "<Cmd>lua MiniGit.show_at_cursor()<CR>", "Show at cursor")
 
 xmap_leader("gs", "<Cmd>lua MiniGit.show_at_cursor()<CR>", "Show at selection")
 
--- Inline blame toggle (overrides mini.basics' `\b` = background toggle).
+-- Git-ish view toggles in the `\` namespace (alongside the option toggles).
+-- `\b` overrides mini.basics' `\b` = background toggle.
 vim.keymap.set("n", "\\b", blame.toggle, { desc = "Toggle inline blame" })
+vim.keymap.set("n", "\\o", "<Cmd>lua MiniDiff.toggle_overlay()<CR>", { desc = "Toggle diff overlay" })
 
 -- Window/list toggles. Not in mini.basics' option-toggle set; share the `\`
 -- prefix so all togglable state lives in one namespace.
