@@ -262,7 +262,41 @@ later(function()
     -- (see plugin/30_mini.lua). Avoids pulling in telescope/fzf-lua/snacks
     -- just for this plugin's pickers.
     picker = "default",
+    -- Map Octo's 12 named color slots to Nord Deep channels.
+    colors = {
+      white = "#d4dce6", -- fg_bright (body fg on deeps + grey)
+      grey = "#798094", -- grey1 (faded fg + BubbleGrey bg)
+      black = "#212732", -- bg (dark fg for Viewer bubble)
+      red = "#c97078", -- destructive fg
+      dark_red = "#82515b", -- deep_red (destructive pill bg)
+      green = "#a3be8c", -- success fg
+      dark_green = "#556356", -- deep_green (success pill bg)
+      yellow = "#ebcb8b", -- warning fg
+      dark_yellow = "#665f50", -- deep_yellow (kept for completeness)
+      blue = "#81a1c1", -- info / actionable fg
+      dark_blue = "#4e6075", -- deep_blue (info pill bg)
+      purple = "#b48ead", -- magenta (landmark: merged, completed)
+    },
   })
+
+  -- Three bubble groups where Octo's default fg/bg pair doesn't pass
+  -- contrast on the Nord Deep palette and the `colors{}` mapping above
+  -- can't fix it alone:
+  --   BubbleBlue   — Octo defaults fg=grey, which on deep_blue lands at ~2.4
+  --   BubbleYellow — Octo defaults bg=yellow (saturated), fg=grey, ~2.5
+  --   BubblePurple — Octo defaults bg=purple (saturated mid-tone), ~2.5
+  -- The other Bubble* / ReviewDiff* groups resolve to fg_bright on deep_*
+  -- automatically via the colors{} table.
+  vim.api.nvim_set_hl(0, "OctoBubbleBlue", { fg = "#d4dce6", bg = "#4e6075" })
+  vim.api.nvim_set_hl(0, "OctoBubbleYellow", { fg = "#d4dce6", bg = "#665f50" })
+  vim.api.nvim_set_hl(0, "OctoBubblePurple", { fg = "#d4dce6", bg = "#6a5a70" })
+
+  -- File-panel touch-ups. Title → magenta (navigational landmark). The
+  -- yellow-bubble delimiters take `deep_yellow` fg (matches the bubble's bg)
+  -- on canvas, so the bracket characters look like rounded edges of the
+  -- same pill instead of a detached frame.
+  vim.api.nvim_set_hl(0, "OctoFilePanelTitle", { fg = "#b48ead", bold = true })
+  vim.api.nvim_set_hl(0, "OctoBubbleDelimiterYellow", { fg = "#665f50" })
 end)
 
 -- Honorable mentions =========================================================

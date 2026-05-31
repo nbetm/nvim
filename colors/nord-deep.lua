@@ -5,6 +5,43 @@
 -- Activate with `:colorscheme nord-deep`.
 -- Toggle transparent background by setting `vim.g.nord_deep_transparent = 1`
 -- before loading (e.g. in init.lua before `colorscheme nord-deep`).
+--
+-- Design language at a glance (full rationale in the doc linked above):
+--
+--   Polar Night (bg, dark → light)
+--     bg   canvas, sunken floats, active tab
+--     bg1  floats, inactive tabs/statusline
+--     bg2  marked/current row, active statusline, Visual; ANSI 0
+--     bg3  borders, separators, structural trim (no text role)
+--
+--   Washes  wash_<channel>  10% channel over bg — "this row is X" (diffs, errors, hits)
+--   Deeps   deep_<channel>  saturated darks + fg_bright — pills / badges
+--
+--   Foregrounds
+--     fg / fg_bright  body / emphasis; ANSI 7 / 15
+--     grey0  ghost text, line numbers, fold cols; ANSI 8
+--     grey1  comments, disabled, inline blame, unfocused titles
+--     grey2  cursor line number, recessed-but-readable labels
+--
+--   Channels (role beyond syntax)
+--     cyan     live cue (prompt prefix, picker matches, IncSearch)
+--     orange   committed / paired (CurSearch, MatchParen, sticky keys)
+--     yellow   passive attention (Search, warnings, DiffChange)
+--     green    strings, success
+--     red      errors, deletions, FIXME
+--     magenta  navigational landmark (headers, submenu entries)
+--     blue     action target (keys to press, TODO markers)
+--     indigo   value literals (booleans, builtin constants), list bullets
+--     navy     secondary info (info/hint diagnostics, blame, NOTE)
+--     aqua     type / structure noun (Type, @property, LSP kinds)
+--
+--   Rules
+--     Floats sit on bg1; pickers/clue take a cyan title accent, others fg.
+--     Tabline active tab sinks to bg; statusline active rises to bg2.
+--     Selection changes bg only — fg falls through.
+--     Severity (red / yellow / navy) reserved for actual attention.
+--     Marked > Current row: both bg2, differ by bold + glyph.
+--     Borders / separators sit at bg3.
 
 vim.cmd("highlight clear")
 if vim.fn.exists("syntax_on") == 1 then vim.cmd("syntax reset") end
@@ -12,8 +49,7 @@ if vim.fn.exists("syntax_on") == 1 then vim.cmd("syntax reset") end
 local hl = function(name, opts) vim.api.nvim_set_hl(0, name, opts) end
 
 -- Alpha-composite two hex colors: `ratio` of `b` over `a`. Used to derive soft
--- overlays (e.g. cursorline) without baking magic hex into the palette. The
--- design doc describes these as transparency (e.g. `#2e344080` = surface @ 50%);
+-- overlays (e.g. cursorline) without baking magic hex into the palette.
 -- Neovim hl groups don't honor alpha, so the result is precomputed here.
 local blend = function(a, b, ratio)
   local ar, ag, ab = a:match("#(%x%x)(%x%x)(%x%x)")
@@ -23,178 +59,248 @@ local blend = function(a, b, ratio)
 end
 
 -- Palette ------------------------------------------------------------------ {{{
+-- Two sub-palettes: `palette1` for backgrounds, `palette2` for foregrounds.
 local palette = {
-  -- Polar Night
-  base = "#212732",
-  surface = "#2e3440",
-  elevated = "#3b4252",
-  chrome = "#434c5e",
-  -- Snow Storm
-  dim = "#798094",
-  text = "#b8c5d1",
-  bright = "#d4dce6",
-  -- Frost
+  -- palette1: polar night (neutral surfaces)
+  bg = "#212732", -- canvas, sunken floats, active tab
+  bg1 = "#2e3440", -- raised floats, inactive tabs / statusline
+  bg2 = "#3b4252", -- marked / current row, active statusline; ANSI color0
+  bg3 = "#434c5e", -- borders, separators, structural trim (no text role)
+
+  -- palette1: washes (channel-tinted row backgrounds, 10% channel over bg)
+  wash_red = "#39313c",
+  wash_orange = "#323138",
+  wash_yellow = "#313439",
+  wash_green = "#2d353a",
+  wash_magenta = "#30313e",
+  wash_blue = "#2b3340",
+  wash_navy = "#2b3443",
+  wash_indigo = "#2e3445",
+
+  -- palette1: deeps (saturated pill backgrounds, paired with fg_bright)
+  deep_red = "#82515b",
+  deep_orange = "#785751",
+  deep_yellow = "#665f50",
+  deep_green = "#556356",
+  deep_magenta = "#6a5a70",
+  deep_blue = "#4e6075",
+  deep_navy = "#4b617d",
+  deep_indigo = "#5a5d83",
+
+  -- palette2: default / emphasis foregrounds
+  fg = "#b8c5d1", -- default body fg; ANSI color7
+  fg_bright = "#d4dce6", -- emphasis, body fg on bg2 and deep_*; ANSI color15
+
+  -- palette2: greys (de-emphasis foregrounds)
+  grey0 = "#5d6478", -- ghost text, line numbers, fold cols; ANSI color8
+  grey1 = "#798094", -- comments, disabled, inline blame
+  grey2 = "#929aae", -- cursor line number, recessed labels
+
+  -- palette2: frost (structural syntax — indigo is the nord-deep addition,
+  -- the others stay identical to upstream Nord)
   aqua = "#8fbcbb",
   cyan = "#88c0d0",
   blue = "#81a1c1",
-  navy = "#5e81ac",
-  -- Aurora
-  red = "#bf616a",
+  navy = "#6c8eb8",
+  indigo = "#9090d0",
+
+  -- palette2: aurora (semantic syntax) — unchanged from upstream Nord
+  red = "#c97078",
   orange = "#d08770",
   yellow = "#ebcb8b",
   green = "#a3be8c",
   magenta = "#b48ead",
+
   none = "NONE",
 }
--- Derived overlays. Kept separate so the alpha-composite intent is visible.
-palette.cursorline = blend(palette.base, palette.surface, 0.5) -- surface @ 50% on base
+
+-- Derived overlay.
+-- Blend of bg and bg1 (the non-transparent fallback for the `#2e344080` recipe).
+palette.cursorline = blend(palette.bg, palette.bg1, 0.5)
 
 local p = palette
 local transparent = vim.g.nord_deep_transparent
-local bg = transparent and palette.none or palette.base
+local bg = transparent and palette.none or palette.bg
 -- }}}
 
 -- 1. Editor core ----------------------------------------------------------- {{{
-hl("Normal", { fg = p.text, bg = bg })
-hl("NormalNC", { fg = p.text, bg = bg })
-hl("NormalFloat", { fg = p.text, bg = p.surface })
-hl("EndOfBuffer", { fg = p.chrome, bg = transparent and p.none or nil })
+-- Float tiers
+hl("Normal", { fg = p.fg, bg = bg })
+hl("NormalNC", { fg = p.fg, bg = bg })
+hl("NormalFloat", { fg = p.fg, bg = p.bg1 })
+hl("EndOfBuffer", { fg = p.bg3, bg = transparent and p.none or nil })
 
-hl("Cursor", { fg = p.base, bg = p.text })
+-- Cursor
+hl("Cursor", { fg = p.bg, bg = p.fg })
 hl("CursorIM", { link = "Cursor" })
 hl("lCursor", { link = "Cursor" })
+
+-- Editor-buffer active line
 hl("CursorLine", { bg = p.cursorline })
 hl("CursorColumn", { bg = p.cursorline })
-hl("CursorLineNr", { fg = p.text, bg = p.cursorline })
+hl("CursorLineNr", { fg = p.grey2, bg = p.cursorline })
 
-hl("LineNr", { fg = p.chrome })
-hl("LineNrAbove", { fg = p.chrome })
-hl("LineNrBelow", { fg = p.chrome })
+-- Line numbers sit at the ghost-text tier
+hl("LineNr", { fg = p.grey0 })
+hl("LineNrAbove", { fg = p.grey0 })
+hl("LineNrBelow", { fg = p.grey0 })
 
-hl("SignColumn", { fg = p.chrome, bg = transparent and p.none or p.base })
-hl("FoldColumn", { fg = p.chrome, bg = p.base })
-hl("Folded", { link = "NordFadedSurface" })
+-- Sign / fold columns sit on canvas
+hl("SignColumn", { fg = p.bg3, bg = transparent and p.none or p.bg })
+hl("FoldColumn", { fg = p.bg3, bg = p.bg })
+hl("Folded", { fg = p.grey1, bg = p.bg1 })
 
-hl("Visual", { bg = p.elevated })
-hl("VisualNOS", { bg = p.elevated })
+-- Visual selection
+hl("Visual", { bg = p.bg2 })
+hl("VisualNOS", { bg = p.bg2 })
 
--- Pmenu (cmdline + LSP completion) — raised tier, same `surface` bg as
--- notify/hover/peek. Selection and matches reuse the picker aliases.
+-- Pmenu (cmdline + LSP completion)
 hl("Pmenu", { link = "NormalFloat" })
 hl("PmenuBorder", { link = "FloatBorder" })
-hl("PmenuSel", { link = "NordRowCurrent" })
-hl("PmenuMatch", { link = "NordEntryMatch" })
-hl("PmenuMatchSel", { link = "NordEntryMatch" })
-hl("PmenuSbar", { bg = p.elevated })
+hl("PmenuSel", { bg = p.bg2 })
+hl("PmenuMatch", { fg = p.cyan, bold = true })
+hl("PmenuMatchSel", { fg = p.cyan, bold = true })
+hl("PmenuSbar", { bg = p.bg2 })
 hl("PmenuThumb", { bg = p.navy })
-hl("PmenuKind", { fg = p.aqua, bg = p.surface })
-hl("PmenuKindSel", { fg = p.aqua, bg = p.elevated })
-hl("PmenuExtra", { link = "NordFadedSurface" })
-hl("PmenuExtraSel", { fg = p.dim, bg = p.elevated })
+hl("PmenuKind", { fg = p.aqua, bg = p.bg1 })
+hl("PmenuKindSel", { fg = p.aqua, bg = p.bg2 })
+hl("PmenuExtra", { fg = p.grey1, bg = p.bg1 })
+hl("PmenuExtraSel", { fg = p.grey1, bg = p.bg2 })
 
-hl("StatusLine", { fg = p.text, bg = p.elevated })
-hl("StatusLineNC", { link = "NordFadedSurface" })
-hl("TabLine", { link = "NordFadedSurface" })
-hl("TabLineSel", { fg = p.text, bg = p.base })
-hl("TabLineFill", { bg = p.surface })
+-- Status / tab strips
+hl("StatusLine", { fg = p.fg, bg = p.bg2 })
+hl("StatusLineNC", { fg = p.grey1, bg = p.bg1 })
+hl("TabLine", { fg = p.grey1, bg = p.bg1 })
+hl("TabLineSel", { fg = p.fg, bg = p.bg })
+hl("TabLineFill", { bg = p.bg1 })
 
-hl("WinSeparator", { fg = p.chrome })
-hl("VertSplit", { fg = p.chrome })
-hl("WinBar", { fg = p.text, bg = p.surface })
-hl("WinBarNC", { link = "NordFadedSurface" })
+-- Window separators / vertical splits / WinBar
+hl("WinSeparator", { fg = p.bg3 })
+hl("VertSplit", { fg = p.bg3 })
+hl("WinBar", { fg = p.fg, bg = p.bg1 })
+hl("WinBarNC", { fg = p.grey1, bg = p.bg1 })
 
-hl("FloatBorder", { fg = p.chrome, bg = p.surface })
-hl("FloatTitle", { fg = p.text, bg = p.surface, bold = true })
-hl("FloatFooter", { link = "NordFadedSurface" })
+-- Float frame
+hl("FloatBorder", { fg = p.bg3, bg = p.bg1 })
+hl("FloatTitle", { fg = p.fg, bg = p.bg1, bold = true })
+hl("FloatFooter", { fg = p.grey1, bg = p.bg1 })
+
+-- Float / popup drop-shadow (only shown with shadow effects enabled). Dark
+-- nord shadow via canvas bg + blend, instead of the default off-palette grey.
+hl("FloatShadow", { bg = p.bg, blend = 80 })
+hl("FloatShadowThrough", { bg = p.bg, blend = 100 })
+hl("PmenuShadow", { link = "FloatShadow" })
+hl("PmenuShadowThrough", { link = "FloatShadowThrough" })
 
 hl("ColorColumn", { bg = p.cursorline })
-hl("Conceal", { fg = p.chrome })
+hl("Conceal", { fg = p.bg3 })
 hl("Directory", { fg = p.blue })
 hl("Title", { fg = p.cyan, bold = true })
 hl("MatchParen", { fg = p.orange, bold = true })
 
-hl("NonText", { link = "NordLayoutMarker" })
-hl("SpecialKey", { link = "NordLayoutMarker" })
-hl("Whitespace", { link = "NordLayoutMarker" })
+hl("NonText", { fg = p.bg3 })
+hl("SpecialKey", { fg = p.bg3 })
+hl("Whitespace", { fg = p.bg3 })
 
-hl("MsgArea", { fg = p.text })
+-- Messages / cmdline
+hl("MsgArea", { fg = p.fg })
+hl("ModeMsg", { fg = p.yellow })
 hl("MoreMsg", { fg = p.cyan })
 hl("ErrorMsg", { fg = p.red })
 hl("WarningMsg", { fg = p.yellow })
+hl("OkMsg", { fg = p.green })
 hl("Question", { fg = p.cyan })
-hl("MsgSeparator", { fg = p.chrome, bg = p.surface })
+hl("MsgSeparator", { fg = p.bg3, bg = p.bg1 })
 
-hl("QuickFixLine", { fg = p.base, bg = p.orange })
-hl("WildMenu", { link = "NordRowCurrent" })
+-- Quickfix current entry
+hl("QuickFixLine", { fg = p.fg_bright, bg = p.bg2 })
+hl("WildMenu", { bg = p.bg2 })
 
 hl("Underlined", { underline = true })
 hl("Bold", { bold = true })
 hl("Italic", { italic = true })
 
--- Inlay hints
-hl("LspInlayHint", { link = "Comment" })
-hl("LspSignatureActiveParameter", { fg = p.text, bg = p.elevated, bold = true })
-hl("LspReferenceText", { bg = p.elevated })
-hl("LspReferenceRead", { bg = p.elevated })
-hl("LspReferenceWrite", { bg = p.elevated })
-hl("LspCodeLens", { link = "Comment" })
-hl("LspCodeLensSeparator", { fg = p.chrome })
+-- Preinsert preview (ghost text about to be inserted) — autosuggest tier.
+hl("PreInsert", { fg = p.grey0 })
 
--- Terminal colors (maps to palette entries)
-vim.g.terminal_color_0 = p.elevated -- color0  (black)
-vim.g.terminal_color_1 = p.red -- color1  (red)
-vim.g.terminal_color_2 = p.green -- color2  (green)
-vim.g.terminal_color_3 = p.yellow -- color3  (yellow)
-vim.g.terminal_color_4 = p.blue -- color4  (blue)
-vim.g.terminal_color_5 = p.magenta -- color5  (magenta)
-vim.g.terminal_color_6 = p.cyan -- color6  (cyan)
-vim.g.terminal_color_7 = p.text -- color7  (white)
-vim.g.terminal_color_8 = p.chrome -- color8  (bright black)
-vim.g.terminal_color_9 = p.red -- color9  (bright red)
-vim.g.terminal_color_10 = p.green -- color10 (bright green)
-vim.g.terminal_color_11 = p.yellow -- color11 (bright yellow)
-vim.g.terminal_color_12 = p.blue -- color12 (bright blue)
-vim.g.terminal_color_13 = p.magenta -- color13 (bright magenta)
-vim.g.terminal_color_14 = p.cyan -- color14 (bright cyan)
-vim.g.terminal_color_15 = p.bright -- color15 (bright white)
+-- Inlay hints / LSP reference bands
+hl("LspInlayHint", { link = "Comment" })
+hl("LspSignatureActiveParameter", { fg = p.fg, bg = p.bg2, bold = true })
+hl("LspReferenceText", { bg = p.bg2 })
+hl("LspReferenceRead", { bg = p.bg2 })
+hl("LspReferenceWrite", { bg = p.bg2 })
+hl("LspCodeLens", { link = "Comment" })
+hl("LspCodeLensSeparator", { fg = p.bg3 })
+
+-- ANSI colors
+vim.g.terminal_color_0 = p.bg2
+vim.g.terminal_color_1 = p.red
+vim.g.terminal_color_2 = p.green
+vim.g.terminal_color_3 = p.yellow
+vim.g.terminal_color_4 = p.blue
+vim.g.terminal_color_5 = p.magenta
+vim.g.terminal_color_6 = p.cyan
+vim.g.terminal_color_7 = p.fg
+vim.g.terminal_color_8 = p.grey0
+vim.g.terminal_color_9 = p.red
+vim.g.terminal_color_10 = p.green
+vim.g.terminal_color_11 = p.yellow
+vim.g.terminal_color_12 = p.blue
+vim.g.terminal_color_13 = p.magenta
+vim.g.terminal_color_14 = p.cyan
+vim.g.terminal_color_15 = p.fg_bright
 -- }}}
 
 -- 2. Search / spelling / diff ---------------------------------------------- {{{
-hl("Search", { fg = p.base, bg = p.yellow })
-hl("IncSearch", { fg = p.base, bg = p.cyan })
-hl("CurSearch", { fg = p.base, bg = p.orange })
-hl("Substitute", { fg = p.base, bg = p.red })
+-- Match-state trio at char level
+hl("Search", { fg = p.bg, bg = p.yellow })
+hl("IncSearch", { fg = p.bg, bg = p.cyan })
+hl("CurSearch", { fg = p.bg, bg = p.orange })
+hl("Substitute", { fg = p.bg, bg = p.red })
 
+-- Spelling
 hl("SpellBad", { sp = p.red, undercurl = true })
 hl("SpellCap", { sp = p.yellow, undercurl = true })
 hl("SpellLocal", { sp = p.cyan, undercurl = true })
 hl("SpellRare", { sp = p.navy, undercurl = true })
 
--- diff (buffer diff view)
-hl("DiffAdd", { fg = p.green, bg = p.base })
-hl("DiffDelete", { fg = p.red, bg = p.base })
-hl("DiffChange", { fg = p.yellow, bg = p.base })
-hl("DiffText", { fg = p.base, bg = p.yellow })
+-- Buffer diff view
+hl("DiffAdd", { bg = p.wash_green })
+hl("DiffDelete", { bg = p.wash_red })
+hl("DiffChange", { bg = p.wash_yellow })
+hl("DiffText", { fg = p.fg_bright, bg = p.deep_yellow })
 
--- legacy diff syntax groups
+-- Legacy diff syntax (when viewing a `.diff` / `.patch` file as text)
 hl("diffAdded", { fg = p.green })
 hl("diffRemoved", { fg = p.red })
 hl("diffChanged", { fg = p.yellow })
 hl("diffFile", { fg = p.cyan })
-hl("diffLine", { fg = p.dim })
+hl("diffLine", { fg = p.grey1 })
 hl("diffIndexLine", { fg = p.navy })
+
+-- Generic diff-state groups (gitsigns, vim.health, fugitive, etc.)
+hl("Added", { link = "diffAdded" })
+hl("Changed", { link = "diffChanged" })
+hl("Removed", { link = "diffRemoved" })
 -- }}}
 
 -- 3. Diagnostics ----------------------------------------------------------- {{{
--- Base diagnostic colors (fg only)
+-- Severity ladder: red errors, yellow warnings, navy hints, navy info.
+--
+-- NOTE: The "diagnostic messages use washes, not coloured body fg" rule:
+-- applying that here would mean DiagnosticFloating*/VirtualText* set wash bg
+-- + neutral fg, but those hl groups colour the entire row including the
+-- leading severity glyph — so the channel signal in the glyph would vanish.
+-- Splitting glyph color from body color requires vim.diagnostic.config({
+-- float, virtual_text }) work that wraps each diagnostic into multiple
+-- highlight ranges. Base diagnostic colors (fg only)
 hl("DiagnosticError", { fg = p.red })
 hl("DiagnosticWarn", { fg = p.yellow })
 hl("DiagnosticInfo", { fg = p.navy })
 hl("DiagnosticHint", { fg = p.navy })
 hl("DiagnosticOk", { fg = p.green })
 
--- Virtual text, signs (gutter), floating window — all share the base color
--- per severity, so just link instead of repeating values.
+-- Virtual text, signs (gutter), floating window (all share the base color per severity)
 hl("DiagnosticVirtualTextError", { link = "DiagnosticError" })
 hl("DiagnosticVirtualTextWarn", { link = "DiagnosticWarn" })
 hl("DiagnosticVirtualTextInfo", { link = "DiagnosticInfo" })
@@ -213,7 +319,7 @@ hl("DiagnosticFloatingInfo", { link = "DiagnosticInfo" })
 hl("DiagnosticFloatingHint", { link = "DiagnosticHint" })
 hl("DiagnosticFloatingOk", { link = "DiagnosticOk" })
 
--- Underline uses `sp` + `undercurl`, distinct from the fg-only base groups.
+-- Underline uses `sp` + `undercurl`
 hl("DiagnosticUnderlineError", { sp = p.red, undercurl = true })
 hl("DiagnosticUnderlineWarn", { sp = p.yellow, undercurl = true })
 hl("DiagnosticUnderlineInfo", { sp = p.navy, undercurl = true })
@@ -221,20 +327,20 @@ hl("DiagnosticUnderlineHint", { sp = p.navy, undercurl = true })
 hl("DiagnosticUnderlineOk", { sp = p.green, undercurl = true })
 
 -- Special states
-hl("DiagnosticDeprecated", { fg = p.dim, strikethrough = true })
-hl("DiagnosticUnnecessary", { fg = p.dim })
+hl("DiagnosticDeprecated", { fg = p.grey1, strikethrough = true })
+hl("DiagnosticUnnecessary", { fg = p.grey1 })
 -- }}}
 
 -- 4. Syntax (Vim built-in groups) ------------------------------------------ {{{
-hl("Comment", { fg = p.dim, italic = true })
-hl("Constant", { fg = p.text })
+hl("Comment", { fg = p.grey1, italic = true })
+hl("Constant", { fg = p.fg })
 hl("String", { fg = p.green })
 hl("Character", { fg = p.yellow })
 hl("Number", { fg = p.magenta })
 hl("Float", { fg = p.magenta })
-hl("Boolean", { fg = p.blue })
+hl("Boolean", { fg = p.indigo })
 
-hl("Identifier", { fg = p.text })
+hl("Identifier", { fg = p.fg })
 hl("Function", { fg = p.cyan })
 
 hl("Statement", { fg = p.blue })
@@ -259,24 +365,23 @@ hl("Typedef", { fg = p.aqua })
 hl("Special", { fg = p.cyan })
 hl("SpecialChar", { fg = p.yellow })
 hl("Tag", { fg = p.blue })
-hl("Delimiter", { fg = p.text })
+hl("Delimiter", { fg = p.fg })
 hl("SpecialComment", { link = "Comment" })
 hl("Debug", { fg = p.red })
 
-hl("Ignore", { fg = p.dim })
+hl("Ignore", { fg = p.grey1 })
 hl("Error", { fg = p.red })
-hl("Todo", { fg = p.base, bg = p.yellow, bold = true })
+hl("Todo", { link = "@comment.todo" })
 -- }}}
 
 -- 5. Treesitter captures --------------------------------------------------- {{{
-
 -- Comments
 hl("@comment", { link = "Comment" })
 hl("@comment.documentation", { link = "Comment" })
-hl("@comment.error", { fg = p.red })
-hl("@comment.warning", { fg = p.yellow })
-hl("@comment.todo", { link = "Todo" })
-hl("@comment.note", { fg = p.base, bg = p.navy, bold = true })
+hl("@comment.error", { fg = p.red, bold = true }) -- FIXME
+hl("@comment.warning", { fg = p.yellow, bold = true }) -- WARN
+hl("@comment.todo", { fg = p.blue, bold = true }) -- TODO
+hl("@comment.note", { fg = p.navy, bold = true }) -- NOTE
 
 -- Strings
 hl("@string", { link = "String" })
@@ -284,7 +389,7 @@ hl("@string.documentation", { fg = p.green, italic = true })
 hl("@string.regexp", { fg = p.yellow })
 hl("@string.escape", { fg = p.yellow })
 hl("@string.special", { fg = p.green })
-hl("@string.special.symbol", { fg = p.text })
+hl("@string.special.symbol", { fg = p.fg })
 hl("@string.special.path", { link = "Directory" })
 hl("@string.special.url", { fg = p.cyan, underline = true })
 
@@ -306,9 +411,9 @@ hl("@function.method", { link = "Function" })
 hl("@function.method.call", { link = "Function" })
 
 -- Variables
-hl("@variable", { fg = p.text })
-hl("@variable.builtin", { fg = p.text })
-hl("@variable.parameter", { fg = p.text })
+hl("@variable", { fg = p.fg })
+hl("@variable.builtin", { fg = p.fg })
+hl("@variable.parameter", { fg = p.fg })
 hl("@variable.member", { fg = p.aqua })
 
 -- Types
@@ -319,13 +424,13 @@ hl("@type.qualifier", { fg = p.blue })
 
 -- Constructors / attributes / properties
 hl("@constructor", { fg = p.aqua })
-hl("@attribute", { fg = p.text })
+hl("@attribute", { fg = p.fg })
 hl("@property", { fg = p.aqua })
 hl("@field", { fg = p.aqua })
 
 -- Constants
 hl("@constant", { link = "Constant" })
-hl("@constant.builtin", { fg = p.blue })
+hl("@constant.builtin", { fg = p.indigo })
 hl("@constant.macro", { link = "Macro" })
 
 -- Keywords (no italic by design)
@@ -347,16 +452,16 @@ hl("@keyword.directive.define", { fg = p.blue })
 
 -- Operators / punctuation
 hl("@operator", { link = "Operator" })
-hl("@punctuation", { fg = p.text })
+hl("@punctuation", { fg = p.fg })
 hl("@punctuation.delimiter", { fg = p.blue })
 hl("@punctuation.bracket", { fg = p.blue })
 hl("@punctuation.special", { fg = p.blue })
 
 -- Labels / namespaces / modules
 hl("@label", { link = "Label" })
-hl("@namespace", { fg = p.text })
-hl("@module", { fg = p.text })
-hl("@module.builtin", { fg = p.text })
+hl("@namespace", { fg = p.fg })
+hl("@module", { fg = p.fg })
+hl("@module.builtin", { fg = p.fg })
 
 -- Tags (HTML/JSX)
 hl("@tag", { fg = p.blue })
@@ -379,35 +484,33 @@ hl("@symbol", { link = "Keyword" })
 hl("@none", {})
 
 -- Markup (Markdown / RST / etc.)
--- Bare `@markup.heading` (no level) is what markdown treesitter assigns to
--- pipe-table header cells. Keep it distinct from section headings so the two
--- don't both land on magenta and visually blur together inside docs with tables.
-hl("@markup.heading", { fg = p.bright, bold = true })
-hl("@markup.heading.1", { link = "NordSemanticHeader" })
-hl("@markup.heading.2", { link = "NordSemanticHeader" })
-hl("@markup.heading.3", { link = "NordSemanticHeader" })
-hl("@markup.heading.4", { link = "NordSemanticHeader" })
-hl("@markup.heading.5", { link = "NordSemanticHeader" })
-hl("@markup.heading.6", { link = "NordSemanticHeader" })
+hl("@markup.heading", { fg = p.fg_bright, bold = true })
+hl("@markup.heading.1", { fg = p.magenta, bold = true })
+hl("@markup.heading.2", { fg = p.magenta, bold = true })
+hl("@markup.heading.3", { fg = p.magenta, bold = true })
+hl("@markup.heading.4", { fg = p.magenta, bold = true })
+hl("@markup.heading.5", { fg = p.magenta, bold = true })
+hl("@markup.heading.6", { fg = p.magenta, bold = true })
 
-hl("@markup.heading.1.delimiter.vimdoc", { fg = p.chrome, bold = true })
-hl("@markup.heading.2.delimiter.vimdoc", { fg = p.chrome, bold = true })
+hl("@markup.heading.1.delimiter.vimdoc", { fg = p.bg3, bold = true })
+hl("@markup.heading.2.delimiter.vimdoc", { fg = p.bg3, bold = true })
 hl("@markup.heading.4.vimdoc", { link = "Title" })
 
-hl("@markup.strong", { fg = p.text, bold = true })
-hl("@markup.italic", { fg = p.text, italic = true })
-hl("@markup.strikethrough", { fg = p.text, strikethrough = true })
+hl("@markup.strong", { fg = p.fg, bold = true })
+hl("@markup.italic", { fg = p.fg, italic = true })
+hl("@markup.strikethrough", { fg = p.fg, strikethrough = true })
 hl("@markup.underline", { underline = true })
 
 hl("@markup.link", { fg = p.cyan })
 hl("@markup.link.label", { fg = p.cyan, underline = true })
 hl("@markup.link.url", { fg = p.cyan, underline = true })
 
-hl("@markup.list", { fg = p.text })
+-- List bullets (`-`, `*`, `+`, `1.`)
+hl("@markup.list", { fg = p.indigo })
 hl("@markup.list.checked", { fg = p.green })
-hl("@markup.list.unchecked", { fg = p.chrome })
+hl("@markup.list.unchecked", { fg = p.grey1 })
 
-hl("@markup.quote", { fg = p.navy })
+hl("@markup.quote", { fg = p.grey1, italic = true })
 hl("@markup.raw", { fg = p.aqua })
 hl("@markup.raw.block", { fg = p.aqua })
 hl("@markup.math", { fg = p.yellow })
@@ -436,7 +539,7 @@ hl("@diff.delta", { link = "diffChanged" })
 -- hl("@text.underline", { link = "Underlined" })
 -- hl("@method", { link = "Function" })
 -- hl("@method.call", { link = "Function" })
--- hl("@parameter", { fg = p.text })
+-- hl("@parameter", { fg = p.fg })
 -- hl("@float", { link = "Float" })
 -- }}}
 
@@ -458,153 +561,52 @@ hl("@lsp.type.typeParameter", { link = "@type.definition" })
 hl("@lsp.type.variable", { link = "@variable" })
 
 hl("@lsp.mod.deprecated", { strikethrough = true })
-hl("@lsp.mod.readonly", {}) -- no change
+hl("@lsp.mod.readonly", {})
 hl("@lsp.mod.defaultLibrary", { link = "@constant.builtin" })
--- best-effort private member: italic fg
-hl("@lsp.mod.private", { fg = p.text, italic = true })
+hl("@lsp.mod.private", { fg = p.fg, italic = true })
 -- }}}
 
 -- 7. Markdown filetype groups (non-treesitter fallbacks) ------------------- {{{
+-- Mirror the @markup.* treatments from Section 5
 hl("markdownH1", { link = "@markup.heading.1" })
 hl("markdownH2", { link = "@markup.heading.2" })
 hl("markdownH3", { link = "@markup.heading.3" })
 hl("markdownH4", { link = "@markup.heading.4" })
 hl("markdownH5", { link = "@markup.heading.5" })
 hl("markdownH6", { link = "@markup.heading.6" })
-hl("markdownUrl", { fg = p.cyan, underline = true })
-hl("markdownCode", { fg = p.aqua })
-hl("markdownCodeBlock", { fg = p.aqua })
-hl("markdownBold", { fg = p.text, bold = true })
-hl("markdownItalic", { fg = p.text, italic = true })
-hl("markdownListMarker", { fg = p.text })
-hl("markdownBlockquote", { fg = p.navy })
+
+hl("markdownBold", { link = "@markup.strong" })
+hl("markdownItalic", { link = "@markup.italic" })
+
+hl("markdownListMarker", { link = "@markup.list" })
+
+hl("markdownUrl", { link = "@markup.link.url" })
+
+hl("markdownCode", { link = "@markup.raw" })
+hl("markdownCodeBlock", { link = "@markup.raw.block" })
+hl("markdownBlockquote", { link = "@markup.quote" })
 -- }}}
 
--- 8. Theme aliases --------------------------------------------------------- {{{
--- Captures the design language so module-specific groups link instead of
--- duplicating values. Tweaking a tier value (e.g., shifting `bg` for sunken
--- floats) becomes a one-line change.
---
--- Design language at a glance:
---
---   Polar Night ladder (bg shades, dark → light)
---     base     — canvas / foundation
---     surface  — slightly above (the "Raised" float tier)
---     elevated — more lift (current row, statusline active)
---     chrome   — brightest polar, borders / separators
---
---   Float tiers
---     Sunken (bg = base)    — workspace surfaces (pickers, explorer, clue)
---     Raised (bg = surface) — transient feedback (notify, hover, peek, Pmenu)
---
---   Chrome strips (tabline / statusline) — intentionally asymmetric
---     Tabline current tab = base (sinks to canvas).
---       Tabs represent buffers; the current tab visually merges with the
---       buffer it shows. Same "active workspace surface = canvas extension"
---       logic as sunken floats.
---     Statusline active sections = elevated (rises above canvas).
---       Statusline is a meta-info strip, not a workspace surface. It rises
---       so the strip reads as a distinct layer rather than buffer content.
---     Both fall to `surface` for inactive / mid-recessed sections.
---
---   Semantic color channels
---     cyan    = live as-you-type matching: prompt prefix `❱`, sunken titles,
---               picker/pmenu matches (bold), IncSearch in the buffer. Frost
---               accent for "you're typing a query, here's what it matches."
---     orange  = committed / paired result: CurSearch (the hit you'll jump
---               to after Enter), MatchParen (bracket pair), clue's submode
---               keys. Reads as "this is the resolved match."
---     yellow  = passive attention / warm caution: search results (Search),
---               warning severity (DiagnosticWarn, Todo, todo-class comments),
---               diff changes (DiffChange). Visible but not alarming.
---     magenta = navigational landmark (headers, group entries)
---     blue    = actionable key (clue NextKey, starter prefix)
---     navy    = secondary informational (info & hint diagnostics, inline
---               blame, blockquotes, NOTE markers — visible but not loud)
---     aqua    = type / structure noun (Type, code spans, @property/@field,
---               LSP kinds). Frost sibling to cyan; mostly syntax.
---     chrome  = visible polar trim (borders, separators)
---     dim     = faded / inactive (unfocused titles)
---     text    = neutral typed input + caret (filter prompt body, caret
---               blends with what you're typing)
---
---   Row state hierarchy
---     Marked (bg = elevated, bold) > Current (bg = elevated) > Default
---     Marked differs from Current by typographic weight + mini.pick's
---     prefix glyph, not by bg shade. Keeps `chrome` reserved as a pure
---     trim (fg) color, no dual role.
---
---   Other rules
---     Selection modulates bg only — fg falls through to entry color.
---     Severity (red/yellow/navy) reserved for actual attention, not noise.
---     Focus signaled by fade — active stays at baseline, inactive dims.
---     Borders and separators sit at `chrome` (brightest polar shade).
---
--- Full tool-agnostic spec: https://github.com/nbetm/nix-config/blob/main/docs/nord-deep.md
-
--- Sunken float tier (pickers, explorer, clue). Workspace surfaces painted
--- on editor `bg`. Notify, hover, diagnostic float, completion info, peek,
--- and Pmenu stay raised on NormalFloat/FloatBorder.
-hl("NordSunkenNormal", { fg = p.text, bg = bg })
-hl("NordSunkenBorder", { fg = p.chrome, bg = bg })
-hl("NordSunkenTitle", { fg = p.cyan, bg = bg, bold = true })
-hl("NordSunkenTitleDim", { fg = p.dim, bg = bg, bold = true })
-
--- Row state — three-tier hierarchy: Marked (intent) > Current (cursor) >
--- Default (no bg). Brighter bg = more user attention.
-hl("NordRowMarked", { bg = p.elevated, bold = true })
-hl("NordRowCurrent", { bg = p.elevated })
-
--- Prompt cue — prompt prefix and caret. The "you're typing here" accent for
--- the picker query area. Doesn't apply to titles (those are NordSunkenTitle)
--- or to matched content (that's NordEntryMatch).
-hl("NordPromptCue", { fg = p.cyan })
-
--- Matched content — picker matched chars, completion-popup matched chars.
--- `cyan + bold`: picks up the palette's primary accent on most kinds (a color
--- shift signals "this is the match"); on cyan-fg entries (Function/Method,
--- where the symbol picker also uses cyan) the bold weight carries the
--- distinction. Stays Frost-dominant; doesn't pull the picker toward Aurora.
-hl("NordEntryMatch", { fg = p.cyan, bold = true })
-
--- Navigational landmark — section headers, group entries that descend deeper.
--- Inline-only callers (mini.clue's DescGroup, which needs an explicit bg due
--- to the noautocmd quirk) keep their literal `fg = p.magenta` instead.
-hl("NordSemanticHeader", { fg = p.magenta, bold = true })
-
--- Faded content on the raised float bg. Used by inactive statusline / tabline
--- sections, fold lines, completion extra info, footer text, etc.
-hl("NordFadedSurface", { fg = p.dim, bg = p.surface })
-
--- Layout markers — whitespace listchars, indent guides, jump-target dimming.
--- Structural trim, same tier as LineNr.
-hl("NordLayoutMarker", { fg = p.chrome })
--- }}}
-
--- 9. mini.nvim groups ------------------------------------------------------ {{{
-
+-- 8. mini.nvim groups ------------------------------------------------------ {{{
 -- mini.animate
 hl("MiniAnimateCursor", { reverse = true, nocombine = true })
 hl("MiniAnimateNormalFloat", { link = "NormalFloat" })
 
 -- mini.clue
--- Inline groups (NextKey/Separator/DescGroup/etc.) need explicit `bg = bg`:
--- clue opens with `noautocmd = true`, so a winhighlight autocmd can't remap
--- NormalFloat — fg-only extmarks would otherwise inherit surface.
-hl("MiniClueBorder", { link = "NordSunkenBorder" })
-hl("MiniClueDescGroup", { fg = p.magenta, bg = bg })
-hl("MiniClueDescSingle", { link = "NordSunkenNormal" })
-hl("MiniClueNextKey", { fg = p.blue, bg = bg })
-hl("MiniClueNextKeyWithPostkeys", { fg = p.magenta, bg = bg })
-hl("MiniClueSeparator", { fg = p.chrome, bg = bg })
-hl("MiniClueTitle", { link = "NordSunkenTitle" })
+hl("MiniClueBorder", { fg = p.bg3, bg = p.bg1 })
+hl("MiniClueDescGroup", { fg = p.magenta, bg = p.bg1 })
+hl("MiniClueDescSingle", { fg = p.fg, bg = p.bg1 })
+hl("MiniClueNextKey", { fg = p.blue, bg = p.bg1 })
+hl("MiniClueNextKeyWithPostkeys", { fg = p.magenta, bg = p.bg1 })
+hl("MiniClueSeparator", { fg = p.bg3, bg = p.bg1 })
+hl("MiniClueTitle", { fg = p.cyan, bg = p.bg1, bold = true })
 
 -- mini.cmdline
 hl("MiniCmdlinePeekBorder", { link = "FloatBorder" })
-hl("MiniCmdlinePeekLineNr", { fg = p.dim, bg = p.surface })
+hl("MiniCmdlinePeekLineNr", { fg = p.grey1, bg = p.bg1 })
 hl("MiniCmdlinePeekNormal", { link = "NormalFloat" })
-hl("MiniCmdlinePeekSep", { fg = p.chrome, bg = p.surface })
-hl("MiniCmdlinePeekSign", { fg = p.cyan, bg = p.surface })
+hl("MiniCmdlinePeekSep", { fg = p.bg3, bg = p.bg1 })
+hl("MiniCmdlinePeekSign", { fg = p.cyan, bg = p.bg1 })
 hl("MiniCmdlinePeekTitle", { link = "FloatTitle" })
 
 -- mini.completion
@@ -628,49 +630,48 @@ hl("MiniDiffOverContextBuf", {})
 hl("MiniDiffOverDelete", { link = "DiffDelete" })
 
 -- mini.files
-hl("MiniFilesBorder", { link = "NordSunkenBorder" })
+hl("MiniFilesBorder", { fg = p.bg3, bg = p.bg1 })
 hl("MiniFilesBorderModified", { link = "DiagnosticFloatingWarn" })
-hl("MiniFilesCursorLine", { link = "NordRowCurrent" })
+hl("MiniFilesCursorLine", { bg = p.bg2 })
 hl("MiniFilesDirectory", { link = "Directory" })
-hl("MiniFilesFile", { fg = p.text })
-hl("MiniFilesNormal", { link = "NordSunkenNormal" })
-hl("MiniFilesTitle", { link = "NordSunkenTitleDim" })
-hl("MiniFilesTitleFocused", { link = "NordSunkenTitle" })
+hl("MiniFilesFile", { fg = p.fg })
+hl("MiniFilesNormal", { fg = p.fg, bg = p.bg1 })
+hl("MiniFilesTitle", { fg = p.grey1, bg = p.bg1, bold = true })
+hl("MiniFilesTitleFocused", { fg = p.cyan, bg = p.bg1, bold = true })
 
--- mini.hipatterns (FIXME=red, TODO=yellow, NOTE=navy)
-hl("MiniHipatternsFixme", { fg = p.base, bg = p.red, bold = true })
-hl("MiniHipatternsTodo", { link = "Todo" })
+-- mini.hipatterns (FIXME / TODO / WARN / NOTE)
+hl("MiniHipatternsFixme", { link = "@comment.error" })
+hl("MiniHipatternsTodo", { link = "@comment.todo" })
+hl("MiniHipatternsWarn", { link = "@comment.warning" })
 hl("MiniHipatternsNote", { link = "@comment.note" })
 
 -- mini.icons (link to closest named palette color)
--- mini.icons named-color groups → palette. Azure → cyan and Purple → magenta
--- because the palette doesn't have those exact names.
 hl("MiniIconsAzure", { fg = p.cyan })
 hl("MiniIconsBlue", { fg = p.blue })
 hl("MiniIconsCyan", { fg = p.cyan })
 hl("MiniIconsGreen", { fg = p.green })
-hl("MiniIconsGrey", { fg = p.dim })
+hl("MiniIconsGrey", { fg = p.grey1 })
 hl("MiniIconsOrange", { fg = p.orange })
 hl("MiniIconsPurple", { fg = p.magenta })
 hl("MiniIconsRed", { fg = p.red })
 hl("MiniIconsYellow", { fg = p.yellow })
 
 -- mini.indentscope (subtle indent guides that blend into the background)
-hl("MiniIndentscopeSymbol", { link = "NordLayoutMarker" })
+hl("MiniIndentscopeSymbol", { fg = p.bg3 })
 hl("MiniIndentscopeSymbolOff", { fg = p.red })
 
 -- mini.jump
 hl("MiniJump", { sp = p.cyan, undercurl = true })
 
 -- mini.jump2d
-hl("MiniJump2dDim", { link = "NordLayoutMarker" })
-hl("MiniJump2dSpot", { fg = p.base, bg = p.bright, bold = true, nocombine = true })
-hl("MiniJump2dSpotAhead", { fg = p.base, bg = p.text, nocombine = true })
+hl("MiniJump2dDim", { fg = p.bg3 })
+hl("MiniJump2dSpot", { fg = p.bg, bg = p.fg_bright, bold = true, nocombine = true })
+hl("MiniJump2dSpotAhead", { fg = p.bg, bg = p.fg, nocombine = true })
 hl("MiniJump2dSpotUnique", { link = "MiniJump2dSpot" })
 
 -- mini.map
-hl("MiniMapNormal", { fg = p.dim, bg = p.elevated })
-hl("MiniMapSymbolCount", { fg = p.dim })
+hl("MiniMapNormal", { fg = p.grey1, bg = p.bg2 })
+hl("MiniMapSymbolCount", { fg = p.grey1 })
 hl("MiniMapSymbolLine", { fg = p.cyan })
 hl("MiniMapSymbolView", { fg = p.cyan })
 
@@ -684,22 +685,22 @@ hl("MiniNotifyTitle", { link = "FloatTitle" })
 hl("MiniOperatorsExchangeFrom", { link = "IncSearch" })
 
 -- mini.pick
-hl("MiniPickBorder", { link = "NordSunkenBorder" })
+hl("MiniPickBorder", { fg = p.bg3, bg = p.bg1 })
 hl("MiniPickBorderBusy", { link = "DiagnosticFloatingWarn" })
-hl("MiniPickBorderText", { link = "NordSunkenTitle" })
+hl("MiniPickBorderText", { fg = p.cyan, bg = p.bg1, bold = true })
 hl("MiniPickCursor", { blend = 100, nocombine = true })
 hl("MiniPickIconDirectory", { link = "Directory" })
 hl("MiniPickIconFile", { link = "MiniPickNormal" })
-hl("MiniPickHeader", { link = "NordSemanticHeader" })
-hl("MiniPickMatchCurrent", { link = "NordRowCurrent" })
-hl("MiniPickMatchMarked", { link = "NordRowMarked" })
-hl("MiniPickMatchRanges", { link = "NordEntryMatch" })
-hl("MiniPickNormal", { link = "NordSunkenNormal" })
+hl("MiniPickHeader", { fg = p.magenta, bold = true })
+hl("MiniPickMatchCurrent", { bg = p.bg2 })
+hl("MiniPickMatchMarked", { bg = p.bg2, bold = true })
+hl("MiniPickMatchRanges", { fg = p.cyan, bold = true })
+hl("MiniPickNormal", { fg = p.fg, bg = p.bg1 })
 hl("MiniPickPreviewLine", { link = "CursorLine" })
 hl("MiniPickPreviewRegion", { link = "IncSearch" })
-hl("MiniPickPrompt", { fg = p.text })
-hl("MiniPickPromptCaret", { fg = p.text })
-hl("MiniPickPromptPrefix", { link = "NordPromptCue" })
+hl("MiniPickPrompt", { fg = p.fg, bg = p.bg1 })
+hl("MiniPickPromptCaret", { fg = p.fg, bg = p.bg1 })
+hl("MiniPickPromptPrefix", { fg = p.cyan, bg = p.bg1 })
 
 -- mini.snippets
 hl("MiniSnippetsCurrent", { sp = p.yellow, underdouble = true })
@@ -711,40 +712,39 @@ hl("MiniSnippetsVisited", { sp = p.blue, underdouble = true })
 -- mini.starter
 hl("MiniStarterCurrent", { link = "MiniStarterItem" })
 hl("MiniStarterFooter", { link = "Comment" })
-hl("MiniStarterHeader", { link = "NordSunkenTitle" })
+hl("MiniStarterHeader", { fg = p.cyan, bg = p.bg1, bold = true })
 hl("MiniStarterInactive", { link = "Comment" })
 hl("MiniStarterItem", { link = "Normal" })
-hl("MiniStarterItemBullet", { fg = p.dim })
+hl("MiniStarterItemBullet", { fg = p.grey1 })
 hl("MiniStarterItemPrefix", { fg = p.blue, bold = true })
-hl("MiniStarterSection", { link = "NordSemanticHeader" })
-hl("MiniStarterQuery", { link = "NordEntryMatch" })
+hl("MiniStarterSection", { fg = p.magenta, bold = true })
+hl("MiniStarterQuery", { fg = p.cyan, bold = true })
 
--- mini.statusline. Each mode gets a distinct palette color so you can read
--- the active mode at a glance.
-hl("MiniStatuslineModeNormal", { fg = p.base, bg = p.text, bold = true })
-hl("MiniStatuslineModeInsert", { fg = p.base, bg = p.cyan, bold = true })
-hl("MiniStatuslineModeVisual", { fg = p.base, bg = p.aqua, bold = true })
-hl("MiniStatuslineModeReplace", { fg = p.base, bg = p.red, bold = true })
-hl("MiniStatuslineModeCommand", { fg = p.base, bg = p.yellow, bold = true })
-hl("MiniStatuslineModeOther", { fg = p.base, bg = p.navy, bold = true })
-hl("MiniStatuslineDevinfo", { fg = p.text, bg = p.elevated })
-hl("MiniStatuslineFilename", { fg = p.text, bg = p.surface })
+-- mini.statusline
+hl("MiniStatuslineModeNormal", { fg = p.bg, bg = p.fg, bold = true })
+hl("MiniStatuslineModeInsert", { fg = p.bg, bg = p.cyan, bold = true })
+hl("MiniStatuslineModeVisual", { fg = p.bg, bg = p.magenta, bold = true })
+hl("MiniStatuslineModeReplace", { fg = p.bg, bg = p.red, bold = true })
+hl("MiniStatuslineModeCommand", { fg = p.bg, bg = p.yellow, bold = true })
+hl("MiniStatuslineModeOther", { fg = p.bg, bg = p.navy, bold = true })
+hl("MiniStatuslineDevinfo", { fg = p.fg, bg = p.bg2 })
+hl("MiniStatuslineFilename", { fg = p.fg, bg = p.bg1 })
 hl("MiniStatuslineFileinfo", { link = "MiniStatuslineDevinfo" })
 hl("MiniStatuslineInactive", { link = "StatusLineNC" })
 
 -- mini.surround
 hl("MiniSurround", { link = "IncSearch" })
 
--- mini.tabline (bufferline — inactive tabs on surface, active on base)
-hl("MiniTablineCurrent", { fg = p.text, bg = p.base, bold = true })
-hl("MiniTablineVisible", { fg = p.dim, bg = p.surface, bold = true })
-hl("MiniTablineHidden", { link = "NordFadedSurface" })
-hl("MiniTablineModifiedCurrent", { fg = p.navy, bg = p.base, bold = true, italic = true })
-hl("MiniTablineModifiedVisible", { fg = p.navy, bg = p.surface, bold = true, italic = true })
-hl("MiniTablineModifiedHidden", { fg = p.navy, bg = p.surface, italic = true })
+-- mini.tabline (bufferline)
+hl("MiniTablineCurrent", { fg = p.fg, bg = p.bg, bold = true })
+hl("MiniTablineVisible", { fg = p.grey1, bg = p.bg1, bold = true })
+hl("MiniTablineHidden", { fg = p.grey1, bg = p.bg1 })
+hl("MiniTablineModifiedCurrent", { fg = p.navy, bg = p.bg, bold = true, italic = true })
+hl("MiniTablineModifiedVisible", { fg = p.navy, bg = p.bg1, bold = true, italic = true })
+hl("MiniTablineModifiedHidden", { fg = p.navy, bg = p.bg1, italic = true })
 hl("MiniTablineFill", { link = "MiniTablineHidden" })
-hl("MiniTablineTabpagesection", { fg = p.text, bg = p.elevated, bold = true })
-hl("MiniTablineTrunc", { fg = p.dim, bg = p.surface, bold = true })
+hl("MiniTablineTabpagesection", { fg = p.fg, bg = p.bg2, bold = true })
+hl("MiniTablineTrunc", { fg = p.grey1, bg = p.bg1, bold = true })
 
 -- mini.test
 hl("MiniTestEmphasis", { bold = true })
@@ -752,21 +752,19 @@ hl("MiniTestFail", { fg = p.red, bold = true })
 hl("MiniTestPass", { fg = p.green, bold = true })
 
 -- mini.trailspace
-hl("MiniTrailspace", { bg = p.red })
+hl("MiniTrailspace", { bg = p.deep_yellow })
 -- }}}
 
 -- 10. Misc ----------------------------------------------------------------- {{{
 
 -- Quickfix
-hl("qfLineNr", { fg = p.chrome })
+hl("qfLineNr", { fg = p.grey0 })
 hl("qfFileName", { fg = p.blue })
 
--- Inline git blame (lua/blame.lua) — navy reads as "annotation that lives
--- next to live code without competing for attention with Aurora warnings."
+-- Inline git blame (lua/blame.lua)
 hl("BlameInline", { fg = p.navy })
 
--- Codenotes sign glyph (lua/codenotes.lua) — same navy channel as blame:
--- a personal informational marker, present in the gutter without screaming.
+-- Codenotes sign glyph (lua/codenotes.lua)
 hl("CodenoteSign", { fg = p.navy })
 
 -- Nvim built-in float popup title conventions
