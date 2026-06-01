@@ -263,6 +263,7 @@ later(function()
     -- just for this plugin's pickers.
     picker = "default",
     -- Map Octo's 12 named color slots to Nord Deep channels.
+    -- `Octo*` highlight overrides live in the nord-deep colorscheme
     colors = {
       white = "#d4dce6", -- fg_bright (body fg on deeps + grey)
       grey = "#798094", -- grey1 (faded fg + BubbleGrey bg)
@@ -279,24 +280,19 @@ later(function()
     },
   })
 
-  -- Three bubble groups where Octo's default fg/bg pair doesn't pass
-  -- contrast on the Nord Deep palette and the `colors{}` mapping above
-  -- can't fix it alone:
-  --   BubbleBlue   — Octo defaults fg=grey, which on deep_blue lands at ~2.4
-  --   BubbleYellow — Octo defaults bg=yellow (saturated), fg=grey, ~2.5
-  --   BubblePurple — Octo defaults bg=purple (saturated mid-tone), ~2.5
-  -- The other Bubble* / ReviewDiff* groups resolve to fg_bright on deep_*
-  -- automatically via the colors{} table.
-  vim.api.nvim_set_hl(0, "OctoBubbleBlue", { fg = "#d4dce6", bg = "#4e6075" })
-  vim.api.nvim_set_hl(0, "OctoBubbleYellow", { fg = "#d4dce6", bg = "#665f50" })
-  vim.api.nvim_set_hl(0, "OctoBubblePurple", { fg = "#d4dce6", bg = "#6a5a70" })
-
-  -- File-panel touch-ups. Title → magenta (navigational landmark). The
-  -- yellow-bubble delimiters take `deep_yellow` fg (matches the bubble's bg)
-  -- on canvas, so the bracket characters look like rounded edges of the
-  -- same pill instead of a detached frame.
-  vim.api.nvim_set_hl(0, "OctoFilePanelTitle", { fg = "#b48ead", bold = true })
-  vim.api.nvim_set_hl(0, "OctoBubbleDelimiterYellow", { fg = "#665f50" })
+  -- Review file panel - lift the current-file row to bg2
+  Config.new_autocmd("BufWinEnter", "OctoChangedFiles-*", function(ev)
+    if vim.bo[ev.buf].filetype ~= "octo_panel" then return end
+    local win = vim.fn.bufwinid(ev.buf)
+    if win == -1 then return end
+    vim.schedule(function()
+      if not vim.api.nvim_win_is_valid(win) then return end
+      local cur = vim.wo[win].winhighlight
+      if not cur:find("CursorLine:", 1, true) then
+        vim.wo[win].winhighlight = (cur == "" and "" or cur .. ",") .. "CursorLine:OctoFilePanelCursorLine"
+      end
+    end)
+  end, "octo file panel: lift current-row to bg2")
 end)
 
 -- Honorable mentions =========================================================

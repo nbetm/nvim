@@ -9,8 +9,8 @@
 -- Design language at a glance (full rationale in the doc linked above):
 --
 --   Polar Night (bg, dark → light)
---     bg   canvas, sunken floats, active tab
---     bg1  floats, inactive tabs/statusline
+--     bg   canvas, active tab
+--     bg1  floats (all of them), inactive tabs/statusline
 --     bg2  marked/current row, active statusline, Visual; ANSI 0
 --     bg3  borders, separators, structural trim (no text role)
 --
@@ -19,20 +19,19 @@
 --
 --   Foregrounds
 --     fg / fg_bright  body / emphasis; ANSI 7 / 15
---     grey0  ghost text, line numbers, fold cols; ANSI 8
---     grey1  comments, disabled, inline blame, unfocused titles
+--     grey0  ghost text, line numbers, fold cols, inline blame; ANSI 8
+--     grey1  comments, disabled, unfocused titles
 --     grey2  cursor line number, recessed-but-readable labels
 --
 --   Channels (role beyond syntax)
 --     cyan     live cue (prompt prefix, picker matches, IncSearch)
 --     orange   committed / paired (CurSearch, MatchParen, sticky keys)
---     yellow   passive attention (Search, warnings, DiffChange)
+--     yellow   passive attention (Search, warnings, DiffChange, escapes/regex)
 --     green    strings, success
 --     red      errors, deletions, FIXME
 --     magenta  navigational landmark (headers, submenu entries)
---     blue     action target (keys to press, TODO markers)
---     indigo   value literals (booleans, builtin constants), list bullets
---     navy     secondary info (info/hint diagnostics, blame, NOTE)
+--     blue     keywords, operators, punctuation, list bullets, action targets (key-hints, TODO)
+--     navy     built-ins (booleans, nil/None), preprocessor/pragmas, secondary info (hints, NOTE)
 --     aqua     type / structure noun (Type, @property, LSP kinds)
 --
 --   Rules
@@ -62,10 +61,10 @@ end
 -- Two sub-palettes: `palette1` for backgrounds, `palette2` for foregrounds.
 local palette = {
   -- palette1: polar night (neutral surfaces)
-  bg = "#212732", -- canvas, sunken floats, active tab
-  bg1 = "#2e3440", -- raised floats, inactive tabs / statusline
-  bg2 = "#3b4252", -- marked / current row, active statusline; ANSI color0
-  bg3 = "#434c5e", -- borders, separators, structural trim (no text role)
+  bg = "#212732",
+  bg1 = "#2e3440",
+  bg2 = "#3b4252",
+  bg3 = "#434c5e",
 
   -- palette1: washes (channel-tinted row backgrounds, 10% channel over bg)
   wash_red = "#39313c",
@@ -75,7 +74,6 @@ local palette = {
   wash_magenta = "#30313e",
   wash_blue = "#2b3340",
   wash_navy = "#2b3443",
-  wash_indigo = "#2e3445",
 
   -- palette1: deeps (saturated pill backgrounds, paired with fg_bright)
   deep_red = "#82515b",
@@ -85,26 +83,23 @@ local palette = {
   deep_magenta = "#6a5a70",
   deep_blue = "#4e6075",
   deep_navy = "#4b617d",
-  deep_indigo = "#5a5d83",
 
   -- palette2: default / emphasis foregrounds
-  fg = "#b8c5d1", -- default body fg; ANSI color7
-  fg_bright = "#d4dce6", -- emphasis, body fg on bg2 and deep_*; ANSI color15
+  fg = "#b8c5d1",
+  fg_bright = "#d4dce6",
 
   -- palette2: greys (de-emphasis foregrounds)
-  grey0 = "#5d6478", -- ghost text, line numbers, fold cols; ANSI color8
-  grey1 = "#798094", -- comments, disabled, inline blame
-  grey2 = "#929aae", -- cursor line number, recessed labels
+  grey0 = "#5d6478",
+  grey1 = "#798094",
+  grey2 = "#929aae",
 
-  -- palette2: frost (structural syntax — indigo is the nord-deep addition,
-  -- the others stay identical to upstream Nord)
+  -- palette2: frost (structural syntax) — navy brightened for contrast, rest as upstream Nord
   aqua = "#8fbcbb",
   cyan = "#88c0d0",
   blue = "#81a1c1",
   navy = "#6c8eb8",
-  indigo = "#9090d0",
 
-  -- palette2: aurora (semantic syntax) — unchanged from upstream Nord
+  -- palette2: aurora (semantic syntax) — red brightened for contrast, rest as upstream Nord
   red = "#c97078",
   orange = "#d08770",
   yellow = "#ebcb8b",
@@ -124,7 +119,7 @@ local bg = transparent and palette.none or palette.bg
 -- }}}
 
 -- 1. Editor core ----------------------------------------------------------- {{{
--- Float tiers
+-- Base text + floats (all floats on bg1)
 hl("Normal", { fg = p.fg, bg = bg })
 hl("NormalNC", { fg = p.fg, bg = bg })
 hl("NormalFloat", { fg = p.fg, bg = p.bg1 })
@@ -157,15 +152,15 @@ hl("VisualNOS", { bg = p.bg2 })
 -- Pmenu (cmdline + LSP completion)
 hl("Pmenu", { link = "NormalFloat" })
 hl("PmenuBorder", { link = "FloatBorder" })
-hl("PmenuSel", { bg = p.bg2 })
+hl("PmenuSel", { bg = p.bg3 })
 hl("PmenuMatch", { fg = p.cyan, bold = true })
 hl("PmenuMatchSel", { fg = p.cyan, bold = true })
 hl("PmenuSbar", { bg = p.bg2 })
 hl("PmenuThumb", { bg = p.navy })
 hl("PmenuKind", { fg = p.aqua, bg = p.bg1 })
-hl("PmenuKindSel", { fg = p.aqua, bg = p.bg2 })
+hl("PmenuKindSel", { fg = p.aqua, bg = p.bg3 })
 hl("PmenuExtra", { fg = p.grey1, bg = p.bg1 })
-hl("PmenuExtraSel", { fg = p.grey1, bg = p.bg2 })
+hl("PmenuExtraSel", { fg = p.grey2, bg = p.bg3 })
 
 -- Status / tab strips
 hl("StatusLine", { fg = p.fg, bg = p.bg2 })
@@ -213,8 +208,10 @@ hl("Question", { fg = p.cyan })
 hl("MsgSeparator", { fg = p.bg3, bg = p.bg1 })
 
 -- Quickfix current entry
+-- QuickFixLine: qf is a normal window (over canvas), so bg2
+-- WildMenu: shows in the pum (a float, over bg1), so bg3
 hl("QuickFixLine", { fg = p.fg_bright, bg = p.bg2 })
-hl("WildMenu", { bg = p.bg2 })
+hl("WildMenu", { bg = p.bg3 })
 
 hl("Underlined", { underline = true })
 hl("Bold", { bold = true })
@@ -225,7 +222,7 @@ hl("PreInsert", { fg = p.grey0 })
 
 -- Inlay hints / LSP reference bands
 hl("LspInlayHint", { link = "Comment" })
-hl("LspSignatureActiveParameter", { fg = p.fg, bg = p.bg2, bold = true })
+hl("LspSignatureActiveParameter", { fg = p.fg, bg = p.bg3, bold = true })
 hl("LspReferenceText", { bg = p.bg2 })
 hl("LspReferenceRead", { bg = p.bg2 })
 hl("LspReferenceWrite", { bg = p.bg2 })
@@ -338,7 +335,7 @@ hl("String", { fg = p.green })
 hl("Character", { fg = p.yellow })
 hl("Number", { fg = p.magenta })
 hl("Float", { fg = p.magenta })
-hl("Boolean", { fg = p.indigo })
+hl("Boolean", { fg = p.navy })
 
 hl("Identifier", { fg = p.fg })
 hl("Function", { fg = p.cyan })
@@ -351,11 +348,11 @@ hl("Operator", { fg = p.blue })
 hl("Keyword", { fg = p.blue })
 hl("Exception", { fg = p.blue })
 
-hl("PreProc", { fg = p.blue })
-hl("Include", { fg = p.blue })
-hl("Define", { fg = p.blue })
 hl("Macro", { fg = p.cyan })
-hl("PreCondit", { fg = p.blue })
+hl("PreProc", { fg = p.navy })
+hl("Include", { fg = p.navy })
+hl("Define", { fg = p.navy })
+hl("PreCondit", { fg = p.navy })
 
 hl("Type", { fg = p.aqua })
 hl("StorageClass", { fg = p.blue })
@@ -425,12 +422,13 @@ hl("@type.qualifier", { fg = p.blue })
 -- Constructors / attributes / properties
 hl("@constructor", { fg = p.aqua })
 hl("@attribute", { fg = p.fg })
+hl("@attribute.builtin", { fg = p.fg })
 hl("@property", { fg = p.aqua })
 hl("@field", { fg = p.aqua })
 
 -- Constants
 hl("@constant", { link = "Constant" })
-hl("@constant.builtin", { fg = p.indigo })
+hl("@constant.builtin", { fg = p.navy })
 hl("@constant.macro", { link = "Macro" })
 
 -- Keywords (no italic by design)
@@ -447,8 +445,8 @@ hl("@keyword.debug", { fg = p.cyan })
 hl("@keyword.exception", { link = "Keyword" })
 hl("@keyword.conditional", { link = "Keyword" })
 hl("@keyword.conditional.ternary", { link = "Keyword" })
-hl("@keyword.directive", { fg = p.blue })
-hl("@keyword.directive.define", { fg = p.blue })
+hl("@keyword.directive", { fg = p.navy })
+hl("@keyword.directive.define", { fg = p.navy })
 
 -- Operators / punctuation
 hl("@operator", { link = "Operator" })
@@ -506,7 +504,7 @@ hl("@markup.link.label", { fg = p.cyan, underline = true })
 hl("@markup.link.url", { fg = p.cyan, underline = true })
 
 -- List bullets (`-`, `*`, `+`, `1.`)
-hl("@markup.list", { fg = p.indigo })
+hl("@markup.list", { fg = p.blue })
 hl("@markup.list.checked", { fg = p.green })
 hl("@markup.list.unchecked", { fg = p.grey1 })
 
@@ -632,7 +630,7 @@ hl("MiniDiffOverDelete", { link = "DiffDelete" })
 -- mini.files
 hl("MiniFilesBorder", { fg = p.bg3, bg = p.bg1 })
 hl("MiniFilesBorderModified", { link = "DiagnosticFloatingWarn" })
-hl("MiniFilesCursorLine", { bg = p.bg2 })
+hl("MiniFilesCursorLine", { bg = p.bg3 })
 hl("MiniFilesDirectory", { link = "Directory" })
 hl("MiniFilesFile", { fg = p.fg })
 hl("MiniFilesNormal", { fg = p.fg, bg = p.bg1 })
@@ -692,8 +690,8 @@ hl("MiniPickCursor", { blend = 100, nocombine = true })
 hl("MiniPickIconDirectory", { link = "Directory" })
 hl("MiniPickIconFile", { link = "MiniPickNormal" })
 hl("MiniPickHeader", { fg = p.magenta, bold = true })
-hl("MiniPickMatchCurrent", { bg = p.bg2 })
-hl("MiniPickMatchMarked", { bg = p.bg2, bold = true })
+hl("MiniPickMatchCurrent", { bg = p.bg3 })
+hl("MiniPickMatchMarked", { bg = p.bg3, bold = true })
 hl("MiniPickMatchRanges", { fg = p.cyan, bold = true })
 hl("MiniPickNormal", { fg = p.fg, bg = p.bg1 })
 hl("MiniPickPreviewLine", { link = "CursorLine" })
@@ -755,6 +753,23 @@ hl("MiniTestPass", { fg = p.green, bold = true })
 hl("MiniTrailspace", { bg = p.deep_yellow })
 -- }}}
 
+-- 9. Octo (GitHub PR review) ----------------------------------------------- {{{
+-- octo.nvim derives its `Octo*` groups from a `colors` table at setup time,
+-- but guards each one with `hlexists` (see octo/ui/colors.lua), so any group
+-- we define here wins and octo defers to it.
+
+-- Bubbles
+hl("OctoBubbleBlue", { fg = p.fg_bright, bg = p.deep_blue })
+hl("OctoBubbleYellow", { fg = p.fg_bright, bg = p.deep_yellow })
+hl("OctoBubblePurple", { fg = p.fg_bright, bg = p.deep_magenta })
+hl("OctoBubbleDelimiterYellow", { fg = p.deep_yellow })
+
+-- File panel
+hl("OctoFilePanelTitle", { fg = p.magenta, bold = true })
+hl("OctoFilePanelFileName", { fg = p.fg })
+hl("OctoFilePanelCursorLine", { bg = p.bg2 })
+-- }}}
+
 -- 10. Misc ----------------------------------------------------------------- {{{
 
 -- Quickfix
@@ -762,7 +777,7 @@ hl("qfLineNr", { fg = p.grey0 })
 hl("qfFileName", { fg = p.blue })
 
 -- Inline git blame (lua/blame.lua)
-hl("BlameInline", { fg = p.navy })
+hl("BlameInline", { fg = p.grey0, italic = true })
 
 -- Codenotes sign glyph (lua/codenotes.lua)
 hl("CodenoteSign", { fg = p.navy })
