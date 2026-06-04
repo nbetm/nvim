@@ -142,7 +142,7 @@ hl("LineNrBelow", { fg = p.grey0 })
 
 -- Sign / fold columns sit on canvas
 hl("SignColumn", { fg = p.bg3, bg = transparent and p.none or p.bg })
-hl("FoldColumn", { fg = p.bg3, bg = p.bg })
+hl("FoldColumn", { fg = p.grey0, bg = p.bg })
 hl("Folded", { fg = p.grey1, bg = p.bg1 })
 
 -- Visual selection
@@ -163,7 +163,7 @@ hl("PmenuExtra", { fg = p.grey1, bg = p.bg1 })
 hl("PmenuExtraSel", { fg = p.grey2, bg = p.bg3 })
 
 -- Status / tab strips
-hl("StatusLine", { fg = p.fg, bg = p.bg2 })
+hl("StatusLine", { fg = p.fg, bg = p.bg1 })
 hl("StatusLineNC", { fg = p.grey1, bg = p.bg1 })
 hl("TabLine", { fg = p.grey1, bg = p.bg1 })
 hl("TabLineSel", { fg = p.fg, bg = p.bg })
@@ -725,7 +725,7 @@ hl("MiniStatuslineModeVisual", { fg = p.bg, bg = p.magenta, bold = true })
 hl("MiniStatuslineModeReplace", { fg = p.bg, bg = p.red, bold = true })
 hl("MiniStatuslineModeCommand", { fg = p.bg, bg = p.yellow, bold = true })
 hl("MiniStatuslineModeOther", { fg = p.bg, bg = p.navy, bold = true })
-hl("MiniStatuslineDevinfo", { fg = p.fg, bg = p.bg2 })
+hl("MiniStatuslineDevinfo", { fg = p.fg, bg = p.bg1 })
 hl("MiniStatuslineFilename", { fg = p.fg, bg = p.bg1 })
 hl("MiniStatuslineFileinfo", { link = "MiniStatuslineDevinfo" })
 hl("MiniStatuslineInactive", { link = "StatusLineNC" })
@@ -741,7 +741,7 @@ hl("MiniTablineModifiedCurrent", { fg = p.navy, bg = p.bg, bold = true, italic =
 hl("MiniTablineModifiedVisible", { fg = p.navy, bg = p.bg1, bold = true, italic = true })
 hl("MiniTablineModifiedHidden", { fg = p.navy, bg = p.bg1, italic = true })
 hl("MiniTablineFill", { link = "MiniTablineHidden" })
-hl("MiniTablineTabpagesection", { fg = p.fg, bg = p.bg2, bold = true })
+hl("MiniTablineTabpagesection", { fg = p.fg, bg = p.bg1, bold = true })
 hl("MiniTablineTrunc", { fg = p.grey1, bg = p.bg1, bold = true })
 
 -- mini.test

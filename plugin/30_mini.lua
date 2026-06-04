@@ -182,7 +182,37 @@ now(function() require("mini.sessions").setup() end)
 -- See also:
 -- - `:h MiniStatusline-example-content` - example of default content. Use it to
 --   configure a custom statusline by setting `config.content.active` function.
-now(function() require("mini.statusline").setup() end)
+now(function()
+  local MiniStatusline = require("mini.statusline")
+  -- Default content, but with the filename centered: an extra `%=` before it
+  -- balances the space on both sides.
+  MiniStatusline.setup({
+    content = {
+      active = function()
+        local mode, mode_hl = MiniStatusline.section_mode({ trunc_width = 120 })
+        local git = MiniStatusline.section_git({ trunc_width = 40 })
+        local diff = MiniStatusline.section_diff({ trunc_width = 75 })
+        local diagnostics = MiniStatusline.section_diagnostics({ trunc_width = 75 })
+        local lsp = MiniStatusline.section_lsp({ trunc_width = 75 })
+        local filename = MiniStatusline.section_filename({ trunc_width = 140 })
+        local fileinfo = MiniStatusline.section_fileinfo({ trunc_width = 120 })
+        local location = MiniStatusline.section_location({ trunc_width = 75 })
+        local search = MiniStatusline.section_searchcount({ trunc_width = 75 })
+
+        return MiniStatusline.combine_groups({
+          { hl = mode_hl, strings = { mode } },
+          { hl = "MiniStatuslineDevinfo", strings = { git, diff, diagnostics, lsp } },
+          "%=", -- center the filename
+          "%<",
+          { hl = "MiniStatuslineFilename", strings = { filename } },
+          "%=",
+          { hl = "MiniStatuslineFileinfo", strings = { fileinfo } },
+          { hl = mode_hl, strings = { search, location } },
+        })
+      end,
+    },
+  })
+end)
 
 -- Tabline. Sets `:h 'tabline'` to show all listed buffers in a line at the top.
 -- Buffers are ordered as they were created. Navigate with `[b` and `]b`.
