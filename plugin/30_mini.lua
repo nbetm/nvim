@@ -139,7 +139,9 @@ end)
 -- See also:
 -- - `:h MiniNotify.config` for some of common configuration examples.
 now(function()
-  require("mini.notify").setup()
+  -- winblend 0: mini defaults the notify float to 25 (translucent). Keep it
+  -- opaque so it reads as a distinct surface like every other float.
+  require("mini.notify").setup({ window = { winblend = 0 } })
   -- Quiet INFO/DEBUG/TRACE so daily noise reads as plain text. ERROR/WARN
   -- keep their Diagnostic* tint to flag actual attention.
   vim.notify = MiniNotify.make_notify({
