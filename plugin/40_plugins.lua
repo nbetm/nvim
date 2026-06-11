@@ -157,6 +157,9 @@ now_if_args(function()
     "marksman",
     -- Nix
     "nixd",
+    -- Terraform
+    "terraformls",
+    "tflint",
     -- Containers
     "dockerls",
     "docker_compose_language_service",
@@ -191,6 +194,7 @@ later(function()
     python = true,
     sh = true,
     terraform = true,
+    ["terraform-vars"] = true,
   }
 
   require("conform").setup({
@@ -213,6 +217,7 @@ later(function()
       nix = { "nixfmt" },
       dockerfile = { "dockerfmt" },
       terraform = { "terraform_fmt" },
+      ["terraform-vars"] = { "terraform_fmt" },
       hcl = { "terraform_fmt" },
     },
     formatters = {
