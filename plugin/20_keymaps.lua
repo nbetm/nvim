@@ -246,6 +246,12 @@ vim.keymap.set("n", "\\q", toggle_quickfix, { desc = "Toggle quickfix" })
 vim.keymap.set("n", "\\Q", toggle_loclist, { desc = "Toggle loclist" })
 vim.keymap.set("n", "\\z", "<Cmd>lua MiniMisc.zoom()<CR>", { desc = "Toggle zoom" })
 
+-- Format-on-save toggle
+vim.keymap.set("n", "\\f", function()
+  vim.g.disable_autoformat = not vim.g.disable_autoformat
+  vim.notify("Format on save: " .. (vim.g.disable_autoformat and "off" or "on"))
+end, { desc = "Toggle format-on-save" })
+
 -- c is for 'Code'. Spans LSP actions, comment toggle, and note pickers.
 -- Common usage:
 -- - `<Leader>cd` - show more diagnostic details in a floating window

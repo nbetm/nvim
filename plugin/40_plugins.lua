@@ -220,9 +220,24 @@ later(function()
       shfmt = { prepend_args = { "-i", "4", "-ci" } },
     },
     format_on_save = function(bufnr)
+      if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then return end
       if format_on_save_fts[vim.bo[bufnr].filetype] then return { timeout_ms = 1000, lsp_format = "fallback" } end
     end,
   })
+
+  -- Toggle format-on-save. `\f` flips it globally; `:FormatDisable[!]` /
+  -- `:FormatEnable` are explicit (`!` scopes to the current buffer).
+  vim.api.nvim_create_user_command("FormatDisable", function(args)
+    if args.bang then
+      vim.b.disable_autoformat = true
+    else
+      vim.g.disable_autoformat = true
+    end
+  end, { bang = true, desc = "Disable format-on-save (! = buffer)" })
+  vim.api.nvim_create_user_command("FormatEnable", function()
+    vim.b.disable_autoformat = false
+    vim.g.disable_autoformat = false
+  end, { desc = "Enable format-on-save" })
 end)
 
 -- Snippets ===================================================================
