@@ -2,14 +2,12 @@
 -- The default picker (`<Leader>f` / `Pick files`) uses ripgrep with gitignore
 -- enabled, so `.notes/` (which is gitignored) is invisible. This module
 -- searches `.notes/` explicitly with `rg --no-ignore`, walking upward from
--- the current buffer's directory to find the nearest one.
+-- the working directory to find the nearest one.
 
 local M = {}
 
 local function find_notes_dir()
-  local start = vim.fn.expand("%:p:h")
-  if start == "" then start = vim.fn.getcwd() end
-  return vim.fs.find(".notes", { type = "directory", upward = true, path = start })[1]
+  return vim.fs.find(".notes", { type = "directory", upward = true, path = vim.fn.getcwd() })[1]
 end
 
 M.pick = function()
@@ -33,7 +31,10 @@ M.pick = function()
     "--",
     notes_dir,
   })
-  if vim.v.shell_error ~= 0 or #files == 0 then
+  -- Gate on `#files` only, not the exit code. With `--follow`, rg exits 2 on
+  -- non-fatal warnings (e.g. a dangling symlink in the notes tree) yet still
+  -- lists every valid file on stdout, so a bad exit code is not "empty".
+  if #files == 0 then
     vim.notify(".notes/ exists but is empty: " .. notes_dir, vim.log.levels.INFO)
     return
   end
