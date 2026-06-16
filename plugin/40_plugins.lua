@@ -72,6 +72,7 @@ now_if_args(function()
     "nix",
     "dockerfile",
     "hcl",
+    "terraform",
     -- Templating / data
     "jinja",
     "jinja_inline",
