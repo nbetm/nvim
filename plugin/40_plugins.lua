@@ -289,20 +289,35 @@ local function setup_octo()
     -- Map Octo's 12 named color slots to Nord Deep channels.
     -- `Octo*` highlight overrides live in the nord-deep colorscheme
     colors = {
-      white = "#d4dce6", -- fg_bright (body fg on deeps + grey)
-      grey = "#798094", -- grey1 (faded fg + BubbleGrey bg)
-      black = "#212732", -- bg (dark fg for Viewer bubble)
-      red = "#c97078", -- destructive fg
-      dark_red = "#82515b", -- deep_red (destructive pill bg)
-      green = "#a3be8c", -- success fg
-      dark_green = "#556356", -- deep_green (success pill bg)
-      yellow = "#ebcb8b", -- warning fg
-      dark_yellow = "#665f50", -- deep_yellow (kept for completeness)
-      blue = "#81a1c1", -- info / actionable fg
-      dark_blue = "#4e6075", -- deep_blue (info pill bg)
-      purple = "#b48ead", -- magenta (landmark: merged, completed)
+      white = "#d4dce6",
+      grey = "#798094",
+      black = "#212732",
+      red = "#c97078",
+      dark_red = "#82515b",
+      green = "#a3be8c",
+      dark_green = "#556356",
+      yellow = "#ebcb8b",
+      dark_yellow = "#665f50",
+      blue = "#81a1c1",
+      dark_blue = "#4e6075",
+      purple = "#b48ead",
     },
   })
+
+  -- Move octo's PR-review mappings off `\`. octo binds them via `<localleader>`,
+  -- which defaults to `\` (maplocalleader unset) and collides with the global
+  -- `\` toggles. Rewrite the review groups' `<localleader>` to `<leader>O` so
+  -- they live under the Octo namespace and `\` stays ours. Nav keys (`<CR>`,
+  -- `gf`, `]c`, `<C-*>`) and the non-review groups (issue/repo/...) are left be.
+  local octo_maps = require("octo.config").values.mappings
+  for _, group in ipairs({ "pull_request", "review_thread", "submit_win", "review_diff", "file_panel" }) do
+    for _, m in pairs(octo_maps[group]) do
+      if type(m.lhs) == "string" then m.lhs = m.lhs:gsub("<localleader>", "<leader>O") end
+    end
+  end
+  -- approve_pr is hardcoded `<leader>qa` (no `<localleader>`), which shadows the
+  -- global `<leader>q` close; namespace it under Octo too.
+  if octo_maps.pull_request.approve_pr then octo_maps.pull_request.approve_pr.lhs = "<leader>Oqa" end
 
   -- Review file panel - lift the current-file row to bg2
   Config.new_autocmd("BufWinEnter", "OctoChangedFiles-*", function(ev)

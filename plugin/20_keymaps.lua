@@ -84,6 +84,7 @@ Config.leader_group_clues = {
   { mode = "n", keys = "<Leader>g", desc = "+Git" },
   { mode = "n", keys = "<Leader>c", desc = "+Code" },
   { mode = "n", keys = "<Leader>o", desc = "+Session" },
+  { mode = "n", keys = "<Leader>O", desc = "+Octo" },
   { mode = "n", keys = "<Leader>v", desc = "+Visits" },
 
   { mode = "x", keys = "<Leader>g", desc = "+Git" },
@@ -303,6 +304,11 @@ nmap_leader("on", "<Cmd>lua " .. session_new .. "<CR>", "New")
 nmap_leader("or", '<Cmd>lua MiniSessions.select("read")<CR>', "Read")
 nmap_leader("oR", "<Cmd>lua MiniSessions.restart()<CR>", "Restart")
 nmap_leader("ow", "<Cmd>lua MiniSessions.write()<CR>", "Write current")
+
+-- O is for 'Octo' (GitHub PR reviews). `<Leader>Op` opens the PR-list picker to
+-- start a review. Once inside an octo buffer, octo's own actions also live under
+-- `<Leader>O…` (remapped off `\` in plugin/40_plugins.lua so the `\` toggles stay).
+nmap_leader("Op", "<Cmd>Octo pr list<CR>", "PR list")
 
 -- v is for 'Visits'. Common usage:
 -- - `<Leader>vv` - add    "core" label to current file.
