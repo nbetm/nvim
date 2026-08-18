@@ -155,7 +155,7 @@ now_if_args(function()
     "yamlls",
     "taplo",
     -- Markup
-    "marksman",
+    "markdown_oxide",
     -- Nix
     "nixd",
     -- Terraform
