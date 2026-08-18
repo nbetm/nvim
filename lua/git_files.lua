@@ -1,10 +1,13 @@
--- Pick files that are modified, staged, or untracked in the current git repo.
--- Uses `git status --porcelain` so the list covers everything you've touched
--- since the last commit, regardless of stage state. Equivalent to the set you
--- see in `git status`'s "Changes" / "Untracked" sections.
+-- Work with files that are modified, staged, or untracked in the current git
+-- repo. `git status --porcelain` covers everything you've touched since the
+-- last commit, regardless of stage state (the `git status` "Changes" /
+-- "Untracked" sections).
 --
 -- Ignored files (`.gitignore`-matched) are excluded.
--- Deleted files are excluded too — they can't be opened from the picker.
+-- Deleted files are excluded too — they can't be opened.
+--
+-- - `M.changed`  - pick one changed file (mini.pick).
+-- - `M.open_all` - load every changed file into the buffer list at once.
 
 local M = {}
 
@@ -14,7 +17,8 @@ local function repo_root()
   return (res.stdout or ""):gsub("\n$", "")
 end
 
-M.changed = function()
+-- Returns `files, root` (absolute paths), or nil after notifying why not.
+local function list_changed()
   local root = repo_root()
   if not root or root == "" then
     vim.notify("not in a git repo", vim.log.levels.WARN)
@@ -45,7 +49,12 @@ M.changed = function()
     vim.notify("no changed files", vim.log.levels.INFO)
     return
   end
+  return files, root
+end
 
+M.changed = function()
+  local files, root = list_changed()
+  if not files then return end
   MiniPick.start({
     source = {
       items = files,
@@ -57,6 +66,19 @@ M.changed = function()
       end,
     },
   })
+end
+
+M.open_all = function()
+  local files = list_changed()
+  if not files then return end
+  -- `badd` adds each to the buffer list (loaded lazily on first display), then
+  -- edit the first so one is shown. All are then reachable via the buffer
+  -- picker / `:bnext`.
+  for _, f in ipairs(files) do
+    vim.cmd.badd({ args = { f } })
+  end
+  vim.cmd.edit({ args = { files[1] } })
+  vim.notify(("opened %d changed files"):format(#files))
 end
 
 return M
