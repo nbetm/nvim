@@ -1,5 +1,5 @@
 -- Open a command in a centered floating terminal. The terminal buffer is
--- wiped automatically when the process exits, so launching a TUI (lazygit,
+-- wiped automatically when the process exits. Launching a TUI (lazygit,
 -- jjui, htop) and quitting it returns to the previous window cleanly.
 --
 -- Usage:
@@ -7,8 +7,8 @@
 --   require("floatterm").open("jjui", { width = 0.7, height = 0.8 })
 --
 -- `width`/`height` are ratios of the editor's columns/lines. Width defaults
--- to 0.9; height to 0.85 so the statusline and cmdline stay visible above
--- and below the float.
+-- to 0.9. Height defaults to 0.85, keeping the statusline and cmdline visible
+-- above and below the float.
 
 local M = {}
 
@@ -37,7 +37,7 @@ M.open = function(cmd, opts)
     style = "minimal",
     border = "single",
   })
-  -- TUIs feel like a screen takeover, so match the editor's `Normal` bg
+  -- TUIs feel like a screen takeover. Match the editor's `Normal` bg
   -- (base) instead of `NormalFloat` (surface), and use a border whose own
   -- bg matches that base too (otherwise FloatBorder's surface bg shows as
   -- a band around the float).

@@ -1,6 +1,6 @@
 -- Pick files from a `.notes/` directory adjacent to the current project.
 -- The default picker (`<Leader>f` / `Pick files`) uses ripgrep with gitignore
--- enabled, so `.notes/` (which is gitignored) is invisible. This module
+-- enabled. That makes `.notes/` (which is gitignored) invisible. This module
 -- searches `.notes/` explicitly with `rg --no-ignore`, walking upward from
 -- the working directory to find the nearest one.
 
@@ -38,7 +38,7 @@ M.pick = function()
   })
   -- Gate on `#files` only, not the exit code. With `--follow`, rg exits 2 on
   -- non-fatal warnings (e.g. a dangling symlink in the notes tree) yet still
-  -- lists every valid file on stdout, so a bad exit code is not "empty".
+  -- lists every valid file on stdout. A bad exit code does not mean empty.
   if #files == 0 then
     vim.notify(".notes/ exists but is empty: " .. notes_dir, vim.log.levels.INFO)
     return

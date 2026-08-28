@@ -1,4 +1,4 @@
--- Nord Deep — an arctic, north-bluish color palette taken to deeper depths.
+-- Nord Deep. An arctic, north-bluish color palette taken to deeper depths.
 -- See https://github.com/nbetm/nix-config/blob/main/docs/nord-deep.md for
 -- the palette spec and design language.
 --
@@ -11,15 +11,15 @@
 --   Polar Night (bg, dark → light)
 --     bg   canvas, active tab
 --     bg1  floats (all of them), inactive tabs/statusline
---     bg2  marked/current row, active statusline, Visual; ANSI 0
+--     bg2  marked/current row, active statusline, Visual (ANSI 0)
 --     bg3  borders, separators, structural trim (no text role)
 --
---   Washes  wash_<channel>  10% channel over bg — "this row is X" (diffs, errors, hits)
---   Deeps   deep_<channel>  saturated darks + fg_bright — pills / badges
+--   Washes  wash_<channel>  10% channel over bg, "this row is X" (diffs, errors, hits)
+--   Deeps   deep_<channel>  saturated darks + fg_bright, for pills / badges
 --
 --   Foregrounds
---     fg / fg_bright  body / emphasis; ANSI 7 / 15
---     grey0  ghost text, line numbers, fold cols, inline blame; ANSI 8
+--     fg / fg_bright  body / emphasis (ANSI 7 / 15)
+--     grey0  ghost text, line numbers, fold cols, inline blame (ANSI 8)
 --     grey1  comments, disabled, unfocused titles
 --     grey2  cursor line number, recessed-but-readable labels
 --
@@ -35,9 +35,9 @@
 --     aqua     type / structure noun (Type, @property, LSP kinds)
 --
 --   Rules
---     Floats sit on bg1; pickers/clue take a cyan title accent, others fg.
---     Tabline active tab sinks to bg; statusline active rises to bg2.
---     Selection changes bg only — fg falls through.
+--     Floats sit on bg1. Pickers/clue take a cyan title accent, others fg.
+--     Tabline active tab sinks to bg. Statusline active rises to bg2.
+--     Selection changes bg only. Fg falls through.
 --     Severity (red / yellow / navy) reserved for actual attention.
 --     Marked > Current row: both bg2, differ by bold + glyph.
 --     Borders / separators sit at bg3.
@@ -49,7 +49,7 @@ local hl = function(name, opts) vim.api.nvim_set_hl(0, name, opts) end
 
 -- Alpha-composite two hex colors: `ratio` of `b` over `a`. Used to derive soft
 -- overlays (e.g. cursorline) without baking magic hex into the palette.
--- Neovim hl groups don't honor alpha, so the result is precomputed here.
+-- Neovim hl groups don't honor alpha. The result is precomputed here.
 local blend = function(a, b, ratio)
   local ar, ag, ab = a:match("#(%x%x)(%x%x)(%x%x)")
   local br, bg_, bb = b:match("#(%x%x)(%x%x)(%x%x)")
@@ -93,13 +93,13 @@ local palette = {
   grey1 = "#798094",
   grey2 = "#929aae",
 
-  -- palette2: frost (structural syntax) — navy brightened for contrast, rest as upstream Nord
+  -- palette2: frost (structural syntax). Navy brightened for contrast, rest as upstream Nord
   aqua = "#8fbcbb",
   cyan = "#88c0d0",
   blue = "#81a1c1",
   navy = "#6c8eb8",
 
-  -- palette2: aurora (semantic syntax) — red brightened for contrast, rest as upstream Nord
+  -- palette2: aurora (semantic syntax). Red brightened for contrast, rest as upstream Nord
   red = "#c97078",
   orange = "#d08770",
   yellow = "#ebcb8b",
@@ -208,8 +208,8 @@ hl("Question", { fg = p.cyan })
 hl("MsgSeparator", { fg = p.bg3, bg = p.bg1 })
 
 -- Quickfix current entry
--- QuickFixLine: qf is a normal window (over canvas), so bg2
--- WildMenu: shows in the pum (a float, over bg1), so bg3
+-- QuickFixLine sits in a normal window over the canvas. That puts it at bg2.
+-- WildMenu shows in the pum, a float over bg1. That puts it at bg3.
 hl("QuickFixLine", { fg = p.fg_bright, bg = p.bg2 })
 hl("WildMenu", { bg = p.bg3 })
 
@@ -217,7 +217,7 @@ hl("Underlined", { underline = true })
 hl("Bold", { bold = true })
 hl("Italic", { italic = true })
 
--- Preinsert preview (ghost text about to be inserted) — autosuggest tier.
+-- Preinsert preview (ghost text about to be inserted). Autosuggest tier.
 hl("PreInsert", { fg = p.grey0 })
 
 -- Inlay hints / LSP reference bands
@@ -287,10 +287,12 @@ hl("Removed", { link = "diffRemoved" })
 -- NOTE: The "diagnostic messages use washes, not coloured body fg" rule:
 -- applying that here would mean DiagnosticFloating*/VirtualText* set wash bg
 -- + neutral fg, but those hl groups colour the entire row including the
--- leading severity glyph — so the channel signal in the glyph would vanish.
+-- leading severity glyph. The channel signal in the glyph would vanish.
 -- Splitting glyph color from body color requires vim.diagnostic.config({
 -- float, virtual_text }) work that wraps each diagnostic into multiple
--- highlight ranges. Base diagnostic colors (fg only)
+-- highlight ranges.
+
+-- Base diagnostic colors (fg only)
 hl("DiagnosticError", { fg = p.red })
 hl("DiagnosticWarn", { fg = p.yellow })
 hl("DiagnosticInfo", { fg = p.navy })
@@ -519,7 +521,7 @@ hl("@diff.plus", { link = "diffAdded" })
 hl("@diff.minus", { link = "diffRemoved" })
 hl("@diff.delta", { link = "diffChanged" })
 
--- Legacy nvim-0.9 treesitter groups — commented out as a safety net.
+-- Legacy nvim-0.9 treesitter groups, commented out as a safety net.
 -- nvim-treesitter post-rewrite (the version we use) emits the modern
 -- @markup.* / @comment.* / @function.method / @variable.parameter captures
 -- instead. Uncomment if a stale query somewhere still fires legacy names.
@@ -755,8 +757,8 @@ hl("MiniTrailspace", { bg = p.deep_yellow })
 
 -- 9. Octo (GitHub PR review) ----------------------------------------------- {{{
 -- octo.nvim derives its `Octo*` groups from a `colors` table at setup time,
--- but guards each one with `hlexists` (see octo/ui/colors.lua), so any group
--- we define here wins and octo defers to it.
+-- but guards each one with `hlexists` (see octo/ui/colors.lua). Any group we
+-- define here wins and octo defers to it.
 
 -- Main
 hl("OctoGreen", { fg = p.green })

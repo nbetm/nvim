@@ -3,8 +3,8 @@
 -- └─────────────────────────┘
 --
 -- This is an example of a configuration that will apply only to a particular
--- filetype, which is the same as file's basename ('markdown' in this example;
--- which is for '*.md' files).
+-- filetype, which is the same as file's basename. Here that is 'markdown',
+-- which covers '*.md' files.
 --
 -- It can contain any code which will be usually executed when the file is opened
 -- (strictly speaking, on every 'filetype' option value change to target value).

@@ -1,10 +1,10 @@
--- Git blame in the editor — two flavors.
+-- Git blame in the editor, two flavors.
 --   `M.popup`  - one-shot floating window with the commit that last touched
 --                the current line. Rendered as a tiny markdown buffer with
---                `conceallevel=2`, so `[sha](url)` displays as just the SHA
+--                `conceallevel=2`. That displays `[sha](url)` as just the SHA
 --                with the link concealed. Press `gx` on a link to open it.
 --                Press the bound key again while the popup is open to enter
---                it (then scroll, yank, etc; `<C-w>q` to close).
+--                it (then scroll, yank, and so on, with `<C-w>q` to close).
 --   `M.toggle` - toggle persistent inline virtual text. While on, every line
 --                shows " <author> · <relative>" in navy at EOL. Subject is
 --                popup-only to keep the inline scannable without horizontal
@@ -147,7 +147,7 @@ M.popup = function()
   local body = (parts[5] or ""):gsub("^\n", ""):gsub("\n+$", "")
 
   local info = repo_for(buf) or { host = "other" }
-  -- Use the short SHA in the URL too — GitHub/GitLab/Bitbucket auto-expand
+  -- Use the short SHA in the URL too. GitHub/GitLab/Bitbucket auto-expand
   -- it. Keeps the raw markdown line short so Neovim's wrap (which operates
   -- on raw length, not post-conceal display length) doesn't break the line
   -- mid-URL and leave the closing `)` on its own line.

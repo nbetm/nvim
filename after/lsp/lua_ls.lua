@@ -18,7 +18,7 @@ return {
     -- Use this function to define buffer-local mappings and behavior that depend
     -- on attached client or only makes sense if there is language server attached.
   end,
-  -- LuaLS Structure of these settings comes from LuaLS, not Neovim
+  -- Structure of these settings comes from LuaLS, not Neovim
   settings = {
     Lua = {
       -- Define runtime properties. Use 'LuaJIT', as it is built into Neovim.

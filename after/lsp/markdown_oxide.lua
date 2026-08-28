@@ -18,8 +18,8 @@ return {
     },
   },
   -- Replaces the daily-note commands nvim-lspconfig attaches to every client.
-  -- Unscoped, `:LspToday` in a code repo writes a dated note to the repo root;
-  -- daily notes only mean something in the vault.
+  -- Unscoped, `:LspToday` in a code repo writes a dated note to the repo root.
+  -- Daily notes only mean something in the vault.
   on_attach = function(client, bufnr)
     if vim.fs.normalize(client.root_dir or "") ~= vault then return end
     for _, cmd in ipairs({ "today", "tomorrow", "yesterday" }) do

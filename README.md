@@ -65,8 +65,6 @@ Other plugins kept to a minimum: [`nvim-treesitter`], [`nvim-lspconfig`], [`conf
 An arctic, north-bluish color palette taken to deeper depths.
 Full palette spec at [nbetm/nix-config docs/nord-deep.md].
 
-**Keymap cheatsheet:** [`docs/keymap-cheatsheet.html`](docs/keymap-cheatsheet.html).
-
 ## Structure
 
 Plugin files load alphabetically.

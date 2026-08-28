@@ -4,7 +4,7 @@
 -- "Untracked" sections).
 --
 -- Ignored files (`.gitignore`-matched) are excluded.
--- Deleted files are excluded too — they can't be opened.
+-- Deleted files are excluded too, since they can't be opened.
 --
 -- - `M.changed`  - pick one changed file (mini.pick).
 -- - `M.open_all` - load every changed file into the buffer list at once.
@@ -35,7 +35,7 @@ local function list_changed()
     if line ~= "" then
       local status = line:sub(1, 2)
       local path = line:sub(4)
-      -- Porcelain renames render as `R  old -> new` — pick the new path.
+      -- Porcelain renames render as `R  old -> new`. Pick the new path.
       local arrow = path:find(" %-> ")
       if arrow then path = path:sub(arrow + 4) end
       -- Skip deleted (can't open) and ignored (rare here, but defensive).

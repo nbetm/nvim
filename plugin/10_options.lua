@@ -70,8 +70,8 @@ vim.o.listchars = "extends:…,nbsp:␣,precedes:…,tab:→ ,trail:·"
 
 -- Folds (see `:h fold-commands`, `:h zM`, `:h zR`, `:h zA`, `:h zj`)
 -- Tree-sitter expression folding is accurate where a parser is installed and
--- gracefully no-ops elsewhere. `foldlevel*=99` keeps everything open by default;
--- close folds explicitly with `zM`, open with `zR`.
+-- gracefully no-ops elsewhere. `foldlevel*=99` keeps everything open by default.
+-- Close folds explicitly with `zM`, open with `zR`.
 vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.o.foldmethod = "expr"
 vim.o.foldlevel = 99
@@ -94,7 +94,7 @@ vim.o.spelloptions = "camel" -- Treat camelCase word parts as separate words
 vim.o.tabstop = 2 -- Show tab as this number of spaces
 vim.o.virtualedit = "block" -- Allow going past end of line in blockwise mode
 
--- Note: 'iskeyword' kept at default (`@,48-57,_,192-255`) — adding `-` quietly
+-- Note: 'iskeyword' kept at default (`@,48-57,_,192-255`). Adding `-` quietly
 -- changes built-in word motions (`*`, `diw`) and surprises in shell/markdown.
 
 -- Pattern for a start of numbered list (used in `gw`). This reads as
@@ -128,10 +128,10 @@ local mirror_yank = function()
 end
 Config.new_autocmd("TextYankPost", nil, mirror_yank, "Mirror yanks to clipboard")
 
--- Strip trailing whitespace on save. Skip `markdown`: two trailing spaces are
--- a hard line break there, stripping silently would corrupt formatting.
+-- Strip trailing whitespace on save. Skip `markdown`. Two trailing spaces are
+-- a hard line break there, and stripping them silently would corrupt formatting.
 -- For format-on-save filetypes (python, bash, etc.) the formatter handles
--- this anyway; the autocmd is a no-op there but keeps the rule global.
+-- this anyway. The autocmd is a no-op there but keeps the rule global.
 local trim_trailing_ws = function()
   if vim.bo.filetype == "markdown" then return end
   local pos = vim.api.nvim_win_get_cursor(0)
@@ -151,11 +151,11 @@ local diagnostic_opts = {
   -- Show signs on top of any other sign, but only for warnings and errors
   signs = { priority = 9999, severity = { min = "WARN", max = "ERROR" } },
 
-  -- Show all diagnostics as underline (for their messages type `<Leader>ld`)
+  -- Show all diagnostics as underline (for their messages type `<Leader>cd`)
   underline = { severity = { min = "HINT", max = "ERROR" } },
 
   -- Show details inline for the current line at WARN+ severity. See
-  -- `<Leader>ld` for the full popup with all severities.
+  -- `<Leader>cd` for the full popup with all severities.
   virtual_lines = false,
   virtual_text = {
     current_line = true,

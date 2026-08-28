@@ -9,7 +9,7 @@ return {
     if name == "" or name:find("://", 1, true) then return end
     on_dir(vim.fs.root(bufnr, { ".terraform", ".git" }) or vim.fs.dirname(name))
   end,
-  -- Treesitter does the highlighting, so drop the semantic-token layer.
+  -- Treesitter does the highlighting. Drop the semantic-token layer.
   -- It adds an open-flicker and goes stale after an external reload.
   on_attach = function(client) client.server_capabilities.semanticTokensProvider = nil end,
 }

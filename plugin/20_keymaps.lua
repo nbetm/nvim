@@ -4,11 +4,11 @@
 --
 -- This file contains definitions of custom general and Leader mappings.
 --
--- Heads up: 'mini.basics' ships defaults that don't appear here — `gy`/`gp`
+-- Heads up: 'mini.basics' ships defaults that don't appear here. `gy`/`gp`
 -- (yank/paste system clipboard), `gO`/`go` (empty line above/below), `<C-s>`
 -- (save + leave Insert), `\h`/`\w`/`\s`/`\b`/`\c`/`\l`/`\n`/`\r` toggles.
--- Cross-check with `:verbose nmap <key>` before adding new mappings; easy to
--- clobber. See `:h MiniBasics.config.mappings`.
+-- Cross-check with `:verbose nmap <key>` before adding new mappings. They are
+-- easy to clobber. See `:h MiniBasics.config.mappings`.
 
 -- General mappings ===========================================================
 
@@ -100,8 +100,8 @@ local nmap_leader = function(suffix, rhs, desc) vim.keymap.set("n", "<Leader>" .
 local xmap_leader = function(suffix, rhs, desc) vim.keymap.set("x", "<Leader>" .. suffix, rhs, { desc = desc }) end
 
 -- Direct leader actions (no group). Quick shortcuts for the heavy hitters.
--- `<Leader>q` mirrors `<Leader>bd` — closes the current buffer (keeps splits
--- intact); `<Leader>Q` quits Neovim entirely.
+-- `<Leader>q` mirrors `<Leader>Bd`. It closes the current buffer and keeps
+-- splits intact. `<Leader>Q` quits Neovim entirely.
 local explore_at_file = "<Cmd>lua MiniFiles.open(vim.api.nvim_buf_get_name(0))<CR>"
 
 -- Smart close, in priority order:
@@ -179,8 +179,8 @@ nmap_leader("BW", "<Cmd>lua MiniBufremove.wipeout(0, true)<CR>", "Wipeout!")
 -- - `<Leader>/`  - grep inside files (root shortcut)
 -- - `<Leader>pb` - buffers
 -- - `<Leader>ph` - help tag
--- - `<Leader>pr` - resume latest picker
--- - `<Leader>pv` - all visited paths; requires 'mini.visits'
+-- - `<Leader>p'` - resume latest picker
+-- - `<Leader>pv` - visited paths under cwd (`<Leader>pV` for all)
 --
 -- All these use 'mini.pick'. See `:h MiniPick-overview` for an overview.
 
@@ -212,7 +212,7 @@ nmap_leader("pV", '<Cmd>Pick visit_paths cwd=""<CR>', "Visit paths all")
 -- - `<Leader>gf` - pick a modified/staged/untracked file
 -- - `<Leader>gb` - quick blame popup for the current line
 -- - `<Leader>gs` - show information at cursor (mini.git, opens a buffer)
--- - `<Leader>go` - toggle 'mini.diff' overlay to show in-buffer unstaged changes
+-- - `\o`         - toggle 'mini.diff' overlay to show in-buffer unstaged changes
 -- - `<Leader>gd` - show unstaged changes as a patch in separate tabpage
 -- - `<Leader>gL` - show Git log of current file (workspace scope)
 -- - `\b`         - toggle inline-blame virtual text per line
@@ -241,8 +241,8 @@ xmap_leader("gs", "<Cmd>lua MiniGit.show_at_cursor()<CR>", "Show at selection")
 vim.keymap.set("n", "\\b", blame.toggle, { desc = "Toggle inline blame" })
 vim.keymap.set("n", "\\o", "<Cmd>lua MiniDiff.toggle_overlay()<CR>", { desc = "Toggle diff overlay" })
 
--- Window/list toggles. Not in mini.basics' option-toggle set; share the `\`
--- prefix so all togglable state lives in one namespace.
+-- Window/list toggles. These are not in mini.basics' option-toggle set. They
+-- share the `\` prefix to keep all togglable state in one namespace.
 local toggle_quickfix = function() vim.cmd(vim.fn.getqflist({ winid = true }).winid ~= 0 and "cclose" or "copen") end
 local toggle_loclist = function() vim.cmd(vim.fn.getloclist(0, { winid = true }).winid ~= 0 and "lclose" or "lopen") end
 vim.keymap.set("n", "\\q", toggle_quickfix, { desc = "Toggle quickfix" })
@@ -265,7 +265,7 @@ end, { desc = "Toggle format-on-save" })
 -- - `<Leader>cn` / `cN` - code notes / project notes picker (mirrors `<Leader>n` / `N`)
 --
 -- Goto-style nav stays under the `g*` family (`gd`/`gD`/`gI` via `lsp_or_builtin`).
--- This group keeps LSP *actions* and code-adjacent pickers; jumps live with vim
+-- This group keeps LSP *actions* and code-adjacent pickers. Jumps live with vim
 -- convention.
 local function comment_visual()
   local s = math.min(vim.fn.line("v"), vim.fn.line("."))

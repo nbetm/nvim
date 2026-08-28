@@ -48,10 +48,10 @@ now_if_args(function()
   })
 
   -- Define languages which will have parsers installed and auto enabled.
-  -- Restart Neovim once after editing; wait for installation before opening files.
+  -- Restart Neovim once after editing. Wait for installation before opening files.
   -- See `:=require('nvim-treesitter').get_available()` for the full list.
   local languages = {
-    -- Built-in to Neovim 0.12 (listed for completeness; install is a no-op):
+    -- Built-in to Neovim 0.12 (listed for completeness, install is a no-op):
     "c",
     "lua",
     "markdown",
@@ -187,7 +187,7 @@ later(function()
   -- - `:h conform-options`
   -- - `:h conform-formatters`
   -- Filetypes that get formatted on save. Other filetypes still format on
-  -- demand via `<Leader>lf`. Adding here is the only switch needed.
+  -- demand via `<Leader>cf`. Adding here is the only switch needed.
   local format_on_save_fts = {
     bash = true,
     hcl = true,
@@ -261,7 +261,7 @@ later(function() add({ "https://github.com/rafamadriz/friendly-snippets" }) end)
 
 -- 'octo.nvim' brings the GitHub PR review workflow into Neovim: open a PR,
 -- navigate the diff, leave inline comments, submit a multi-comment review.
--- Used here as a review-only tool — PR browsing/management lives in `gh-dash`.
+-- Used here as a review-only tool. PR browsing/management lives in `gh-dash`.
 --
 -- Typical flow:
 -- - `gh pr checkout <num>` (or pick from gh-dash) to switch branches
@@ -316,7 +316,7 @@ local function setup_octo()
     end
   end
   -- approve_pr is hardcoded `<leader>qa` (no `<localleader>`), which shadows the
-  -- global `<leader>q` close; namespace it under Octo too.
+  -- global `<leader>q` close. Namespace it under Octo too.
   if octo_maps.pull_request.approve_pr then octo_maps.pull_request.approve_pr.lhs = "<leader>Oqa" end
 
   -- Review file panel - lift the current-file row to bg2
@@ -359,6 +359,6 @@ later(setup_octo)
 --   require('mason').setup()
 -- end)
 
--- Color scheme: see 'plugin/30_mini.lua' (`everforest` is installed and applied
--- there alongside the early `now()` setup so statusline highlights derive from
--- it). Switch by editing that block.
+-- Color scheme: see 'plugin/30_mini.lua'. `nord-deep` is vendored in 'colors/'
+-- and applied in the early `now()` block. Statusline highlights derive from it.
+-- Switch by editing that block.

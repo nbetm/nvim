@@ -1,12 +1,12 @@
 -- Line-anchored code notes. Drop annotations on file:line pairs while
--- exploring or refactoring; browse / walk-through / yank via mini.pick.
+-- exploring or refactoring. Browse / walk-through / yank via mini.pick.
 
 local M = {}
 
 -- ─── Storage helpers ────────────────────────────────────────────────────────
 
 -- Resolve the git repo root for a buffer or cwd. Falls back to the current
--- working directory (NOT start_path) when not in a git repo — this keeps
+-- working directory (NOT start_path) when not in a git repo. This keeps
 -- the XDG bucket key stable across `M.create` calls within a session.
 local function repo_root(start_path)
   start_path = start_path or vim.fn.getcwd()
@@ -17,7 +17,7 @@ end
 
 -- Where do the notes for this root live? Always XDG-bucketed by sha256 of
 -- the resolved repo root path. Clones at different filesystem paths get
--- separate buckets; branches share within a clone.
+-- separate buckets. Branches share within a clone.
 local function store_path(root)
   local xdg_dir = vim.fn.stdpath("data") .. "/codenotes"
   vim.fn.mkdir(xdg_dir, "p")
@@ -64,7 +64,7 @@ local buf_to_marks = {}
 
 -- Sign glyph + highlight per spec.
 -- nf-md-lightbulb (U+F0335), built from its codepoint at runtime so the
--- source stays ASCII-only (grep-safe; survives editors that strip glyphs).
+-- source stays ASCII-only (grep-safe, and survives editors that strip glyphs).
 local SIGN_TEXT = vim.fn.nr2char(0xf0335)
 local SIGN_HL = "CodenoteSign"
 
@@ -79,7 +79,7 @@ local function place_signs(buf)
   local rel_path = abs_path:sub(#root + 2)
   local store = load(store_path(root))
 
-  -- Find matching notes first; if none, no need to clear and rebuild.
+  -- Find matching notes first. With none, there is nothing to clear and rebuild.
   local matching = {}
   for _, note in ipairs(store.notes) do
     if note.path == rel_path then table.insert(matching, note) end
