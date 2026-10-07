@@ -157,6 +157,7 @@ nmap_leader("w", "<Cmd>write<CR>", "Write")
 nmap_leader("W", "<Cmd>wall<CR>", "Write all")
 nmap_leader("q", smart_close, "Close")
 nmap_leader("Q", "<Cmd>quitall<CR>", "Quit all")
+nmap_leader("U", "<Cmd>lua vim.pack.update()<CR>", "Update plugins")
 nmap_leader("/", "<Cmd>Pick grep_live<CR>", "Grep")
 nmap_leader("?", "<Cmd>Pick commands<CR>", "Commands")
 
@@ -262,7 +263,6 @@ end, { desc = "Toggle format-on-save" })
 -- - `<Leader>cs` / `cS` - document / workspace symbols picker (mirrors `<Leader>s` / `S`)
 -- - `<Leader>cc` - toggle comment on current line / visual selection
 -- - `<Leader>cm` / `cM` - new-or-edit / delete code note at cursor (mirrors `<Leader>m` / `M`)
--- - `<Leader>cn` / `cN` - code notes / project notes picker (mirrors `<Leader>n` / `N`)
 --
 -- Goto-style nav stays under the `g*` family (`gd`/`gD`/`gI` via `lsp_or_builtin`).
 -- This group keeps LSP *actions* and code-adjacent pickers. Jumps live with vim
@@ -282,7 +282,6 @@ nmap_leader("cl", "<Cmd>lua vim.lsp.codelens.run()<CR>", "Lens")
 nmap_leader("cm", codenotes.create, "New / edit note at cursor")
 nmap_leader("cM", codenotes.delete_at_cursor, "Delete note at cursor")
 nmap_leader("cn", codenotes.pick, "Code notes")
-nmap_leader("cN", notes.pick, "Project notes")
 nmap_leader("cr", '<Cmd>Pick lsp scope="references"<CR>', "References")
 nmap_leader("cR", "<Cmd>lua vim.lsp.buf.rename()<CR>", "Rename symbol")
 nmap_leader("cs", '<Cmd>Pick lsp scope="document_symbol"<CR>', "Symbols buffer")
