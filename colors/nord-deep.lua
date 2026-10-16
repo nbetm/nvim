@@ -10,7 +10,8 @@
 --
 --   Polar Night (bg, dark → light)
 --     bg   canvas, active tab
---     bg1  floats (all of them), inactive tabs/statusline
+--     bg_mid  floats (all of them), cursorline (derived half-step, bg → bg1)
+--     bg1  inactive tabs/statusline
 --     bg2  marked/current row, active statusline, Visual (ANSI 0)
 --     bg3  borders, separators, structural trim (no text role)
 --
@@ -35,7 +36,7 @@
 --     aqua     type / structure noun (Type, @property, LSP kinds)
 --
 --   Rules
---     Floats sit on bg1. Pickers/clue take a cyan title accent, others fg.
+--     Floats sit on bg_mid, their selection on bg2. Pickers/clue take a cyan title accent, others fg.
 --     Tabline active tab sinks to bg. Statusline active rises to bg2.
 --     Selection changes bg only. Fg falls through.
 --     Severity (red / yellow / navy) reserved for actual attention.
@@ -109,9 +110,9 @@ local palette = {
   none = "NONE",
 }
 
--- Derived overlay.
--- Blend of bg and bg1 (the non-transparent fallback for the `#2e344080` recipe).
-palette.cursorline = blend(palette.bg, palette.bg1, 0.5)
+-- Derived half-step between bg and bg1 (the non-transparent fallback for the
+-- `#2e344080` recipe). Floats and the cursorline sit on it.
+palette.bg_mid = blend(palette.bg, palette.bg1, 0.5)
 
 local p = palette
 local transparent = vim.g.nord_deep_transparent
@@ -119,10 +120,10 @@ local bg = transparent and palette.none or palette.bg
 -- }}}
 
 -- 1. Editor core ----------------------------------------------------------- {{{
--- Base text + floats (all floats on bg1)
+-- Base text + floats (all floats on bg_mid)
 hl("Normal", { fg = p.fg, bg = bg })
 hl("NormalNC", { fg = p.fg, bg = bg })
-hl("NormalFloat", { fg = p.fg, bg = p.bg1 })
+hl("NormalFloat", { fg = p.fg, bg = p.bg_mid })
 hl("EndOfBuffer", { fg = p.bg3, bg = transparent and p.none or nil })
 
 -- Cursor
@@ -131,9 +132,9 @@ hl("CursorIM", { link = "Cursor" })
 hl("lCursor", { link = "Cursor" })
 
 -- Editor-buffer active line
-hl("CursorLine", { bg = p.cursorline })
-hl("CursorColumn", { bg = p.cursorline })
-hl("CursorLineNr", { fg = p.grey2, bg = p.cursorline })
+hl("CursorLine", { bg = p.bg_mid })
+hl("CursorColumn", { bg = p.bg_mid })
+hl("CursorLineNr", { fg = p.grey2, bg = p.bg_mid })
 
 -- Line numbers sit at the ghost-text tier
 hl("LineNr", { fg = p.grey0 })
@@ -152,15 +153,15 @@ hl("VisualNOS", { bg = p.bg2 })
 -- Pmenu (cmdline + LSP completion)
 hl("Pmenu", { link = "NormalFloat" })
 hl("PmenuBorder", { link = "FloatBorder" })
-hl("PmenuSel", { bg = p.bg3 })
+hl("PmenuSel", { bg = p.bg2 })
 hl("PmenuMatch", { fg = p.cyan, bold = true })
 hl("PmenuMatchSel", { fg = p.cyan, bold = true })
 hl("PmenuSbar", { bg = p.bg2 })
 hl("PmenuThumb", { bg = p.navy })
-hl("PmenuKind", { fg = p.aqua, bg = p.bg1 })
-hl("PmenuKindSel", { fg = p.aqua, bg = p.bg3 })
-hl("PmenuExtra", { fg = p.grey1, bg = p.bg1 })
-hl("PmenuExtraSel", { fg = p.grey2, bg = p.bg3 })
+hl("PmenuKind", { fg = p.aqua, bg = p.bg_mid })
+hl("PmenuKindSel", { fg = p.aqua, bg = p.bg2 })
+hl("PmenuExtra", { fg = p.grey1, bg = p.bg_mid })
+hl("PmenuExtraSel", { fg = p.grey2, bg = p.bg2 })
 
 -- Status / tab strips
 hl("StatusLine", { fg = p.fg, bg = p.bg1 })
@@ -176,9 +177,9 @@ hl("WinBar", { fg = p.fg, bg = p.bg1 })
 hl("WinBarNC", { fg = p.grey1, bg = p.bg1 })
 
 -- Float frame
-hl("FloatBorder", { fg = p.bg3, bg = p.bg1 })
-hl("FloatTitle", { fg = p.fg, bg = p.bg1, bold = true })
-hl("FloatFooter", { fg = p.grey1, bg = p.bg1 })
+hl("FloatBorder", { fg = p.bg3, bg = p.bg_mid })
+hl("FloatTitle", { fg = p.fg, bg = p.bg_mid, bold = true })
+hl("FloatFooter", { fg = p.grey1, bg = p.bg_mid })
 
 -- Float / popup drop-shadow (only shown with shadow effects enabled). Dark
 -- nord shadow via canvas bg + blend, instead of the default off-palette grey.
@@ -187,7 +188,7 @@ hl("FloatShadowThrough", { bg = p.bg, blend = 100 })
 hl("PmenuShadow", { link = "FloatShadow" })
 hl("PmenuShadowThrough", { link = "FloatShadowThrough" })
 
-hl("ColorColumn", { bg = p.cursorline })
+hl("ColorColumn", { bg = p.bg_mid })
 hl("Conceal", { fg = p.bg3 })
 hl("Directory", { fg = p.blue })
 hl("Title", { fg = p.cyan, bold = true })
@@ -209,9 +210,9 @@ hl("MsgSeparator", { fg = p.bg3, bg = p.bg1 })
 
 -- Quickfix current entry
 -- QuickFixLine sits in a normal window over the canvas. That puts it at bg2.
--- WildMenu shows in the pum, a float over bg1. That puts it at bg3.
+-- WildMenu shows in the pum, a float over bg_mid. That puts it at bg2.
 hl("QuickFixLine", { fg = p.fg_bright, bg = p.bg2 })
-hl("WildMenu", { bg = p.bg3 })
+hl("WildMenu", { bg = p.bg2 })
 
 hl("Underlined", { underline = true })
 hl("Bold", { bold = true })
@@ -593,20 +594,20 @@ hl("MiniAnimateCursor", { reverse = true, nocombine = true })
 hl("MiniAnimateNormalFloat", { link = "NormalFloat" })
 
 -- mini.clue
-hl("MiniClueBorder", { fg = p.bg3, bg = p.bg1 })
-hl("MiniClueDescGroup", { fg = p.magenta, bg = p.bg1 })
-hl("MiniClueDescSingle", { fg = p.fg, bg = p.bg1 })
-hl("MiniClueNextKey", { fg = p.blue, bg = p.bg1 })
-hl("MiniClueNextKeyWithPostkeys", { fg = p.magenta, bg = p.bg1 })
-hl("MiniClueSeparator", { fg = p.bg3, bg = p.bg1 })
-hl("MiniClueTitle", { fg = p.cyan, bg = p.bg1, bold = true })
+hl("MiniClueBorder", { fg = p.bg3, bg = p.bg_mid })
+hl("MiniClueDescGroup", { fg = p.magenta, bg = p.bg_mid })
+hl("MiniClueDescSingle", { fg = p.fg, bg = p.bg_mid })
+hl("MiniClueNextKey", { fg = p.blue, bg = p.bg_mid })
+hl("MiniClueNextKeyWithPostkeys", { fg = p.magenta, bg = p.bg_mid })
+hl("MiniClueSeparator", { fg = p.bg3, bg = p.bg_mid })
+hl("MiniClueTitle", { fg = p.cyan, bg = p.bg_mid, bold = true })
 
 -- mini.cmdline
 hl("MiniCmdlinePeekBorder", { link = "FloatBorder" })
-hl("MiniCmdlinePeekLineNr", { fg = p.grey1, bg = p.bg1 })
+hl("MiniCmdlinePeekLineNr", { fg = p.grey1, bg = p.bg_mid })
 hl("MiniCmdlinePeekNormal", { link = "NormalFloat" })
-hl("MiniCmdlinePeekSep", { fg = p.bg3, bg = p.bg1 })
-hl("MiniCmdlinePeekSign", { fg = p.cyan, bg = p.bg1 })
+hl("MiniCmdlinePeekSep", { fg = p.bg3, bg = p.bg_mid })
+hl("MiniCmdlinePeekSign", { fg = p.cyan, bg = p.bg_mid })
 hl("MiniCmdlinePeekTitle", { link = "FloatTitle" })
 
 -- mini.completion
@@ -630,14 +631,14 @@ hl("MiniDiffOverContextBuf", {})
 hl("MiniDiffOverDelete", { link = "DiffDelete" })
 
 -- mini.files
-hl("MiniFilesBorder", { fg = p.bg3, bg = p.bg1 })
+hl("MiniFilesBorder", { fg = p.bg3, bg = p.bg_mid })
 hl("MiniFilesBorderModified", { link = "DiagnosticFloatingWarn" })
-hl("MiniFilesCursorLine", { bg = p.bg3 })
+hl("MiniFilesCursorLine", { bg = p.bg2 })
 hl("MiniFilesDirectory", { link = "Directory" })
 hl("MiniFilesFile", { fg = p.fg })
-hl("MiniFilesNormal", { fg = p.fg, bg = p.bg1 })
-hl("MiniFilesTitle", { fg = p.grey1, bg = p.bg1, bold = true })
-hl("MiniFilesTitleFocused", { fg = p.cyan, bg = p.bg1, bold = true })
+hl("MiniFilesNormal", { fg = p.fg, bg = p.bg_mid })
+hl("MiniFilesTitle", { fg = p.grey1, bg = p.bg_mid, bold = true })
+hl("MiniFilesTitleFocused", { fg = p.cyan, bg = p.bg_mid, bold = true })
 
 -- mini.hipatterns (FIXME / TODO / WARN / NOTE)
 hl("MiniHipatternsFixme", { link = "@comment.error" })
@@ -685,22 +686,22 @@ hl("MiniNotifyTitle", { link = "FloatTitle" })
 hl("MiniOperatorsExchangeFrom", { link = "IncSearch" })
 
 -- mini.pick
-hl("MiniPickBorder", { fg = p.bg3, bg = p.bg1 })
+hl("MiniPickBorder", { fg = p.bg3, bg = p.bg_mid })
 hl("MiniPickBorderBusy", { link = "DiagnosticFloatingWarn" })
-hl("MiniPickBorderText", { fg = p.cyan, bg = p.bg1, bold = true })
+hl("MiniPickBorderText", { fg = p.cyan, bg = p.bg_mid, bold = true })
 hl("MiniPickCursor", { blend = 100, nocombine = true })
 hl("MiniPickIconDirectory", { link = "Directory" })
 hl("MiniPickIconFile", { link = "MiniPickNormal" })
 hl("MiniPickHeader", { fg = p.magenta, bold = true })
-hl("MiniPickMatchCurrent", { bg = p.bg3 })
-hl("MiniPickMatchMarked", { bg = p.bg3, bold = true })
+hl("MiniPickMatchCurrent", { bg = p.bg2 })
+hl("MiniPickMatchMarked", { bg = p.bg2, bold = true })
 hl("MiniPickMatchRanges", { fg = p.cyan, bold = true })
-hl("MiniPickNormal", { fg = p.fg, bg = p.bg1 })
-hl("MiniPickPreviewLine", { link = "CursorLine" })
+hl("MiniPickNormal", { fg = p.fg, bg = p.bg_mid })
+hl("MiniPickPreviewLine", { bg = p.bg2 })
 hl("MiniPickPreviewRegion", { link = "IncSearch" })
-hl("MiniPickPrompt", { fg = p.fg, bg = p.bg1 })
-hl("MiniPickPromptCaret", { fg = p.fg, bg = p.bg1 })
-hl("MiniPickPromptPrefix", { fg = p.cyan, bg = p.bg1 })
+hl("MiniPickPrompt", { fg = p.fg, bg = p.bg_mid })
+hl("MiniPickPromptCaret", { fg = p.fg, bg = p.bg_mid })
+hl("MiniPickPromptPrefix", { fg = p.cyan, bg = p.bg_mid })
 
 -- mini.snippets
 hl("MiniSnippetsCurrent", { sp = p.yellow, underdouble = true })
