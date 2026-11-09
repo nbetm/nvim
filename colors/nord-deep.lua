@@ -9,11 +9,11 @@
 -- Design language at a glance (full rationale in the doc linked above):
 --
 --   Polar Night (bg, dark → light)
---     bg   canvas, active tab
---     bg_mid  floats (all of them), cursorline (derived half-step, bg → bg1)
---     bg1  inactive tabs/statusline
---     bg2  marked/current row, active statusline, Visual (ANSI 0)
---     bg3  borders, separators, structural trim (no text role)
+--     bg   canvas, tabline fill
+--     bg_s floats (all of them), cursorline (derived half-step, bg → bg1)
+--     bg1  inactive tabline buffers, statusline (active + inactive)
+--     bg2  marked/current row, Visual (ANSI 0)
+--     bg3  borders, separators, structural trim, active tabline buffer
 --
 --   Washes  wash_<channel>  10% channel over bg, "this row is X" (diffs, errors, hits)
 --   Deeps   deep_<channel>  saturated darks + fg_bright, for pills / badges
@@ -27,17 +27,18 @@
 --   Channels (role beyond syntax)
 --     cyan     live cue (prompt prefix, picker matches, IncSearch)
 --     orange   committed / paired (CurSearch, MatchParen, sticky keys)
---     yellow   passive attention (Search, warnings, DiffChange, escapes/regex)
+--     yellow   passive attention (Search, warnings, DiffChange, modified buffers, escapes/regex)
 --     green    strings, success
 --     red      errors, deletions, FIXME
---     magenta  navigational landmark (headers, submenu entries)
+--     magenta  navigational landmark (headers, submenu entries, tabline tab badge)
 --     blue     keywords, operators, punctuation, list bullets, action targets (key-hints, TODO)
 --     navy     built-ins (booleans, nil/None), preprocessor/pragmas, secondary info (hints, NOTE)
 --     aqua     type / structure noun (Type, @property, LSP kinds)
 --
 --   Rules
---     Floats sit on bg_mid, their selection on bg2. Pickers/clue take a cyan title accent, others fg.
---     Tabline active tab sinks to bg. Statusline active rises to bg2.
+--     Floats sit on bg_s, their selection on bg2. Pickers/clue take a cyan title accent, others fg.
+--     Tabline fill sits on bg, inactive buffers on bg1, active buffer rises to bg3.
+--     Statusline stays on bg1. Active vs inactive differs by fg vs grey1.
 --     Selection changes bg only. Fg falls through.
 --     Severity (red / yellow / navy) reserved for actual attention.
 --     Marked > Current row: both bg2, differ by bold + glyph.
@@ -112,7 +113,7 @@ local palette = {
 
 -- Derived half-step between bg and bg1 (the non-transparent fallback for the
 -- `#2e344080` recipe). Floats and the cursorline sit on it.
-palette.bg_mid = blend(palette.bg, palette.bg1, 0.5)
+palette.bg_s = blend(palette.bg, palette.bg1, 0.5)
 
 local p = palette
 local transparent = vim.g.nord_deep_transparent
@@ -120,10 +121,10 @@ local bg = transparent and palette.none or palette.bg
 -- }}}
 
 -- 1. Editor core ----------------------------------------------------------- {{{
--- Base text + floats (all floats on bg_mid)
+-- Base text + floats (all floats on bg_s)
 hl("Normal", { fg = p.fg, bg = bg })
 hl("NormalNC", { fg = p.fg, bg = bg })
-hl("NormalFloat", { fg = p.fg, bg = p.bg_mid })
+hl("NormalFloat", { fg = p.fg, bg = p.bg_s })
 hl("EndOfBuffer", { fg = p.bg3, bg = transparent and p.none or nil })
 
 -- Cursor
@@ -132,9 +133,9 @@ hl("CursorIM", { link = "Cursor" })
 hl("lCursor", { link = "Cursor" })
 
 -- Editor-buffer active line
-hl("CursorLine", { bg = p.bg_mid })
-hl("CursorColumn", { bg = p.bg_mid })
-hl("CursorLineNr", { fg = p.grey2, bg = p.bg_mid })
+hl("CursorLine", { bg = p.bg_s })
+hl("CursorColumn", { bg = p.bg_s })
+hl("CursorLineNr", { fg = p.grey2, bg = p.bg_s })
 
 -- Line numbers sit at the ghost-text tier
 hl("LineNr", { fg = p.grey0 })
@@ -158,9 +159,9 @@ hl("PmenuMatch", { fg = p.cyan, bold = true })
 hl("PmenuMatchSel", { fg = p.cyan, bold = true })
 hl("PmenuSbar", { bg = p.bg2 })
 hl("PmenuThumb", { bg = p.navy })
-hl("PmenuKind", { fg = p.aqua, bg = p.bg_mid })
+hl("PmenuKind", { fg = p.aqua, bg = p.bg_s })
 hl("PmenuKindSel", { fg = p.aqua, bg = p.bg2 })
-hl("PmenuExtra", { fg = p.grey1, bg = p.bg_mid })
+hl("PmenuExtra", { fg = p.grey1, bg = p.bg_s })
 hl("PmenuExtraSel", { fg = p.grey2, bg = p.bg2 })
 
 -- Status / tab strips
@@ -177,9 +178,9 @@ hl("WinBar", { fg = p.fg, bg = p.bg1 })
 hl("WinBarNC", { fg = p.grey1, bg = p.bg1 })
 
 -- Float frame
-hl("FloatBorder", { fg = p.bg3, bg = p.bg_mid })
-hl("FloatTitle", { fg = p.fg, bg = p.bg_mid, bold = true })
-hl("FloatFooter", { fg = p.grey1, bg = p.bg_mid })
+hl("FloatBorder", { fg = p.bg3, bg = p.bg_s })
+hl("FloatTitle", { fg = p.fg, bg = p.bg_s, bold = true })
+hl("FloatFooter", { fg = p.grey1, bg = p.bg_s })
 
 -- Float / popup drop-shadow (only shown with shadow effects enabled). Dark
 -- nord shadow via canvas bg + blend, instead of the default off-palette grey.
@@ -188,7 +189,7 @@ hl("FloatShadowThrough", { bg = p.bg, blend = 100 })
 hl("PmenuShadow", { link = "FloatShadow" })
 hl("PmenuShadowThrough", { link = "FloatShadowThrough" })
 
-hl("ColorColumn", { bg = p.bg_mid })
+hl("ColorColumn", { bg = p.bg_s })
 hl("Conceal", { fg = p.bg3 })
 hl("Directory", { fg = p.blue })
 hl("Title", { fg = p.cyan, bold = true })
@@ -210,7 +211,7 @@ hl("MsgSeparator", { fg = p.bg3, bg = p.bg1 })
 
 -- Quickfix current entry
 -- QuickFixLine sits in a normal window over the canvas. That puts it at bg2.
--- WildMenu shows in the pum, a float over bg_mid. That puts it at bg2.
+-- WildMenu shows in the pum, a float over bg_s. That puts it at bg2.
 hl("QuickFixLine", { fg = p.fg_bright, bg = p.bg2 })
 hl("WildMenu", { bg = p.bg2 })
 
@@ -594,20 +595,20 @@ hl("MiniAnimateCursor", { reverse = true, nocombine = true })
 hl("MiniAnimateNormalFloat", { link = "NormalFloat" })
 
 -- mini.clue
-hl("MiniClueBorder", { fg = p.bg3, bg = p.bg_mid })
-hl("MiniClueDescGroup", { fg = p.magenta, bg = p.bg_mid })
-hl("MiniClueDescSingle", { fg = p.fg, bg = p.bg_mid })
-hl("MiniClueNextKey", { fg = p.blue, bg = p.bg_mid })
-hl("MiniClueNextKeyWithPostkeys", { fg = p.magenta, bg = p.bg_mid })
-hl("MiniClueSeparator", { fg = p.bg3, bg = p.bg_mid })
-hl("MiniClueTitle", { fg = p.cyan, bg = p.bg_mid, bold = true })
+hl("MiniClueBorder", { fg = p.bg3, bg = p.bg_s })
+hl("MiniClueDescGroup", { fg = p.magenta, bg = p.bg_s })
+hl("MiniClueDescSingle", { fg = p.fg, bg = p.bg_s })
+hl("MiniClueNextKey", { fg = p.blue, bg = p.bg_s })
+hl("MiniClueNextKeyWithPostkeys", { fg = p.magenta, bg = p.bg_s })
+hl("MiniClueSeparator", { fg = p.bg3, bg = p.bg_s })
+hl("MiniClueTitle", { fg = p.cyan, bg = p.bg_s, bold = true })
 
 -- mini.cmdline
 hl("MiniCmdlinePeekBorder", { link = "FloatBorder" })
-hl("MiniCmdlinePeekLineNr", { fg = p.grey1, bg = p.bg_mid })
+hl("MiniCmdlinePeekLineNr", { fg = p.grey1, bg = p.bg_s })
 hl("MiniCmdlinePeekNormal", { link = "NormalFloat" })
-hl("MiniCmdlinePeekSep", { fg = p.bg3, bg = p.bg_mid })
-hl("MiniCmdlinePeekSign", { fg = p.cyan, bg = p.bg_mid })
+hl("MiniCmdlinePeekSep", { fg = p.bg3, bg = p.bg_s })
+hl("MiniCmdlinePeekSign", { fg = p.cyan, bg = p.bg_s })
 hl("MiniCmdlinePeekTitle", { link = "FloatTitle" })
 
 -- mini.completion
@@ -631,14 +632,14 @@ hl("MiniDiffOverContextBuf", {})
 hl("MiniDiffOverDelete", { link = "DiffDelete" })
 
 -- mini.files
-hl("MiniFilesBorder", { fg = p.bg3, bg = p.bg_mid })
+hl("MiniFilesBorder", { fg = p.bg3, bg = p.bg_s })
 hl("MiniFilesBorderModified", { link = "DiagnosticFloatingWarn" })
 hl("MiniFilesCursorLine", { bg = p.bg2 })
 hl("MiniFilesDirectory", { link = "Directory" })
 hl("MiniFilesFile", { fg = p.fg })
-hl("MiniFilesNormal", { fg = p.fg, bg = p.bg_mid })
-hl("MiniFilesTitle", { fg = p.grey1, bg = p.bg_mid, bold = true })
-hl("MiniFilesTitleFocused", { fg = p.cyan, bg = p.bg_mid, bold = true })
+hl("MiniFilesNormal", { fg = p.fg, bg = p.bg_s })
+hl("MiniFilesTitle", { fg = p.grey1, bg = p.bg_s, bold = true })
+hl("MiniFilesTitleFocused", { fg = p.cyan, bg = p.bg_s, bold = true })
 
 -- mini.hipatterns (FIXME / TODO / WARN / NOTE)
 hl("MiniHipatternsFixme", { link = "@comment.error" })
@@ -686,9 +687,9 @@ hl("MiniNotifyTitle", { link = "FloatTitle" })
 hl("MiniOperatorsExchangeFrom", { link = "IncSearch" })
 
 -- mini.pick
-hl("MiniPickBorder", { fg = p.bg3, bg = p.bg_mid })
+hl("MiniPickBorder", { fg = p.bg3, bg = p.bg_s })
 hl("MiniPickBorderBusy", { link = "DiagnosticFloatingWarn" })
-hl("MiniPickBorderText", { fg = p.cyan, bg = p.bg_mid, bold = true })
+hl("MiniPickBorderText", { fg = p.cyan, bg = p.bg_s, bold = true })
 hl("MiniPickCursor", { blend = 100, nocombine = true })
 hl("MiniPickIconDirectory", { link = "Directory" })
 hl("MiniPickIconFile", { link = "MiniPickNormal" })
@@ -696,12 +697,12 @@ hl("MiniPickHeader", { fg = p.magenta, bold = true })
 hl("MiniPickMatchCurrent", { bg = p.bg2 })
 hl("MiniPickMatchMarked", { bg = p.bg2, bold = true })
 hl("MiniPickMatchRanges", { fg = p.cyan, bold = true })
-hl("MiniPickNormal", { fg = p.fg, bg = p.bg_mid })
+hl("MiniPickNormal", { fg = p.fg, bg = p.bg_s })
 hl("MiniPickPreviewLine", { bg = p.bg2 })
 hl("MiniPickPreviewRegion", { link = "IncSearch" })
-hl("MiniPickPrompt", { fg = p.fg, bg = p.bg_mid })
-hl("MiniPickPromptCaret", { fg = p.fg, bg = p.bg_mid })
-hl("MiniPickPromptPrefix", { fg = p.cyan, bg = p.bg_mid })
+hl("MiniPickPrompt", { fg = p.fg, bg = p.bg_s })
+hl("MiniPickPromptCaret", { fg = p.fg, bg = p.bg_s })
+hl("MiniPickPromptPrefix", { fg = p.cyan, bg = p.bg_s })
 
 -- mini.snippets
 hl("MiniSnippetsCurrent", { sp = p.yellow, underdouble = true })
@@ -737,14 +738,14 @@ hl("MiniStatuslineInactive", { link = "StatusLineNC" })
 hl("MiniSurround", { link = "IncSearch" })
 
 -- mini.tabline (bufferline)
-hl("MiniTablineCurrent", { fg = p.fg, bg = p.bg, bold = true })
+hl("MiniTablineCurrent", { fg = p.fg, bg = p.bg3, bold = true })
 hl("MiniTablineVisible", { fg = p.grey1, bg = p.bg1, bold = true })
 hl("MiniTablineHidden", { fg = p.grey1, bg = p.bg1 })
-hl("MiniTablineModifiedCurrent", { fg = p.navy, bg = p.bg, bold = true, italic = true })
-hl("MiniTablineModifiedVisible", { fg = p.navy, bg = p.bg1, bold = true, italic = true })
-hl("MiniTablineModifiedHidden", { fg = p.navy, bg = p.bg1, italic = true })
-hl("MiniTablineFill", { link = "MiniTablineHidden" })
-hl("MiniTablineTabpagesection", { fg = p.fg, bg = p.bg1, bold = true })
+hl("MiniTablineModifiedCurrent", { fg = p.yellow, bg = p.bg3, bold = true, italic = true })
+hl("MiniTablineModifiedVisible", { fg = p.yellow, bg = p.bg1, bold = true, italic = true })
+hl("MiniTablineModifiedHidden", { fg = p.yellow, bg = p.bg1, italic = true })
+hl("MiniTablineFill", { bg = p.bg })
+hl("MiniTablineTabpagesection", { fg = p.magenta, bg = p.bg, bold = true })
 hl("MiniTablineTrunc", { fg = p.grey1, bg = p.bg1, bold = true })
 
 -- mini.test

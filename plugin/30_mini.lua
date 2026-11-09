@@ -172,7 +172,7 @@ end)
 
 -- Tabline. Sets `:h 'tabline'` to list buffers in creation order at the top.
 -- Navigate with `[b` and `]b`.
-now(function() require("mini.tabline").setup() end)
+now(function() require("mini.tabline").setup({ tabpage_section = "right" }) end)
 
 -- Step one or two ============================================================
 -- Load now if Neovim is started like `nvim -- path/to/file`, otherwise - later.
