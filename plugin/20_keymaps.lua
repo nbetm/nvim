@@ -220,6 +220,22 @@ nmap_leader("pV", '<Cmd>Pick visit_paths cwd=""<CR>', "Visit paths all")
 local git_log_cmd = [[Git log --pretty=format:\%h\ \%as\ │\ \%s --topo-order]]
 local git_log_buf_cmd = git_log_cmd .. " --follow -- %"
 
+local git_diff_split = function()
+  local data = MiniDiff.get_buf_data()
+  if data == nil or data.ref_text == nil then
+    vim.notify("No git reference for this buffer", vim.log.levels.WARN)
+    return
+  end
+  local name, ft = vim.api.nvim_buf_get_name(0) .. " (index)", vim.bo.filetype
+  vim.cmd("tab split | diffthis | leftabove vnew")
+  local lines = vim.split(data.ref_text, "\n")
+  if lines[#lines] == "" then table.remove(lines) end
+  vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+  if vim.fn.bufexists(name) == 0 then vim.api.nvim_buf_set_name(0, name) end
+  vim.bo.buftype, vim.bo.bufhidden, vim.bo.modifiable, vim.bo.filetype = "nofile", "wipe", false, ft
+  vim.cmd("diffthis")
+end
+
 nmap_leader("ga", "<Cmd>Git diff --cached -- %<CR>", "Added diff buffer")
 nmap_leader("gA", "<Cmd>Git diff --cached<CR>", "Added diff all")
 nmap_leader("gb", blame.popup, "Blame popup")
@@ -234,6 +250,7 @@ nmap_leader("gj", function() floatterm.open("jjui") end, "jjui")
 nmap_leader("gl", "<Cmd>" .. git_log_buf_cmd .. "<CR>", "Log buffer")
 nmap_leader("gL", "<Cmd>" .. git_log_cmd .. "<CR>", "Log all")
 nmap_leader("gs", "<Cmd>lua MiniGit.show_at_cursor()<CR>", "Show at cursor")
+nmap_leader("gv", git_diff_split, "Diff side-by-side")
 
 xmap_leader("gs", "<Cmd>lua MiniGit.show_at_cursor()<CR>", "Show at selection")
 
